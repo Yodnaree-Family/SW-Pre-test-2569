@@ -1,785 +1,594 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบสำรวจคะแนน Pre-test สตรีวิทยา ปีการศึกษา 2569</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบสำรวจคะแนน Pre-test สตรีวิทยา ปีการศึกษา 2569</title>
+    
+        <script src="https://cdn.tailwindcss.com"></script>
+    
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <style>
-        body { font-family: 'Noto Sans Thai', sans-serif; background-color: #f7f8fc; }
-        .header-gradient { background-image: linear-gradient(135deg, #2a2a72 0%, #009ffd 100%); }
-        .input-field {
-            border-radius: 0.5rem; padding: 0.75rem 1rem; border: 1px solid #d1d5db;
-            transition: border-color 0.2s, box-shadow 0.2s; background-color: #f9fafb;
-        }
-        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); outline: none; }
-        .btn {
-            border-radius: 0.5rem; transition: all 0.2s ease; color: white; font-weight: 600;
-            padding: 0.75rem 1.5rem; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            border: none; cursor: pointer;
-        }
-        .btn-primary { background-image: linear-gradient(to right, #3b82f6, #60a5fa); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 7px 20px rgba(59, 130, 246, 0.2); }
-        .btn-secondary { background-image: linear-gradient(to right, #6b7280, #9ca3af); }
-        .btn-secondary:hover { transform: translateY(-2px); box-shadow: 0 7px 20px rgba(107, 114, 128, 0.2); }
-        .btn-success { background-image: linear-gradient(to right, #16a34a, #22c55e); }
-        .btn-success:hover { transform: translateY(-2px); box-shadow: 0 7px 20px rgba(22, 163, 74, 0.2); }
-        .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        th { background-color: #f3f4f6; }
-        .tab-button {
-            padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600;
-            cursor: pointer; transition: all 0.2s; border: 2px solid transparent;
-        }
-        .tab-button.active {
-            background-color: #e0e7ff; color: #4338ca; border-color: #a5b4fc;
-        }
-        .tab-button:not(.active) { color: #4b5563; background-color: #f9fafb; }
-        #admin-section { display: none; } /* Hide admin by default */
-        .gemini-feedback-card {
-            background: linear-gradient(145deg, #fffde7, #fff8e1);
-            border-left: 5px solid #ffab00;
-        }
-    </style>
+    <style>
+        body { font-family: 'Noto Sans Thai', sans-serif; background-color: #f7f8fc; }
+        .header-gradient { background-image: linear-gradient(135deg, #2a2a72 0%, #009ffd 100%); }
+        .input-field {
+            border-radius: 0.5rem; padding: 0.75rem 1rem; border: 1px solid #d1d5db;
+            transition: border-color 0.2s, box-shadow 0.2s; background-color: #f9fafb;
+        }
+        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); outline: none; }
+        .btn {
+            border-radius: 0.5rem; transition: all 0.2s ease; color: white; font-weight: 600;
+            padding: 0.75rem 1.5rem; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: none; cursor: pointer;
+        }
+        .btn-primary { background-image: linear-gradient(to right, #3b82f6, #60a5fa); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 7px 20px rgba(59, 130, 246, 0.2); }
+        .btn-secondary { background-image: linear-gradient(to right, #6b7280, #9ca3af); }
+        .btn-secondary:hover { transform: translateY(-2px); box-shadow: 0 7px 20px rgba(107, 114, 128, 0.2); }
+        .btn-success { background-image: linear-gradient(to right, #16a34a, #22c55e); }
+        .btn-success:hover { transform: translateY(-2px); box-shadow: 0 7px 20px rgba(22, 163, 74, 0.2); }
+        .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        th { background-color: #f3f4f6; }
+        .tab-button {
+            padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; border: 2px solid transparent;
+        }
+        .tab-button.active {
+            background-color: #e0e7ff; color: #4338ca; border-color: #a5b4fc;
+        }
+        .tab-button:not(.active) { color: #4b5563; background-color: #f9fafb; }
+        #admin-section { display: none; } /* Hide admin by default */
+    </style>
 </head>
 <body class="p-4 sm:p-6">
 
-    <div id="loading-overlay" class="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50 hidden backdrop-blur-sm">
-        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
-    </div>
-    
-    <div id="message-box" class="fixed top-5 right-5 z-50 w-80"></div>
-    <div id="modal-box" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"></div>
+    <div id="loading-overlay" class="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50 hidden backdrop-blur-sm">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
+    </div>
+    
+    <div id="message-box" class="fixed top-5 right-5 z-50 w-80"></div>
+    <div id="modal-box" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"></div>
 
-    <!-- NEW: Personalized Feedback Modal -->
-    <div id="feedback-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
-        <div class="gemini-feedback-card p-6 rounded-2xl shadow-2xl max-w-lg w-full transform transition-all duration-300 scale-95 opacity-0" id="feedback-card">
-            <h3 class="text-xl font-bold text-yellow-800 mb-4 flex items-center">
-                <i class="fas fa-sparkles mr-2 text-2xl"></i> คำแนะนำจากโค้ช AI
-            </h3>
-            <div id="feedback-content" class="text-gray-700 space-y-3 leading-relaxed text-base">
-                <!-- LLM generated content goes here -->
-            </div>
-            <div class="flex justify-end mt-6">
-                <button id="close-feedback-modal" class="btn btn-primary text-sm">ปิด</button>
-            </div>
-        </div>
-    </div>
-    <!-- END NEW: Personalized Feedback Modal -->
+        <div class="max-w-7xl mx-auto text-center py-3 mb-4 bg-pink-100 rounded-xl shadow-md border-2 border-pink-300">
+        <h2 class="text-2xl font-extrabold text-pink-700 tracking-wider">
+            ครอบครัวยอดนารี ❤️ สตรีวิทยา
+        </h2>
+    </div>
+        <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+        <header class="text-center p-8 sm:p-10 header-gradient relative">
+                        <button id="back-to-form-btn" class="absolute top-4 left-4 btn btn-secondary text-sm hidden" onclick="switchView('form')">
+                <i class="fas fa-arrow-left mr-1"></i> กลับหน้าหลัก
+            </button>
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-white leading-tight">
+                ระบบสำรวจคะแนน Pre-test สตรีวิทยา
+            </h1>
+            <p class="text-lg text-blue-200 mt-2">ปีการศึกษา 2569</p>
+        </header>
 
+        <main class="p-6 sm:p-8">
+                        <div class="flex justify-center border-b mb-8 space-x-2 sm:space-x-4">
+                <button id="tab-form" class="tab-button active" onclick="switchView('form')"><i class="fas fa-edit mr-2"></i>กรอกข้อมูล</button>
+                <button id="tab-results" class="tab-button" onclick="switchView('results')"><i class="fas fa-chart-bar mr-2"></i>ดูผลสำรวจ</button>
+            </div>
 
-    <!-- New Top Banner for the family phrase -->
-    <div class="max-w-7xl mx-auto text-center py-3 mb-4 bg-pink-100 rounded-xl shadow-md border-2 border-pink-300">
-        <h2 class="text-2xl font-extrabold text-pink-700 tracking-wider">
-            ครอบครัวยอดนารี ❤️ สตรีวิทยา
-        </h2>
-    </div>
-    <!-- End New Top Banner -->
+                        <div id="form-section">
+                <form id="survey-form" class="space-y-8 max-w-2xl mx-auto">
+                    <div>
+                        <label for="nickname" class="block text-gray-700 font-semibold mb-2">
+                            ชื่อเล่น / นามแฝง (สำหรับแสดงผล - ไม่บังคับ)
+                        </label>
+                        <input type="text" id="nickname" class="input-field w-full" placeholder="เช่น น้องยอดนารี หรือปล่อยว่างถ้าไม่ต้องการเปิดเผยชื่อ">
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="curriculum" class="block text-gray-700 font-semibold mb-2">หลักสูตรที่สอบ</label>
+                            <select id="curriculum" class="input-field w-full" required>
+                                <option value="" disabled selected>-- เลือกหลักสูตร --</option>
+                                <option value="EP">EP</option>
+                                <option value="GM">GM</option>
+                                <option value="SMTE">SMTE</option>
+                                <option value="Normal">ห้องเรียนปกติ</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="examType" class="block text-gray-700 font-semibold mb-2">ประเภทการสอบ</label>
+                            <select id="examType" class="input-field w-full" required>
+                                <option value="On-site">On-site</option>
+                                <option value="Online">Online</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                                        <div id="score-inputs" class="space-y-4 pt-4 border-t">
+                        <h3 class="font-semibold text-lg text-gray-800">กรอกคะแนนและอันดับ</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                                    </div>
+                    </div>
+                    
+                    <div class="text-center pt-6">
+                        <button type="submit" class="btn btn-primary w-full md:w-auto text-lg">
+                            <i class="fas fa-paper-plane mr-2"></i> ส่งข้อมูล
+                        </button>
+                    </div>
+                </form>
+            </div>
 
-    <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-        <header class="text-center p-8 sm:p-10 header-gradient relative">
-            <!-- Back to Home Button (Visible when not on the form view) -->
-            <button id="back-to-form-btn" class="absolute top-4 left-4 btn btn-secondary text-sm hidden" onclick="switchView('form')">
-                <i class="fas fa-arrow-left mr-1"></i> กลับหน้าหลัก
-            </button>
-            <h1 class="text-3xl sm:text-4xl font-extrabold text-white leading-tight">
-                ระบบสำรวจคะแนน Pre-test สตรีวิทยา
-            </h1>
-            <p class="text-lg text-blue-200 mt-2">ปีการศึกษา 2569</p>
-        </header>
+                        <div id="results-section" class="hidden">
+               <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-blue-800">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    ข้อมูลในตารางจะอัปเดตอัตโนมัติเมื่อมีผู้ส่งข้อมูลเข้ามาใหม่
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <select id="filter-curriculum" class="input-field w-full">
+                        <option value="all">ทุกหลักสูตร</option>
+                        <option value="EP">EP</option>
+                        <option value="GM">GM</option>
+                        <option value="SMTE">SMTE</option>
+                        <option value="Normal">ห้องเรียนปกติ</option>
+                    </select>
+                    <select id="filter-examType" class="input-field w-full">
+                        <option value="all">ทุกประเภทการสอบ</option>
+                        <option value="On-site">On-site</option>
+                        <option value="Online">Online</option>
+                    </select>
+                </div>
+                <div class="table-container border rounded-lg shadow-md">
+                    <table class="w-full text-sm text-left text-gray-600">
+                        <thead class="text-xs text-gray-700 uppercase">
+                            <tr>
+                                <th scope="col" class="py-3 px-4">อันดับ</th>
+                                <th scope="col" class="py-3 px-4">ชื่อ</th>
+                                <th scope="col" class="py-3 px-4">หลักสูตร</th>
+                                <th scope="col" class="py-3 px-4">ประเภทสอบ</th>
+                                <th scope="col" class="py-3 px-4 text-right">คะแนนรวม</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-table-body">
+                            <tr><td colspan="5" class="text-center py-6 text-gray-500">กำลังโหลดข้อมูล...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+                         <div id="admin-section" class="hidden">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800">Admin Panel - ข้อมูลทั้งหมด</h2>
+                <button id="export-csv" class="btn btn-success mb-6"><i class="fas fa-file-excel mr-2"></i>Export to CSV (Excel)</button>
+                <div class="table-container border rounded-lg shadow-md">
+                    <table class="w-full text-sm text-left text-gray-600">
+                        <thead id="admin-table-head" class="text-xs text-gray-700 uppercase">
+                                                    </thead>
+                        <tbody id="admin-table-body">
+                                                    </tbody>
+                    </table>
+                </div>
+            </div>
 
-        <main class="p-6 sm:p-8">
-            <!-- Navigation Tabs -->
-            <div class="flex justify-center border-b mb-8 space-x-2 sm:space-x-4">
-                <button id="tab-form" class="tab-button active" onclick="switchView('form')"><i class="fas fa-edit mr-2"></i>กรอกข้อมูล</button>
-                <button id="tab-results" class="tab-button" onclick="switchView('results')"><i class="fas fa-chart-bar mr-2"></i>ดูผลสำรวจ</button>
-            </div>
+        </main>
+    </div>
+    
+    <footer class="text-center py-6 text-gray-500 text-sm">
+        <p>Developed for Satriwitthaya Pre-test Takers</p>
+        <a href="#" id="admin-login" class="text-blue-600 hover:underline">Admin Login</a>
+    </footer>
+    
+        <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        
+        // --- ส่วนสำคัญ: Firebase Configuration ---
+        // เมื่อรันบน GitHub Pages, ตัวแปร __firebase_config จะไม่มีค่า
+        // **คุณต้องวาง JSON object ของ Firebase config ที่นี่**
+        // ตัวอย่าง: '{"apiKey": "AIzaSy...", "authDomain": "...", "projectId": "..."}'
+        const externalConfigJson = '{"apiKey": "AIzaSyAArg_514dJWcc73vHG-a1ngSxa4e_Kw1Y", "authDomain": "satriwit-pretest-2569.firebaseapp.com", "projectId": "satriwit-pretest-2569", "storageBucket": "satriwit-pretest-2569.firebasestorage.app", "messagingSenderId": "474635724481", "appId": "1:474635724481:web:b236a9a88b47bcdd5c1640", "measurementId": "G-9CD7MKHG7K"}';
 
-            <!-- Form Section -->
-            <div id="form-section">
-                <form id="survey-form" class="space-y-8 max-w-2xl mx-auto">
-                    <div>
-                        <label for="nickname" class="block text-gray-700 font-semibold mb-2">
-                            ชื่อเล่น / นามแฝง (สำหรับแสดงผล - ไม่บังคับ)
-                        </label>
-                        <input type="text" id="nickname" class="input-field w-full" placeholder="เช่น น้องยอดนารี หรือปล่อยว่างถ้าไม่ต้องการเปิดเผยชื่อ">
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label for="curriculum" class="block text-gray-700 font-semibold mb-2">หลักสูตรที่สอบ</label>
-                            <select id="curriculum" class="input-field w-full" required>
-                                <option value="" disabled selected>-- เลือกหลักสูตร --</option>
-                                <option value="EP">EP</option>
-                                <option value="GM">GM</option>
-                                <option value="SMTE">SMTE</option>
-                                <option value="Normal">ห้องเรียนปกติ</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="examType" class="block text-gray-700 font-semibold mb-2">ประเภทการสอบ</label>
-                            <select id="examType" class="input-field w-full" required>
-                                <option value="On-site">On-site</option>
-                                <option value="Online">Online</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <!-- Score Inputs -->
-                    <div id="score-inputs" class="space-y-4 pt-4 border-t">
-                        <h3 class="font-semibold text-lg text-gray-800">กรอกคะแนนและอันดับ</h3>
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            <!-- JS will generate score fields here -->
-                        </div>
-                    </div>
-                    
-                    <div class="text-center pt-6">
-                        <button type="submit" class="btn btn-primary w-full md:w-auto text-lg">
-                            <i class="fas fa-paper-plane mr-2"></i> ส่งข้อมูล
-                        </button>
-                    </div>
-                </form>
-            </div>
+        let firebaseConfig;
+        
+        // 1. ตรวจสอบว่ามีการส่ง config ผ่าน environment variable หรือไม่ (สำหรับการรันใน Canvas)
+        if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+            try { firebaseConfig = JSON.parse(__firebase_config); } catch(e) { firebaseConfig = {}; }
+        }
+        
+        // 2. หากไม่มี ให้ใช้ config ที่ผู้ใช้ใส่เอง (สำหรับการรันบน GitHub Pages/Local)
+        if (!firebaseConfig?.projectId && externalConfigJson !== 'YOUR_FIREBASE_CONFIG_JSON_HERE') {
+            try { firebaseConfig = JSON.parse(externalConfigJson); } catch(e) { firebaseConfig = {}; }
+        }
 
-            <!-- Results Section -->
-            <div id="results-section" class="hidden">
-               <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-blue-800">
-                    <i class="fas fa-info-circle mr-2"></i>
-                    ข้อมูลในตารางจะอัปเดตอัตโนมัติเมื่อมีผู้ส่งข้อมูลเข้ามาใหม่
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    <select id="filter-curriculum" class="input-field w-full">
-                        <option value="all">ทุกหลักสูตร</option>
-                        <option value="EP">EP</option>
-                        <option value="GM">GM</option>
-                        <option value="SMTE">SMTE</option>
-                        <option value="Normal">ห้องเรียนปกติ</option>
-                    </select>
-                    <select id="filter-examType" class="input-field w-full">
-                        <option value="all">ทุกประเภทการสอบ</option>
-                        <option value="On-site">On-site</option>
-                        <option value="Online">Online</option>
-                    </select>
-                </div>
-                <div class="table-container border rounded-lg shadow-md">
-                    <table class="w-full text-sm text-left text-gray-600">
-                        <thead class="text-xs text-gray-700 uppercase">
-                            <tr>
-                                <th scope="col" class="py-3 px-4">อันดับ</th>
-                                <th scope="col" class="py-3 px-4">ชื่อ</th>
-                                <th scope="col" class="py-3 px-4">หลักสูตร</th>
-                                <th scope="col" class="py-3 px-4">ประเภทสอบ</th>
-                                <th scope="col" class="py-3 px-4 text-right">คะแนนรวม</th>
-                            </tr>
-                        </thead>
-                        <tbody id="results-table-body">
-                            <tr><td colspan="5" class="text-center py-6 text-gray-500">กำลังโหลดข้อมูล...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-             <!-- Admin Section -->
-            <div id="admin-section" class="hidden">
-                <h2 class="text-2xl font-bold mb-4 text-gray-800">Admin Panel - ข้อมูลทั้งหมด</h2>
-                <div class="flex flex-wrap gap-3 mb-6">
-                    <button id="export-csv" class="btn btn-success"><i class="fas fa-file-excel mr-2"></i>Export to CSV</button>
-                    <button id="generate-analysis" class="btn text-white font-semibold rounded-lg" style="background-image: linear-gradient(to right, #f59e0b, #facc15);" onclick="generateOverallAnalysis()">
-                        <i class="fas fa-brain mr-2"></i> ✨ วิเคราะห์ภาพรวม (AI)
-                    </button>
-                </div>
-                
-                <div id="analysis-output" class="hidden bg-yellow-50 border border-yellow-300 p-4 rounded-lg mb-6 text-gray-800">
-                    <h3 class="font-bold text-lg mb-2 text-yellow-700 flex items-center"><i class="fas fa-chart-line mr-2"></i> ภาพรวมการวิเคราะห์จาก AI</h3>
-                    <p id="analysis-content">กำลังรอผลการวิเคราะห์...</p>
-                </div>
+        // --- Global Variables ---
+        let db;
+        let auth;
+        let allScores = []; // Cache for all scores from Firestore
+        const adminPassword = "@E12345@e"; 
 
-                <div class="table-container border rounded-lg shadow-md">
-                    <table class="w-full text-sm text-left text-gray-600">
-                        <thead id="admin-table-head" class="text-xs text-gray-700 uppercase">
-                            <!-- Admin headers here -->
-                        </thead>
-                        <tbody id="admin-table-body">
-                            <!-- Admin data here -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-        </main>
-    </div>
-    
-    <footer class="text-center py-6 text-gray-500 text-sm">
-        <p>Developed for Satriwitthaya Pre-test Takers</p>
-        <a href="#" id="admin-login" class="text-blue-600 hover:underline">Admin Login</a>
-    </footer>
-    
-    <!-- Firebase SDKs -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        
-        // --- ส่วนสำคัญ: Firebase Configuration ---
-        // 🚨 UPDATE: Firebase Config JSON Object ที่คัดลอกจาก Firebase Console ถูกวางไว้ที่นี่แล้ว
-        const externalConfigJson = '{"apiKey":"AIzaSyAArg_514dJWcc73vHG-a1ngSxa4e_Kw1Y","authDomain":"satriwit-pretest-2569.firebaseapp.com","projectId":"satriwit-pretest-2569","storageBucket":"satriwit-pretest-2569.firebasestorage.app","messagingSenderId":"474635724481","appId":"1:474635724481:web:b236a9a88b47bcdd5c1640","measurementId":"G-9CD7MKHG7K"}'; 
-
-        let firebaseConfig;
-        
-        // ตรวจสอบ Config จาก Canvas (ถ้ามี)
-        if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-            try { firebaseConfig = JSON.parse(__firebase_config); } catch(e) { firebaseConfig = {}; }
-        }
-        
-        // ตรวจสอบ Config ที่ hardcode ใน externalConfigJson (ถ้าไม่ได้มาจาก Canvas)
-        if (!firebaseConfig?.projectId) {
-            try { firebaseConfig = JSON.parse(externalConfigJson); } catch(e) { firebaseConfig = {}; }
-        }
-
-        // --- Gemini API Configuration ---
-        // 🚨 ขั้นตอนที่ 2: ตั้งค่า API Key สำหรับ Gemini (ถ้าคุณมี API Key ส่วนตัว)
-        const apiKey = ""; 
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-        const MAX_RETRIES = 3;
+        // กำหนดโครงสร้างวิชาและคะแนนเต็มตามหลักสูตร
+        const subjectConfig = {
+            Special: [
+                { name: 'Math', max: 50 }, 
+                { name: 'Science', max: 30 }, 
+                { name: 'English', max: 30 }
+            ],
+            Normal: [
+                { name: 'Math', max: 30 }, 
+                { name: 'Science', max: 30 }, 
+                { name: 'English', max: 30 }, 
+                { name: 'Thai', max: 30 }, 
+                { name: 'Social', max: 30 }
+            ]
+        };
+        // รายชื่อวิชาทั้งหมดเพื่อใช้ในการสร้าง Header ของตาราง Admin/CSV
+        const allSubjects = ['Math', 'Science', 'English', 'Thai', 'Social'];
 
 
-        // --- Global Variables ---
-        let db;
-        let auth;
-        let allScores = []; // Cache for all scores from Firestore
-        const adminPassword = "@E12345@e"; 
+        // --- UI Element References ---
+        const curriculumSelect = document.getElementById('curriculum');
+        const scoreInputsDiv = document.getElementById('score-inputs').querySelector('div');
+        const form = document.getElementById('survey-form');
+        const filterCurriculum = document.getElementById('filter-curriculum');
+        const filterExamType = document.getElementById('filter-examType');
+        
+        // --- Core Functions ---
+        
+        // Initialize Firebase and Auth
+        async function initializeFirebase() {
+            if (!firebaseConfig || !firebaseConfig.apiKey) {
+                showMessage("กรุณาตั้งค่า Firebase Config ในโค้ดก่อนใช้งาน", "error");
+                document.getElementById('results-table-body').innerHTML = `<tr><td colspan="5" class="text-center py-6 text-red-500">Firebase Config ไม่ถูกต้อง กรุณาตรวจสอบการตั้งค่า.</td></tr>`;
+                return; 
+            }
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                await signInAnonymously(auth);
+                console.log("Firebase initialized and user signed in anonymously.");
+                fetchAndDisplayScores();
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+                showMessage("ไม่สามารถเชื่อมต่อฐานข้อมูลได้", "error");
+            }
+        }
 
-        // กำหนดโครงสร้างวิชาและคะแนนเต็มตามหลักสูตร
-        const subjectConfig = {
-            Special: [
-                { name: 'Math', max: 50 }, 
-                { name: 'Science', max: 30 }, 
-                { name: 'English', max: 30 }
-            ],
-            Normal: [
-                { name: 'Math', max: 30 }, 
-                { name: 'Science', max: 30 }, 
-                { name: 'English', max: 30 }, 
-                { name: 'Thai', max: 30 }, 
-                { name: 'Social', max: 30 }
-            ]
-        };
-        // รายชื่อวิชาทั้งหมดเพื่อใช้ในการสร้าง Header ของตาราง Admin/CSV
-        const allSubjects = ['Math', 'Science', 'English', 'Thai', 'Social'];
+        // Custom Modal for confirmations/prompts (replacing alert/prompt)
+        function customPrompt(message, callback) {
+            const modalBox = document.getElementById('modal-box');
+            modalBox.innerHTML = `
+                <div class="bg-white p-6 rounded-xl shadow-2xl w-80">
+                    <p class="text-lg font-medium text-gray-800 mb-4">${message}</p>
+                    <input type="password" id="modal-input" class="input-field w-full mb-4" placeholder="รหัสผ่าน" autocomplete="off">
+                    <div class="flex justify-end space-x-3">
+                        <button id="modal-cancel" class="btn btn-secondary text-sm">ยกเลิก</button>
+                        <button id="modal-confirm" class="btn btn-primary text-sm">ตกลง</button>
+                    </div>
+                </div>
+            `;
+            modalBox.classList.remove('hidden');
+            modalBox.classList.add('flex');
 
+            document.getElementById('modal-confirm').onclick = () => {
+                const password = document.getElementById('modal-input').value;
+                modalBox.classList.add('hidden');
+                modalBox.classList.remove('flex');
+                callback(password);
+            };
 
-        // --- UI Element References ---
-        const curriculumSelect = document.getElementById('curriculum');
-        const scoreInputsDiv = document.getElementById('score-inputs').querySelector('div');
-        const form = document.getElementById('survey-form');
-        const filterCurriculum = document.getElementById('filter-curriculum');
-        const filterExamType = document.getElementById('filter-examType');
-        const feedbackModal = document.getElementById('feedback-modal');
-        const feedbackCard = document.getElementById('feedback-card');
-        
-        // --- Core Functions ---
-        
-        // Initialize Firebase and Auth
-        async function initializeFirebase() {
-            if (!firebaseConfig || !firebaseConfig.apiKey) {
-                showMessage("กรุณาตั้งค่า Firebase Config ในโค้ดก่อนใช้งาน", "error");
-                document.getElementById('results-table-body').innerHTML = `<tr><td colspan="5" class="text-center py-6 text-red-500">Firebase Config ไม่ถูกต้อง กรุณาตรวจสอบการตั้งค่า.</td></tr>`;
-                return; 
-            }
-            try {
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                await signInAnonymously(auth);
-                console.log("Firebase initialized and user signed in anonymously.");
-                fetchAndDisplayScores();
-            } catch (error) {
-                console.error("Firebase initialization failed:", error);
-                showMessage("ไม่สามารถเชื่อมต่อฐานข้อมูลได้", "error");
-            }
-        }
+            document.getElementById('modal-cancel').onclick = () => {
+                modalBox.classList.add('hidden');
+                modalBox.classList.remove('flex');
+                callback(null);
+            };
+            document.getElementById('modal-input').focus();
+        }
 
-        // Custom Modal for confirmations/prompts (replacing alert/prompt)
-        function customPrompt(message, callback) {
-            const modalBox = document.getElementById('modal-box');
-            modalBox.innerHTML = `
-                <div class="bg-white p-6 rounded-xl shadow-2xl w-80">
-                    <p class="text-lg font-medium text-gray-800 mb-4">${message}</p>
-                    <input type="password" id="modal-input" class="input-field w-full mb-4" placeholder="รหัสผ่าน" autocomplete="off">
-                    <div class="flex justify-end space-x-3">
-                        <button id="modal-cancel" class="btn btn-secondary text-sm">ยกเลิก</button>
-                        <button id="modal-confirm" class="btn btn-primary text-sm">ตกลง</button>
-                    </div>
-                </div>
-            `;
-            modalBox.classList.remove('hidden');
-            modalBox.classList.add('flex');
+        // Switch between Form, Results, and Admin view
+        window.switchView = (view) => {
+            const formSection = document.getElementById('form-section');
+            const resultsSection = document.getElementById('results-section');
+            const adminSection = document.getElementById('admin-section');
+            const tabForm = document.getElementById('tab-form');
+            const tabResults = document.getElementById('tab-results');
+            const backBtn = document.getElementById('back-to-form-btn'); // Added back button reference
 
-            document.getElementById('modal-confirm').onclick = () => {
-                const password = document.getElementById('modal-input').value;
-                modalBox.classList.add('hidden');
-                modalBox.classList.remove('flex');
-                callback(password);
-            };
+            // Hide all
+            formSection.classList.add('hidden');
+            resultsSection.classList.add('hidden');
+            adminSection.classList.add('hidden');
+            tabForm.classList.remove('active');
+            tabResults.classList.remove('active');
+            backBtn.classList.add('hidden'); // Hide back button by default
 
-            document.getElementById('modal-cancel').onclick = () => {
-                modalBox.classList.add('hidden');
-                modalBox.classList.remove('flex');
-                callback(null);
-            };
-            document.getElementById('modal-input').focus();
-        }
+            // Show selected view
+            if(view === 'form') {
+                formSection.classList.remove('hidden');
+                tabForm.classList.add('active');
+            } else if (view === 'results') {
+                resultsSection.classList.remove('hidden');
+                tabResults.classList.add('active');
+                backBtn.classList.remove('hidden'); // Show back button
+                applyFilters();
+            } else if (view === 'admin') {
+                adminSection.classList.remove('hidden');
+                backBtn.classList.remove('hidden'); // Show back button
+                // Do not mark a tab active for admin view
+                renderAdminTable(allScores);
+            }
+        };
+        
+        // Generate score input fields based on curriculum (UPDATED)
+        function updateScoreInputs() {
+            const selectedCurriculum = curriculumSelect.value;
+            // ตรวจสอบว่าเป็นหลักสูตรพิเศษหรือปกติ
+            const type = (selectedCurriculum === 'Normal') ? 'Normal' : 'Special';
+            // subjects เป็น Array ของ Object ที่มี {name, max}
+            const subjects = subjectConfig[type] || [];
+            
+            scoreInputsDiv.innerHTML = ''; // Clear previous fields
+            
+            // สร้าง Field Input พร้อมกำหนด Max Score ที่ถูกต้อง
+            subjects.forEach(subject => {
+                const inputDiv = document.createElement('div');
+                inputDiv.innerHTML = `
+                    <label for="score_${subject.name}" class="block text-gray-700 text-sm font-medium mb-1">${subject.name} (เต็ม ${subject.max})</label>
+                    <input type="number" id="score_${subject.name}" data-subject="${subject.name}" class="input-field w-full" placeholder="คะแนน" required min="0" max="${subject.max}" step="0.01">
+                `;
+                scoreInputsDiv.appendChild(inputDiv);
+            });
+            
+            // Add Rank input field
+            const rankDiv = document.createElement('div');
+            rankDiv.innerHTML = `
+                <label for="rank" class="block text-gray-700 text-sm font-medium mb-1">อันดับที่</label>
+                <input type="number" id="rank" class="input-field w-full" placeholder="อันดับที่ได้" required min="1">
+            `;
+            scoreInputsDiv.appendChild(rankDiv);
+        }
 
-        // Switch between Form, Results, and Admin view
-        window.switchView = (view) => {
-            const formSection = document.getElementById('form-section');
-            const resultsSection = document.getElementById('results-section');
-            const adminSection = document.getElementById('admin-section');
-            const tabForm = document.getElementById('tab-form');
-            const tabResults = document.getElementById('tab-results');
-            const backBtn = document.getElementById('back-to-form-btn');
+        // Handle form submission
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            toggleLoading(true);
+            
+            if (!db) {
+                showMessage("ฐานข้อมูลยังไม่พร้อมใช้งาน", "error");
+                toggleLoading(false);
+                return;
+            }
 
-            // Hide all
-            formSection.classList.add('hidden');
-            resultsSection.classList.add('hidden');
-            adminSection.classList.add('hidden');
-            tabForm.classList.remove('active');
-            tabResults.classList.remove('active');
-            backBtn.classList.add('hidden');
+            const scores = {};
+            let totalScore = 0;
+            let isValid = true;
 
-            // Show selected view
-            if(view === 'form') {
-                formSection.classList.remove('hidden');
-                tabForm.classList.add('active');
-            } else if (view === 'results') {
-                resultsSection.classList.remove('hidden');
-                tabResults.classList.add('active');
-                backBtn.classList.remove('hidden');
-                applyFilters();
-            } else if (view === 'admin') {
-                adminSection.classList.remove('hidden');
-                backBtn.classList.remove('hidden');
-                renderAdminTable(allScores);
-            }
-        };
-        
-        // Generate score input fields based on curriculum (UPDATED)
-        function updateScoreInputs() {
-            const selectedCurriculum = curriculumSelect.value;
-            // ตรวจสอบว่าเป็นหลักสูตรพิเศษหรือปกติ
-            const type = (selectedCurriculum === 'Normal' || selectedCurriculum === 'EP' || selectedCurriculum === 'GM' || selectedCurriculum === 'SMTE') ? 'Normal' : 'Special';
-             // ให้ GM, SMTE, EP ใช้ config Special
-            const configKey = (selectedCurriculum === 'Normal') ? 'Normal' : 'Special';
-            // subjects เป็น Array ของ Object ที่มี {name, max}
-            const subjects = subjectConfig[configKey] || subjectConfig['Special']; // Default to special if ambiguous
-            
-            scoreInputsDiv.innerHTML = ''; // Clear previous fields
-            
-            // สร้าง Field Input พร้อมกำหนด Max Score ที่ถูกต้อง
-            subjects.forEach(subject => {
-                const inputDiv = document.createElement('div');
-                inputDiv.innerHTML = `
-                    <label for="score_${subject.name}" class="block text-gray-700 text-sm font-medium mb-1">${subject.name} (เต็ม ${subject.max})</label>
-                    <input type="number" id="score_${subject.name}" data-subject="${subject.name}" class="input-field w-full" placeholder="คะแนน" required min="0" max="${subject.max}" step="0.01">
-                `;
-                scoreInputsDiv.appendChild(inputDiv);
-            });
-            
-            // Add Rank input field
-            const rankDiv = document.createElement('div');
-            rankDiv.innerHTML = `
-                <label for="rank" class="block text-gray-700 text-sm font-medium mb-1">อันดับที่</label>
-                <input type="number" id="rank" class="input-field w-full" placeholder="อันดับที่ได้" required min="1">
-            `;
-            scoreInputsDiv.appendChild(rankDiv);
-        }
+            // ตรวจสอบและรวมคะแนน
+            document.querySelectorAll('#score-inputs input[data-subject]').forEach(input => {
+                const score = parseFloat(input.value);
+                const max = parseFloat(input.max);
 
-        // Handle form submission
-        async function handleFormSubmit(e) {
-            e.preventDefault();
-            toggleLoading(true);
-            
-            if (!db) {
-                showMessage("ฐานข้อมูลยังไม่พร้อมใช้งาน", "error");
-                toggleLoading(false);
-                return;
-            }
-
-            const scores = {};
-            let totalScore = 0;
-            let isValid = true;
-            let subjectScoresString = [];
-            const selectedCurriculum = document.getElementById('curriculum').value;
-
-            // ตรวจสอบและรวมคะแนน
-            document.querySelectorAll('#score-inputs input[data-subject]').forEach(input => {
-                const score = parseFloat(input.value);
-                const max = parseFloat(input.max);
-
-                if (score > max) {
-                    showMessage(`คะแนน ${input.dataset.subject} ต้องไม่เกิน ${max}`, 'error');
-                    isValid = false;
-                }
-                
-                scores[input.dataset.subject] = score;
-                totalScore += score;
-                subjectScoresString.push(`${input.dataset.subject}: ${score}/${max}`);
-            });
-            
-            const rank = parseInt(document.getElementById('rank').value);
-
-            if (!isValid) {
-                toggleLoading(false);
-                return;
-            }
+                if (score > max) {
+                    showMessage(`คะแนน ${input.dataset.subject} ต้องไม่เกิน ${max}`, 'error');
+                    isValid = false;
+                }
+                
+                scores[input.dataset.subject] = score;
+                totalScore += score;
+            });
+            
+            if (!isValid) {
+                toggleLoading(false);
+                return;
+            }
 
 
-            const nicknameInput = document.getElementById('nickname').value.trim();
-            
-            const submissionData = {
-                // ถ้า nickname ว่าง ให้ใช้ 'ผู้ไม่ประสงค์ออกนาม' แทน
-                nickname: nicknameInput || 'ผู้ไม่ประสงค์ออกนาม',
-                curriculum: selectedCurriculum,
-                examType: document.getElementById('examType').value,
-                rank: rank,
-                scores: scores,
-                totalScore: totalScore,
-                createdAt: new Date()
-            };
+            const nicknameInput = document.getElementById('nickname').value.trim();
+            
+            const submissionData = {
+                // ถ้า nickname ว่าง ให้ใช้ 'ผู้ไม่ประสงค์ออกนาม' แทน
+                nickname: nicknameInput || 'ผู้ไม่ประสงค์ออกนาม',
+                curriculum: document.getElementById('curriculum').value,
+                examType: document.getElementById('examType').value,
+                rank: parseInt(document.getElementById('rank').value),
+                scores: scores,
+                totalScore: totalScore,
+                createdAt: new Date()
+            };
 
-            try {
-                // ใช้ collection ที่เป็น Public Data ตามข้อกำหนด
-                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-                const collectionPath = `artifacts/${appId}/public/data/scores_2569`;
+            try {
+                // ใช้ collection ที่เป็น Public Data ตามข้อกำหนด
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                const collectionPath = `artifacts/${appId}/public/data/scores_2569`;
 
-                await addDoc(collection(db, collectionPath), submissionData);
-                
-                // 1. UPDATED Success Message
-                showMessage("ส่งข้อมูลสำเร็จ! ขอบคุณที่สละเวลาในการกรอกข้อมูล 🙏", "success");
-                form.reset();
-                updateScoreInputs();
-                switchView('results'); 
+                await addDoc(collection(db, collectionPath), submissionData);
+                // UPDATED Success Message
+                showMessage("ส่งข้อมูลสำเร็จ! ขอบคุณที่สละเวลาในการกรอกข้อมูล 🙏หวังเป็นอย่างยิ่งว่าข้อมูลนี้จะเป็นประโยชน์ต่อทุกท่าน", "success");
+                form.reset();
+                updateScoreInputs();
+                switchView('results'); // Switch to results after successful submission
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                showMessage("เกิดข้อผิดพลาดในการส่งข้อมูล: โปรดตรวจสอบการเชื่อมต่อและ Security Rules", "error");
+            } finally {
+                toggleLoading(false);
+            }
+        }
+        
+        // Fetch data from Firestore in real-time
+        function fetchAndDisplayScores() {
+            if (!db) return; // Prevent run if db is not initialized
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            const collectionPath = `artifacts/${appId}/public/data/scores_2569`;
+            
+            const scoresCollection = collection(db, collectionPath);
+            const q = query(scoresCollection);
 
-                // 2. Call Gemini for Personalized Feedback (Async)
-                generateFeedback({
-                    nickname: submissionData.nickname,
-                    curriculum: submissionData.curriculum,
-                    totalScore: submissionData.totalScore,
-                    rank: submissionData.rank,
-                    subjectScores: subjectScoresString.join(', ')
-                });
+            onSnapshot(q, (querySnapshot) => {
+                allScores = [];
+                querySnapshot.forEach((doc) => {
+                    allScores.push({ id: doc.id, ...doc.data() });
+                });
+                
+                // Sort by Rank ascending (asc) in memory
+                allScores.sort((a, b) => (a.rank || Infinity) - (b.rank || Infinity));
+                
+                applyFilters(); // Re-render public table with new data
+                if(document.getElementById('admin-section').style.display !== 'none') {
+                    renderAdminTable(allScores);
+                }
+            }, (error) => {
+                console.error("Error fetching scores: ", error);
+                showMessage("ไม่สามารถโหลดข้อมูลได้", "error");
+            });
+        }
+        
+        // Filter and render the public results table
+        function applyFilters() {
+            const curriculum = filterCurriculum.value;
+            const examType = filterExamType.value;
+            
+            const filteredScores = allScores.filter(score => {
+                const curriculumMatch = curriculum === 'all' || score.curriculum === curriculum;
+                const examTypeMatch = examType === 'all' || score.examType === examType;
+                return curriculumMatch && examTypeMatch;
+            });
 
+            renderScoresTable(filteredScores);
+        }
 
-            } catch (error) {
-                console.error("Error adding document: ", error);
-                showMessage("เกิดข้อผิดพลาดในการส่งข้อมูล: โปรดตรวจสอบการเชื่อมต่อและ Security Rules", "error");
-            } finally {
-                toggleLoading(false);
-            }
-        }
-        
-        // Fetch data from Firestore in real-time
-        function fetchAndDisplayScores() {
-            if (!db) return; // Prevent run if db is not initialized
-            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-            const collectionPath = `artifacts/${appId}/public/data/scores_2569`;
-            
-            const scoresCollection = collection(db, collectionPath);
-            const q = query(scoresCollection);
+        function renderScoresTable(scores) {
+            const tableBody = document.getElementById('results-table-body');
+            if (scores.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-gray-500">ยังไม่มีข้อมูลสำหรับรายการที่เลือก</td></tr>`;
+                return;
+            }
+            
+            tableBody.innerHTML = scores.map(score => `
+                <tr class="bg-white border-b hover:bg-gray-50">
+                    <td class="py-3 px-4 font-bold text-gray-900">${score.rank}</td>
+                    <td class="py-3 px-4">${score.nickname}</td>
+                    <td class="py-3 px-4">${score.curriculum}</td>
+                    <td class="py-3 px-4"><span class="px-2 py-1 text-xs font-medium rounded-full ${score.examType === 'On-site' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'}">${score.examType}</span></td>
+                    <td class="py-3 px-4 text-right font-bold text-blue-600">${(score.totalScore || 0).toFixed(2)}</td>
+                </tr>
+            `).join('');
+        }
 
-            onSnapshot(q, (querySnapshot) => {
-                allScores = [];
-                querySnapshot.forEach((doc) => {
-                    allScores.push({ id: doc.id, ...doc.data() });
-                });
-                
-                // Sort by Rank ascending (asc) in memory
-                allScores.sort((a, b) => (a.rank || Infinity) - (b.rank || Infinity));
-                
-                applyFilters(); // Re-render public table with new data
-                if(document.getElementById('admin-section').classList.contains('hidden') === false) {
-                    renderAdminTable(allScores);
-                }
-            }, (error) => {
-                console.error("Error fetching scores: ", error);
-                showMessage("ไม่สามารถโหลดข้อมูลได้", "error");
-            });
-        }
-        
-        // Filter and render the public results table
-        function applyFilters() {
-            const curriculum = filterCurriculum.value;
-            const examType = filterExamType.value;
-            
-            const filteredScores = allScores.filter(score => {
-                const curriculumMatch = curriculum === 'all' || score.curriculum === curriculum;
-                const examTypeMatch = examType === 'all' || score.examType === examType;
-                return curriculumMatch && examTypeMatch;
-            });
+        // --- Admin Functions ---
+        document.getElementById('admin-login').addEventListener('click', (e) => {
+            e.preventDefault();
+            customPrompt("กรุณาใส่รหัสผ่านผู้ดูแลระบบ:", (password) => {
+                if (password === adminPassword) {
+                    showMessage("เข้าสู่ระบบผู้ดูแลระบบสำเร็จ", "success");
+                    switchView('admin'); 
+                } else if (password !== null) {
+                    showMessage("รหัสผ่านไม่ถูกต้อง", "error");
+                }
+            });
+        });
 
-            renderScoresTable(filteredScores);
-        }
+        function renderAdminTable(scores) {
+            const tableHead = document.getElementById('admin-table-head');
+            const tableBody = document.getElementById('admin-table-body');
 
-        function renderScoresTable(scores) {
-            const tableBody = document.getElementById('results-table-body');
-            if (scores.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-gray-500">ยังไม่มีข้อมูลสำหรับรายการที่เลือก</td></tr>`;
-                return;
-            }
-            
-            tableBody.innerHTML = scores.map(score => `
-                <tr class="bg-white border-b hover:bg-gray-50">
-                    <td class="py-3 px-4 font-bold text-gray-900">${score.rank}</td>
-                    <td class="py-3 px-4">${score.nickname}</td>
-                    <td class="py-3 px-4">${score.curriculum}</td>
-                    <td class="py-3 px-4"><span class="px-2 py-1 text-xs font-medium rounded-full ${score.examType === 'On-site' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'}">${score.examType}</span></td>
-                    <td class="py-3 px-4 text-right font-bold text-blue-600">${(score.totalScore || 0).toFixed(2)}</td>
-                </tr>
-            `).join('');
-        }
-        
-        // --- Gemini LLM Functions ---
-        async function makeGeminiApiCall(userQuery, systemInstruction) {
-            for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-                try {
-                    const payload = {
-                        contents: [{ parts: [{ text: userQuery }] }],
-                        systemInstruction: { parts: [{ text: systemInstruction }] },
-                    };
+            // ใช้ชุดวิชาทั้งหมดเพื่อให้ Header ครอบคลุมทุกหลักสูตร
+            
+            tableHead.innerHTML = `
+                <tr>
+                    <th class="py-3 px-4">Rank</th>
+                    <th class="py-3 px-4">Nickname</th>
+                    <th class="py-3 px-4">Curriculum</th>
+                    <th class="py-3 px-4">Type</th>
+                    ${allSubjects.map(s => `<th class="py-3 px-4 text-right">${s}</th>`).join('')}
+                    <th class="py-3 px-4 text-right">Total</th>
+                    <th class="py-3 px-4">Time Stamp</th>
+                </tr>`;
+            
+            tableBody.innerHTML = scores.map(score => {
+                const date = score.createdAt && score.createdAt.toDate ? score.createdAt.toDate() : (score.createdAt.seconds ? new Date(score.createdAt.seconds * 1000) : new Date());
+                const timestamp = date.toLocaleString('th-TH');
+                return `
+                    <tr class="bg-white border-b">
+                        <td class="py-3 px-4">${score.rank}</td>
+                        <td class="py-3 px-4">${score.nickname}</td>
+                        <td class="py-3 px-4">${score.curriculum}</td>
+                        <td class="py-3 px-4">${score.examType}</td>
+                        ${allSubjects.map(s => `<td class="py-3 px-4 text-right">${(score.scores && score.scores[s] !== undefined) ? score.scores[s].toFixed(2) : '-'}</td>`).join('')}
+                        <td class="py-3 px-4 text-right font-bold">${(score.totalScore || 0).toFixed(2)}</td>
+                        <td class="py-3 px-4 text-xs">${timestamp}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        function exportToCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // \uFEFF for BOM (Thai compatibility)
+            
+            const headers = ["Rank", "Nickname", "Curriculum", "ExamType", ...allSubjects, "TotalScore", "Timestamp"];
+            csvContent += headers.join(",") + "\r\n";
+            
+            allScores.forEach(score => {
+                const date = score.createdAt.toDate ? score.createdAt.toDate() : (score.createdAt.seconds ? new Date(score.createdAt.seconds * 1000) : new Date());
+                const timestamp = date.toLocaleString('th-TH');
+                
+                const row = [
+                    score.rank,
+                    `"${score.nickname.replace(/"/g, '""')}"`, 
+                    score.curriculum,
+                    score.examType,
+                    ...allSubjects.map(s => (score.scores && score.scores[s] !== undefined) ? score.scores[s] : '0'),
+                    score.totalScore,
+                    `"${timestamp}"`
+                ];
+                csvContent += row.join(",") + "\r\n";
+            });
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "pretest_scores_2569.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showMessage("ส่งออกข้อมูลเป็น CSV สำเร็จ", "success");
+        }
 
-                    const response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json();
-                        throw new Error(`API Error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
-                    }
-
-                    const result = await response.json();
-                    const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "ไม่สามารถสร้างคำแนะนำได้ในขณะนี้";
-                    return text;
-
-                } catch (error) {
-                    if (attempt === MAX_RETRIES - 1) {
-                        console.error("Gemini API call failed after max retries:", error);
-                        return "ขออภัยค่ะ ระบบ AI ไม่สามารถสร้างคำแนะนำได้ในขณะนี้ โปรดลองใหม่อีกครั้ง";
-                    }
-                    const delay = Math.pow(2, attempt) * 1000;
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                }
-            }
-        }
-
-        async function generateFeedback(data) {
-            toggleLoading(true);
-            
-            const systemPrompt = `คุณคือโค้ชและที่ปรึกษาการเตรียมสอบเข้า ม.1 โรงเรียนสตรีวิทยาที่ให้กำลังใจและคำแนะนำเชิงกลยุทธ์. คุณต้องตอบเป็นภาษาไทยเท่านั้น โดยใช้โทนที่สุภาพ อบอุ่น และให้กำลังใจ.
-            
-            งานของคุณคือ:
-            1. กล่าวทักทายและให้กำลังใจนักเรียน.
-            2. วิเคราะห์ข้อมูลที่ได้รับ (หลักสูตร, คะแนนรวม, อันดับ, คะแนนแยกรายวิชา)
-            3. ให้คำแนะนำเชิงกลยุทธ์ (เช่น ควรเน้นวิชาใดเป็นพิเศษ, ควรบริหารจัดการเวลาอย่างไร, ควรตั้งเป้าหมายอย่างไร) โดยอ้างอิงจากอันดับและคะแนนรวมที่ได้.
-            4. สรุปด้วยข้อความให้กำลังใจสั้นๆ.
-            5. การจัดรูปแบบ: ใช้การแบ่งย่อหน้าอย่างสวยงาม ห้ามใช้หัวข้อ Markdown (H1, H2) หรือรายการแบบ Bullet/Number (ul, ol) แต่ให้ใช้การจัดย่อหน้าแทน. คำแนะนำต้องมีความยาวไม่เกิน 5-7 ประโยค.`;
-
-            const userQuery = `ฉันเพิ่งส่งข้อมูลคะแนน Pre-test โรงเรียนสตรีวิทยา ปี 2569:
-            - ชื่อเล่น/นามแฝง: ${data.nickname}
-            - หลักสูตร: ${data.curriculum}
-            - คะแนนรวม: ${data.totalScore.toFixed(2)} คะแนน
-            - อันดับที่ได้: ${data.rank}
-            - คะแนนแยกรายวิชา: ${data.subjectScores}
-            
-            ช่วยให้คำแนะนำเชิงกลยุทธ์และการให้กำลังใจสำหรับฉันด้วย`;
-
-            const feedback = await makeGeminiApiCall(userQuery, systemPrompt);
-            
-            document.getElementById('feedback-content').innerHTML = feedback.replace(/\n/g, '<br>');
-            showFeedbackModal();
-            toggleLoading(false);
-        }
-
-        async function generateOverallAnalysis() {
-            if (allScores.length < 5) {
-                showMessage("ต้องมีข้อมูลอย่างน้อย 5 ชุดเพื่อทำการวิเคราะห์ภาพรวม", "warning");
-                return;
-            }
-
-            toggleLoading(true);
-            document.getElementById('analysis-output').classList.remove('hidden');
-            document.getElementById('analysis-content').innerHTML = `<div class="flex items-center text-blue-600"><div class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-blue-500 mr-3"></div> AI กำลังวิเคราะห์ข้อมูล...</div>`;
-
-            const systemPrompt = `คุณคือผู้เชี่ยวชาญด้านการสอบเข้า ม.1 ที่มีหน้าที่วิเคราะห์ภาพรวมคะแนน Pre-test โรงเรียนสตรีวิทยา. คุณต้องตอบเป็นภาษาไทยเท่านั้น.
-            
-            งานของคุณคือ:
-            1. สรุปจำนวนข้อมูลที่ได้รับและภาพรวมอันดับ/คะแนนที่น่าสนใจ (สูงสุด, ต่ำสุด, ค่าเฉลี่ยโดยประมาณ).
-            2. ชี้จุดแข็ง/จุดอ่อนของนักเรียนกลุ่มนี้ (เช่น แนวโน้มคะแนนวิชาใดสูง/ต่ำเป็นพิเศษ).
-            3. ให้คำแนะนำกลยุทธ์การเตรียมสอบสำหรับกลุ่มโดยรวม (ห้ามระบุชื่อบุคคล).
-            4. จัดรูปแบบคำตอบให้เป็นย่อหน้าที่อ่านง่าย ไม่ใช้ Markdown Headers. คำแนะนำต้องมีความยาวไม่เกิน 6-8 ประโยค.
-            5. ข้อมูลที่คุณจะได้รับจะอยู่ในรูปแบบ JSON string.`;
-
-            const dataToAnalyze = allScores.map(score => ({
-                curriculum: score.curriculum,
-                totalScore: score.totalScore,
-                rank: score.rank,
-                scores: score.scores,
-                examType: score.examType
-            }));
-
-            const userQuery = `วิเคราะห์ข้อมูลคะแนน Pre-test สตรีวิทยาตามชุดข้อมูล JSON ต่อไปนี้: ${JSON.stringify(dataToAnalyze)}`;
-
-            const analysis = await makeGeminiApiCall(userQuery, systemPrompt);
-
-            document.getElementById('analysis-content').innerHTML = analysis.replace(/\n/g, '<br>');
-            toggleLoading(false);
-        }
-        window.generateOverallAnalysis = generateOverallAnalysis; // Expose to HTML
-
-        function showFeedbackModal() {
-            feedbackModal.classList.remove('hidden');
-            feedbackModal.classList.add('flex');
-            setTimeout(() => {
-                feedbackCard.classList.remove('scale-95', 'opacity-0');
-                feedbackCard.classList.add('scale-100', 'opacity-100');
-            }, 50);
-        }
-
-        document.getElementById('close-feedback-modal').onclick = () => {
-            feedbackCard.classList.remove('scale-100', 'opacity-100');
-            feedbackCard.classList.add('scale-95', 'opacity-0');
-            setTimeout(() => {
-                feedbackModal.classList.add('hidden');
-                feedbackModal.classList.remove('flex');
-            }, 300);
-        };
-        // --- End Gemini LLM Functions ---
-        
-        // --- Admin Functions ---
-        document.getElementById('admin-login').addEventListener('click', (e) => {
-            e.preventDefault();
-            customPrompt("กรุณาใส่รหัสผ่านผู้ดูแลระบบ:", (password) => {
-                if (password === adminPassword) {
-                    showMessage("เข้าสู่ระบบผู้ดูแลระบบสำเร็จ", "success");
-                    switchView('admin'); 
-                } else if (password !== null) {
-                    showMessage("รหัสผ่านไม่ถูกต้อง", "error");
-                }
-            });
-        });
-
-        function renderAdminTable(scores) {
-            const tableHead = document.getElementById('admin-table-head');
-            const tableBody = document.getElementById('admin-table-body');
-
-            // ใช้ชุดวิชาทั้งหมดเพื่อให้ Header ครอบคลุมทุกหลักสูตร
-            
-            tableHead.innerHTML = `
-                <tr>
-                    <th class="py-3 px-4">Rank</th>
-                    <th class="py-3 px-4">Nickname</th>
-                    <th class="py-3 px-4">Curriculum</th>
-                    <th class="py-3 px-4">Type</th>
-                    ${allSubjects.map(s => `<th class="py-3 px-4 text-right">${s}</th>`).join('')}
-                    <th class="py-3 px-4 text-right">Total</th>
-                    <th class="py-3 px-4">Time Stamp</th>
-                </tr>`;
-            
-            tableBody.innerHTML = scores.map(score => {
-                const date = score.createdAt && score.createdAt.toDate ? score.createdAt.toDate() : (score.createdAt.seconds ? new Date(score.createdAt.seconds * 1000) : new Date());
-                const timestamp = date.toLocaleString('th-TH');
-                return `
-                    <tr class="bg-white border-b">
-                        <td class="py-3 px-4">${score.rank}</td>
-                        <td class="py-3 px-4">${score.nickname}</td>
-                        <td class="py-3 px-4">${score.curriculum}</td>
-                        <td class="py-3 px-4">${score.examType}</td>
-                        ${allSubjects.map(s => `<td class="py-3 px-4 text-right">${(score.scores && score.scores[s] !== undefined) ? score.scores[s].toFixed(2) : '-'}</td>`).join('')}
-                        <td class="py-3 px-4 text-right font-bold">${(score.totalScore || 0).toFixed(2)}</td>
-                        <td class="py-3 px-4 text-xs">${timestamp}</td>
-                    </tr>
-                `;
-            }).join('');
-        }
-        
-        function exportToCSV() {
-            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // \uFEFF for BOM (Thai compatibility)
-            
-            const headers = ["Rank", "Nickname", "Curriculum", "ExamType", ...allSubjects, "TotalScore", "Timestamp"];
-            csvContent += headers.join(",") + "\r\n";
-            
-            allScores.forEach(score => {
-                const date = score.createdAt.toDate ? score.createdAt.toDate() : (score.createdAt.seconds ? new Date(score.createdAt.seconds * 1000) : new Date());
-                const timestamp = date.toLocaleString('th-TH');
-                
-                const row = [
-                    score.rank,
-                    `"${score.nickname.replace(/"/g, '""')}"`, 
-                    score.curriculum,
-                    score.examType,
-                    ...allSubjects.map(s => (score.scores && score.scores[s] !== undefined) ? score.scores[s] : '0'),
-                    score.totalScore,
-                    `"${timestamp}"`
-                ];
-                csvContent += row.join(",") + "\r\n";
-            });
-            
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "pretest_scores_2569.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showMessage("ส่งออกข้อมูลเป็น CSV สำเร็จ", "success");
-        }
-
-        document.getElementById('export-csv').addEventListener('click', exportToCSV);
+        document.getElementById('export-csv').addEventListener('click', exportToCSV);
 
 
-        // --- Helper Functions ---
-        function showMessage(message, type = 'success') {
-            const box = document.getElementById('message-box');
-            const colors = { success: 'green', error: 'red', warning: 'yellow' };
-            const icons = { success: 'fa-check-circle', error: 'fa-times-circle', warning: 'fa-exclamation-triangle' };
-            
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `p-4 rounded-lg shadow-lg mb-2 bg-${colors[type]}-100 border-l-4 border-${colors[type]}-500 text-${colors[type]}-800 transition-all duration-300 transform translate-x-full opacity-0`;
-            alertDiv.innerHTML = `<i class="fas ${icons[type]} mr-2"></i> <span class="font-semibold">${message}</span>`;
-            
-            box.prepend(alertDiv);
-            setTimeout(() => alertDiv.classList.remove('translate-x-full', 'opacity-0'), 10);
-            setTimeout(() => {
-                alertDiv.classList.add('opacity-0');
-                setTimeout(() => alertDiv.remove(), 400);
-            }, 4000);
-        }
+        // --- Helper Functions ---
+        function showMessage(message, type = 'success') {
+            const box = document.getElementById('message-box');
+            const colors = { success: 'green', error: 'red', warning: 'yellow' };
+            const icons = { success: 'fa-check-circle', error: 'fa-times-circle', warning: 'fa-exclamation-triangle' };
+            
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `p-4 rounded-lg shadow-lg mb-2 bg-${colors[type]}-100 border-l-4 border-${colors[type]}-500 text-${colors[type]}-800 transition-all duration-300 transform translate-x-full opacity-0`;
+            alertDiv.innerHTML = `<i class="fas ${icons[type]} mr-2"></i> <span class="font-semibold">${message}</span>`;
+            
+            box.prepend(alertDiv);
+            setTimeout(() => alertDiv.classList.remove('translate-x-full', 'opacity-0'), 10);
+            setTimeout(() => {
+                alertDiv.classList.add('opacity-0');
+                setTimeout(() => alertDiv.remove(), 400);
+            }, 4000);
+        }
 
-        function toggleLoading(show) {
-            document.getElementById('loading-overlay').classList.toggle('hidden', !show);
-        }
+        function toggleLoading(show) {
+            document.getElementById('loading-overlay').classList.toggle('hidden', !show);
+        }
 
-        // --- Event Listeners ---
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeFirebase();
-            updateScoreInputs(); // Initial setup for score fields
-        });
-        curriculumSelect.addEventListener('change', updateScoreInputs);
-        form.addEventListener('submit', handleFormSubmit);
-        filterCurriculum.addEventListener('change', applyFilters);
-        filterExamType.addEventListener('change', applyFilters);
+        // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeFirebase();
+            updateScoreInputs(); // Initial setup for score fields
+        });
+        curriculumSelect.addEventListener('change', updateScoreInputs);
+        form.addEventListener('submit', handleFormSubmit);
+        filterCurriculum.addEventListener('change', applyFilters);
+        filterExamType.addEventListener('change', applyFilters);
 
-    </script>
+    </script>
 </body>
 </html>
