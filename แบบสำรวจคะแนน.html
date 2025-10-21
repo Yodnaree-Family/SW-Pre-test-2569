@@ -264,21 +264,21 @@
                             <label class="block text-gray-700 font-semibold mb-3">เลือกหลักสูตรที่สอบ Pre-test</label>
                             <div class="space-y-3">
                                 <label class="curriculum-option flex items-center">
-                                    <input type="radio" name="pretestCurriculum" value="special" class="mr-3" onchange="toggleExamTypeSelection()">
+                                    <input type="radio" name="pretestCurriculum" value="ห้องเรียนพิเศษ" class="mr-3" onchange="toggleExamTypeSelection()">
                                     <div>
                                         <span class="font-medium">ห้องเรียนพิเศษ</span>
                                         <p class="text-sm text-gray-600 mt-1">สอบ 3 วิชา: คณิต 50 คะแนน, วิทย์ 30 คะแนน, English 30 คะแนน</p>
                                     </div>
                                 </label>
                                 <label class="curriculum-option flex items-center">
-                                    <input type="radio" name="pretestCurriculum" value="normal" class="mr-3" onchange="toggleExamTypeSelection()">
+                                    <input type="radio" name="pretestCurriculum" value="ห้องเรียนปกติ" class="mr-3" onchange="toggleExamTypeSelection()">
                                     <div>
                                         <span class="font-medium">ห้องเรียนปกติ</span>
                                         <p class="text-sm text-gray-600 mt-1">สอบ 5 วิชา: คณิต 30, วิทย์ 30, English 30, ไทย 30, สังคม 30 คะแนน</p>
                                     </div>
                                 </label>
                                 <label class="curriculum-option flex items-center">
-                                    <input type="radio" name="pretestCurriculum" value="both" class="mr-3" onchange="toggleExamTypeSelection()">
+                                    <input type="radio" name="pretestCurriculum" value="สอบทั้ง 2 หลักสูตร" class="mr-3" onchange="toggleExamTypeSelection()">
                                     <div>
                                         <span class="font-medium">สอบทั้ง 2 หลักสูตร</span>
                                         <p class="text-sm text-gray-600 mt-1">สอบทั้งห้องเรียนพิเศษและห้องเรียนปกติ</p>
@@ -478,14 +478,14 @@
                             <label class="block text-gray-700 font-semibold mb-3">หลักสูตรห้องเรียนปกติ</label>
                             <div class="space-y-3">
                                 <label class="curriculum-option flex items-center">
-                                    <input type="radio" name="targetNormal" value="Normal_In" class="mr-3">
+                                    <input type="radio" name="targetNormal" value="ในเขตพื้นที่บริการ" class="mr-3">
                                     <div>
                                         <span class="font-medium">ในเขตพื้นที่บริการ</span>
                                         <p class="text-sm text-gray-600 mt-1">สอบ 5 วิชา: คณิต 20, วิทย์ 20, English 20, ไทย 20, สังคม 20 คะแนน (เต็ม 100)</p>
                                     </div>
                                 </label>
                                 <label class="curriculum-option flex items-center">
-                                    <input type="radio" name="targetNormal" value="Normal_Out" class="mr-3">
+                                    <input type="radio" name="targetNormal" value="นอกเขตพื้นที่บริการ" class="mr-3">
                                     <div>
                                         <span class="font-medium">นอกเขตพื้นที่บริการ</span>
                                         <p class="text-sm text-gray-600 mt-1">สอบ 5 วิชา: คณิต 20, วิทย์ 20, English 20, ไทย 20, สังคม 20 คะแนน (เต็ม 100)</p>
@@ -731,18 +731,18 @@
             document.querySelectorAll('input[name="targetSpecial"]').forEach(input => input.checked = false);
             document.querySelectorAll('input[name="targetNormal"]').forEach(input => input.checked = false);
             
-            if (selectedValue === 'both') {
+            if (selectedValue === 'สอบทั้ง 2 หลักสูตร') {
                 if (specialExamType) specialExamType.classList.remove('hidden');
                 if (normalExamType) normalExamType.classList.remove('hidden');
                 if (specialScoresSection) specialScoresSection.classList.remove('hidden');
                 if (normalScoresSection) normalScoresSection.classList.remove('hidden');
                 if (targetSpecialSection) targetSpecialSection.classList.remove('hidden');
                 if (targetNormalSection) targetNormalSection.classList.remove('hidden');
-            } else if (selectedValue === 'special') {
+            } else if (selectedValue === 'ห้องเรียนพิเศษ') {
                 if (specialExamType) specialExamType.classList.remove('hidden');
                 if (specialScoresSection) specialScoresSection.classList.remove('hidden');
                 if (targetSpecialSection) targetSpecialSection.classList.remove('hidden');
-            } else if (selectedValue === 'normal') {
+            } else if (selectedValue === 'ห้องเรียนปกติ') {
                 if (normalExamType) normalExamType.classList.remove('hidden');
                 if (normalScoresSection) normalScoresSection.classList.remove('hidden');
                 if (targetNormalSection) targetNormalSection.classList.remove('hidden');
@@ -854,11 +854,11 @@
         function calculateRankWithExamType(scores, curriculumType, examType) {
             let filteredScores = scores.filter(score => {
                 if (curriculumType === 'special') {
-                    return (score.pretestCurriculum === 'special' || score.pretestCurriculum === 'both') && 
+                    return (score.pretestCurriculum === 'ห้องเรียนพิเศษ' || score.pretestCurriculum === 'สอบทั้ง 2 หลักสูตร') && 
                            score.special && 
                            (examType === 'all' || score.special.examType === examType);
                 } else {
-                    return (score.pretestCurriculum === 'normal' || score.pretestCurriculum === 'both') && 
+                    return (score.pretestCurriculum === 'ห้องเรียนปกติ' || score.pretestCurriculum === 'สอบทั้ง 2 หลักสูตร') && 
                            score.normal && 
                            (examType === 'all' || score.normal.examType === examType);
                 }
@@ -913,11 +913,11 @@
             // กรองตามประเภทห้องเรียน
             if (currentResultTab === 'special') {
                 filtered = filtered.filter(score => 
-                    score.pretestCurriculum === 'special' || score.pretestCurriculum === 'both'
+                    score.pretestCurriculum === 'ห้องเรียนพิเศษ' || score.pretestCurriculum === 'สอบทั้ง 2 หลักสูตร'
                 );
             } else {
                 filtered = filtered.filter(score => 
-                    score.pretestCurriculum === 'normal' || score.pretestCurriculum === 'both'
+                    score.pretestCurriculum === 'ห้องเรียนปกติ' || score.pretestCurriculum === 'สอบทั้ง 2 หลักสูตร'
                 );
             }
             
@@ -1018,7 +1018,7 @@
             let html = '';
             
             // วิเคราะห์สำหรับเป้าหมายห้องเรียนพิเศษ
-            if (latestScore.targetSpecial && (latestScore.pretestCurriculum === 'special' || latestScore.pretestCurriculum === 'both') && latestScore.special) {
+            if (latestScore.targetSpecial && (latestScore.pretestCurriculum === 'ห้องเรียนพิเศษ' || latestScore.pretestCurriculum === 'สอบทั้ง 2 หลักสูตร') && latestScore.special) {
                 const target = latestScore.targetSpecial;
                 const preTestScores = latestScore.special.scores || {};
                 const projectedScore = calculateRealExamScore(preTestScores, target);
@@ -1030,7 +1030,7 @@
             }
             
             // วิเคราะห์สำหรับเป้าหมายห้องเรียนปกติ
-            if (latestScore.targetNormal && (latestScore.pretestCurriculum === 'normal' || latestScore.pretestCurriculum === 'both') && latestScore.normal) {
+            if (latestScore.targetNormal && (latestScore.pretestCurriculum === 'ห้องเรียนปกติ' || latestScore.pretestCurriculum === 'สอบทั้ง 2 หลักสูตร') && latestScore.normal) {
                 const target = latestScore.targetNormal;
                 const preTestScores = latestScore.normal.scores || {};
                 const projectedScore = calculateRealExamScore(preTestScores, target);
@@ -1069,8 +1069,8 @@
                     projectedScore = (preTestScores.math || 0) + 
                                     ((preTestScores.science || 0) / 30 * 50);
                     break;
-                case 'Normal_In':
-                case 'Normal_Out':
+                case 'ในเขตพื้นที่บริการ':
+                case 'นอกเขตพื้นที่บริการ':
                     projectedScore = ((preTestScores.math || 0) + 
                                      (preTestScores.science || 0) + 
                                      (preTestScores.english || 0) + 
@@ -1188,6 +1188,56 @@
             }
         }
 
+        // ฟังก์ชันส่งข้อมูลไปยัง Google Form
+        async function submitToGoogleForm(formData) {
+            try {
+                const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScloDITkx1WmkfZDPV975qSMaGboSMsBtlobCZ09O63nxyAYA/formResponse';
+                
+                // Map ข้อมูลให้ตรงกับ Entry IDs จาก Google Form ของคุณ
+                const formPayload = {
+                    'entry.2144928952': formData.nickname || '', // ชื่อเล่น
+                    'entry.1442492499': formData.pretestCurriculum || '', // หลักสูตร
+                    'entry.1354764246': formData.special?.examType || '', // ประเภทสอบพิเศษ
+                    'entry.1028473647': formData.normal?.examType || '', // ประเภทสอบปกติ
+                    'entry.1928473647': formData.special?.rank || '', // อันดับพิเศษ
+                    'entry.1829374650': formData.normal?.rank || '', // อันดับปกติ
+                    'entry.1122334455': formData.special?.scores?.math || '', // คณิตพิเศษ
+                    'entry.2233445566': formData.special?.scores?.science || '', // วิทย์พิเศษ
+                    'entry.3344556677': formData.special?.scores?.english || '', // อังกฤษพิเศษ
+                    'entry.4455667788': formData.normal?.scores?.math || '', // คณิตปกติ
+                    'entry.5566778899': formData.normal?.scores?.science || '', // วิทย์ปกติ
+                    'entry.6677889900': formData.normal?.scores?.english || '', // อังกฤษปกติ
+                    'entry.7788990011': formData.normal?.scores?.thai || '', // ไทย
+                    'entry.8899001122': formData.normal?.scores?.social || '', // สังคม
+                    'entry.9900112233': formData.targetSpecial || '', // เป้าหมายพิเศษ
+                    'entry.1011122334': formData.targetNormal || '', // เป้าหมายปกติ
+                };
+
+                // สร้าง URL parameters
+                const params = new URLSearchParams();
+                for (const [key, value] of Object.entries(formPayload)) {
+                    if (value !== undefined && value !== null && value !== '') {
+                        params.append(key, value);
+                    }
+                }
+
+                // ส่งข้อมูลไปยัง Google Form
+                await fetch(GOOGLE_FORM_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: params.toString()
+                });
+
+                return true;
+            } catch (error) {
+                console.error('Error submitting to Google Form:', error);
+                return false;
+            }
+        }
+
         // ฟังก์ชันส่งข้อมูลไปยัง localStorage
         function saveToLocalStorage(formData) {
             try {
@@ -1196,27 +1246,6 @@
                 return true;
             } catch (error) {
                 console.error('Error saving to localStorage:', error);
-                return false;
-            }
-        }
-
-        // ฟังก์ชันส่งข้อมูลไปยัง Google Apps Script (สำรอง)
-        async function submitToGoogleAppsScript(formData) {
-            try {
-                const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxAkO4i5fOaSsIAeOebNnX9wwUrmDhPSEXcPMLltqS13dYix40q4FFPKAg6qPWE_b5-8Q/exec';
-                
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
-                const result = await response.json();
-                return result.success;
-            } catch (error) {
-                console.error('Error saving to Google Apps Script:', error);
                 return false;
             }
         }
@@ -1244,7 +1273,7 @@
             };
 
             // เพิ่มข้อมูลคะแนน
-            if (formData.pretestCurriculum === 'special' || formData.pretestCurriculum === 'both') {
+            if (formData.pretestCurriculum === 'ห้องเรียนพิเศษ' || formData.pretestCurriculum === 'สอบทั้ง 2 หลักสูตร') {
                 const specialExamType = document.querySelector('input[name="specialExamType"]:checked');
                 if (!specialExamType) {
                     showMessage('กรุณาเลือกประเภทการสอบสำหรับห้องเรียนพิเศษ', 'error');
@@ -1265,7 +1294,7 @@
                 };
             }
 
-            if (formData.pretestCurriculum === 'normal' || formData.pretestCurriculum === 'both') {
+            if (formData.pretestCurriculum === 'ห้องเรียนปกติ' || formData.pretestCurriculum === 'สอบทั้ง 2 หลักสูตร') {
                 const normalExamType = document.querySelector('input[name="normalExamType"]:checked');
                 if (!normalExamType) {
                     showMessage('กรุณาเลือกประเภทการสอบสำหรับห้องเรียนปกติ', 'error');
@@ -1290,18 +1319,11 @@
                 };
             }
 
-            // ส่งข้อมูลไปยัง localStorage
-            const success = saveToLocalStorage(formData);
+            // ส่งข้อมูลไปยัง Google Form และ localStorage
+            const googleFormSuccess = await submitToGoogleForm(formData);
+            const localSuccess = saveToLocalStorage(formData);
 
-            if (success) {
-                // พยายามส่งข้อมูลไปยัง Google Apps Script (สำรอง)
-                try {
-                    await submitToGoogleAppsScript(formData);
-                } catch (error) {
-                    console.log('ไม่สามารถส่งข้อมูลไปยัง Google Apps Script ได้ ใช้ localStorage แทน');
-                }
-                
-                // โหลดข้อมูลใหม่เพื่ออัพเดตผลลัพธ์
+            if (localSuccess) {
                 loadAllScores();
                 
                 // แสดงข้อความสำเร็จ
@@ -1311,9 +1333,15 @@
                 if (formSection) formSection.classList.add('hidden');
                 if (successMessage) successMessage.classList.remove('hidden');
                 
-                showMessage("ส่งข้อมูลสำเร็จ! ข้อมูลถูกบันทึกในระบบ", "success");
+                let message = "ส่งข้อมูลสำเร็จ! ";
+                if (googleFormSuccess) {
+                    message += "ข้อมูลถูกบันทึกในระบบและ Google Sheet อัตโนมัติแล้ว 🎉";
+                } else {
+                    message += "ข้อมูลถูกบันทึกในเบราว์เซอร์แล้ว";
+                }
+                showMessage(message, "success");
             } else {
-                showMessage("เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่", "error");
+                showMessage("เกิดข้อผิดพลาดในการส่งข้อมูล", "error");
             }
         }
 
