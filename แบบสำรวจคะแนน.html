@@ -981,7 +981,7 @@
             renderScoresTable(filtered);
         }
 
-        // ฟังก์ชันแสดงตารางผลลัพธ์
+        // ฟังก์ชันแสดงตารางผลลัพธ์ - แก้ไขให้ใช้อันดับที่ผู้ใช้กรอกจริง
         function renderScoresTable(scores) {
             const tableBody = document.getElementById('results-table-body');
             if (!tableBody) return;
@@ -993,20 +993,21 @@
             
             let rows = '';
             
-            // เรียงลำดับตามคะแนนรวม
+            // เรียงลำดับตามอันดับที่ผู้ใช้กรอก (ต่ำไปสูง)
             const sortedScores = [...scores].sort((a, b) => {
                 if (currentResultTab === 'special') {
-                    return (b.special?.totalScore || 0) - (a.special?.totalScore || 0);
+                    return (a.special?.rank || 999) - (b.special?.rank || 999);
                 } else {
-                    return (b.normal?.totalScore || 0) - (a.normal?.totalScore || 0);
+                    return (a.normal?.rank || 999) - (b.normal?.rank || 999);
                 }
             });
             
-            sortedScores.forEach((score, index) => {
+            sortedScores.forEach((score) => {
                 if (currentResultTab === 'special' && score.special) {
+                    const displayRank = score.special.rank || '-';
                     rows += `
                         <tr class="bg-white border-b hover:bg-gray-50">
-                            <td class="py-3 px-4 font-bold text-gray-900">${index + 1}</td>
+                            <td class="py-3 px-4 font-bold text-gray-900">${displayRank}</td>
                             <td class="py-3 px-4">${score.nickname || 'ไม่ระบุชื่อ'}</td>
                             <td class="py-3 px-4">
                                 <span class="px-2 py-1 text-xs font-medium rounded-full ${score.special.examType === 'On-site' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'}">
@@ -1022,9 +1023,10 @@
                         </tr>
                     `;
                 } else if (currentResultTab === 'normal' && score.normal) {
+                    const displayRank = score.normal.rank || '-';
                     rows += `
                         <tr class="bg-white border-b hover:bg-gray-50">
-                            <td class="py-3 px-4 font-bold text-gray-900">${index + 1}</td>
+                            <td class="py-3 px-4 font-bold text-gray-900">${displayRank}</td>
                             <td class="py-3 px-4">${score.nickname || 'ไม่ระบุชื่อ'}</td>
                             <td class="py-3 px-4">
                                 <span class="px-2 py-1 text-xs font-medium rounded-full ${score.normal.examType === 'On-site' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'}">
