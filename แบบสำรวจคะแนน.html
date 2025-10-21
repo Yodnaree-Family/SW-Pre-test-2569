@@ -1166,7 +1166,7 @@
                 // ใช้ URL ที่ถูกต้องสำหรับ Google Apps Script
                 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxAkO4i5fOaSsIAeOebNnX9wwUrmDhPSEXcPMLltqS13dYix40q4FFPKAg6qPWE_b5-8Q/exec';
                 
-                const response = await fetch(SCRIPT_URL + '?action=get');
+                const response = await fetch(SCRIPT_URL);
                 const result = await response.json();
                 
                 if (result.success) {
@@ -1187,6 +1187,10 @@
                     showMessage('โหลดข้อมูลจาก localStorage สำเร็จ', 'success');
                 } else {
                     showMessage('ยังไม่มีข้อมูลในระบบ', 'warning');
+                    allScores = [];
+                if (currentView === 'results') {
+                        renderScoresTable([]);
+                    }
                 }
                 if (currentView === 'results') {
                     applyFilters();
