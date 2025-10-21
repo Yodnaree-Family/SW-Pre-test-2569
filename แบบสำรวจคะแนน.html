@@ -509,7 +509,7 @@
             <!-- Results Section -->
             <div id="results-section" class="hidden">
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-blue-800">
-                    <i class="fas fa-info-circle mr-2"></i>ข้อมูลในตารางจะแสดงข้อมูลทั้งหมดที่บันทึกในระบบ
+                    <i class="fas fa-info-circle mr-2"></i>ข้อมูลในตารางจะแสดงข้อมูลทั้งหมดที่บันทึกในระบบ (ข้อมูลจะถูกเก็บในเบราว์เซอร์ของคุณเท่านั้น)
                 </div>
                 
                 <div class="flex flex-wrap justify-center mb-6 space-x-2">
@@ -547,8 +547,11 @@
                 </div>
 
                 <div class="text-center mt-6">
-                    <button onclick="loadAllScores()" class="btn btn-secondary">
+                    <button onclick="loadAllScores()" class="btn btn-secondary mr-2">
                         <i class="fas fa-sync-alt mr-2"></i> โหลดข้อมูลใหม่
+                    </button>
+                    <button onclick="exportToCSV()" class="btn btn-success">
+                        <i class="fas fa-download mr-2"></i> ดาวน์โหลดข้อมูล
                     </button>
                 </div>
             </div>
@@ -590,7 +593,7 @@
     </div>
     
     <footer class="text-center py-6 text-gray-500 text-sm">
-        <p>Developed for Satriwitthaya Pre-test Takers | ข้อมูลจะถูกบันทึกใน Google Sheets</p>
+        <p>Developed for Satriwitthaya Pre-test Takers | ข้อมูลจะถูกบันทึกในเบราว์เซอร์ของคุณเท่านั้น</p>
     </footer>
 
     <!-- JavaScript Final Version -->
@@ -943,7 +946,7 @@
             if (!tableBody) return;
             
             if (scores.length === 0) {
-                tableBody.innerHTML = `<tr><td colspan="9" class="text-center py-6 text-gray-500">ยังไม่มีข้อมูล</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="9" class="text-center py-6 text-gray-500">ยังไม่มีข้อมูลในระบบ</td></tr>`;
                 return;
             }
             
@@ -1160,45 +1163,44 @@
             `;
         }
 
-        // ฟังก์ชันโหลดข้อมูลจาก Google Apps Script
-        async function loadAllScores() {
+        // ฟังก์ชันโหลดข้อมูลจาก localStorage
+        function loadAllScores() {
             try {
-                // ใช้ URL ที่ถูกต้องสำหรับ Google Apps Script
-                const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxAkO4i5fOaSsIAeOebNnX9wwUrmDhPSEXcPMLltqS13dYix40q4FFPKAg6qPWE_b5-8Q/exec';
-                
-                const response = await fetch(SCRIPT_URL);
-                const result = await response.json();
-                
-                if (result.success) {
-                    allScores = result.data || [];
-                    showMessage('โหลดข้อมูลสำเร็จ', 'success');
-                    if (currentView === 'results') {
-                        applyFilters();
-                    }
-                } else {
-                    throw new Error(result.message);
-                }
-            } catch (error) {
-                console.error('Error loading data:', error);
-                // ถ้าไม่สามารถโหลดข้อมูลได้ ให้ใช้ข้อมูลจาก localStorage
                 const savedScores = localStorage.getItem('pretestScores');
                 if (savedScores) {
                     allScores = JSON.parse(savedScores);
-                    showMessage('โหลดข้อมูลจาก localStorage สำเร็จ', 'success');
+                    showMessage('โหลดข้อมูลสำเร็จ', 'success');
                 } else {
-                    showMessage('ยังไม่มีข้อมูลในระบบ', 'warning');
                     allScores = [];
-                if (currentView === 'results') {
-                        renderScoresTable([]);
-                    }
+                    showMessage('ยังไม่มีข้อมูลในระบบ', 'warning');
                 }
+                
                 if (currentView === 'results') {
                     applyFilters();
                 }
+            } catch (error) {
+                console.error('Error loading data:', error);
+                allScores = [];
+                if (currentView === 'results') {
+                    renderScoresTable([]);
+                }
+                showMessage('เกิดข้อผิดพลาดในการโหลดข้อมูล', 'error');
             }
         }
 
-        // ฟังก์ชันส่งข้อมูลไปยัง Google Apps Script
+        // ฟังก์ชันส่งข้อมูลไปยัง localStorage
+        function saveToLocalStorage(formData) {
+            try {
+                allScores.push(formData);
+                localStorage.setItem('pretestScores', JSON.stringify(allScores));
+                return true;
+            } catch (error) {
+                console.error('Error saving to localStorage:', error);
+                return false;
+            }
+        }
+
+        // ฟังก์ชันส่งข้อมูลไปยัง Google Apps Script (สำรอง)
         async function submitToGoogleAppsScript(formData) {
             try {
                 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxAkO4i5fOaSsIAeOebNnX9wwUrmDhPSEXcPMLltqS13dYix40q4FFPKAg6qPWE_b5-8Q/exec';
@@ -1214,11 +1216,8 @@
                 const result = await response.json();
                 return result.success;
             } catch (error) {
-                console.error('Error saving data:', error);
-                // ถ้าไม่สามารถส่งข้อมูลได้ ให้บันทึกใน localStorage แทน
-                allScores.push(formData);
-                localStorage.setItem('pretestScores', JSON.stringify(allScores));
-                return true;
+                console.error('Error saving to Google Apps Script:', error);
+                return false;
             }
         }
 
@@ -1291,12 +1290,19 @@
                 };
             }
 
-            // ส่งข้อมูลไปยัง Google Apps Script
-            const success = await submitToGoogleAppsScript(formData);
+            // ส่งข้อมูลไปยัง localStorage
+            const success = saveToLocalStorage(formData);
 
             if (success) {
+                // พยายามส่งข้อมูลไปยัง Google Apps Script (สำรอง)
+                try {
+                    await submitToGoogleAppsScript(formData);
+                } catch (error) {
+                    console.log('ไม่สามารถส่งข้อมูลไปยัง Google Apps Script ได้ ใช้ localStorage แทน');
+                }
+                
                 // โหลดข้อมูลใหม่เพื่ออัพเดตผลลัพธ์
-                await loadAllScores();
+                loadAllScores();
                 
                 // แสดงข้อความสำเร็จ
                 const formSection = document.getElementById('form-section');
@@ -1309,6 +1315,49 @@
             } else {
                 showMessage("เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองใหม่", "error");
             }
+        }
+
+        // ฟังก์ชันส่งออกข้อมูลเป็น CSV
+        function exportToCSV() {
+            if (allScores.length === 0) {
+                showMessage('ไม่มีข้อมูลที่จะส่งออก', 'warning');
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            
+            // Header
+            csvContent += "ชื่อ,หลักสูตร,ประเภทสอบ,อันดับ,คะแนนรวม,คณิต,วิทย์,อังกฤษ,ไทย,สังคม,เป้าหมายพิเศษ,เป้าหมายปกติ\n";
+            
+            // Data
+            allScores.forEach(score => {
+                const row = [
+                    score.nickname || '',
+                    score.pretestCurriculum || '',
+                    score.special?.examType || score.normal?.examType || '',
+                    score.special?.rank || score.normal?.rank || '',
+                    score.special?.totalScore || score.normal?.totalScore || '',
+                    score.special?.scores?.math || score.normal?.scores?.math || '',
+                    score.special?.scores?.science || score.normal?.scores?.science || '',
+                    score.special?.scores?.english || score.normal?.scores?.english || '',
+                    score.normal?.scores?.thai || '',
+                    score.normal?.scores?.social || '',
+                    score.targetSpecial || '',
+                    score.targetNormal || ''
+                ];
+                
+                csvContent += row.map(field => `"${field}"`).join(',') + '\n';
+            });
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "pretest_scores.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showMessage('ดาวน์โหลดข้อมูลสำเร็จ', 'success');
         }
 
         // ตั้งค่าเมื่อโหลดหน้าเว็บ
