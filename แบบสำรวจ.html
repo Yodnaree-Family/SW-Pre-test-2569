@@ -797,9 +797,6 @@
                     <button onclick="fetchScoresFromGoogleSheet()" class="btn btn-secondary mr-2">
                         <i class="fas fa-sync-alt mr-2"></i> โหลดข้อมูลใหม่
                     </button>
-                    <button onclick="loadLocalScores()" class="btn btn-secondary mr-2">
-                        <i class="fas fa-database mr-2"></i> โหลดข้อมูลท้องถิ่น
-                    </button>
                     <button onclick="exportToCSV()" class="btn btn-success">
                         <i class="fas fa-download mr-2"></i> ดาวน์โหลดข้อมูล
                     </button>
@@ -843,7 +840,7 @@
     </div>
     
     <footer class="text-center py-6 text-gray-500 text-sm">
-        <p>Developed for Satriwitthaya Pre-test Takers | ข้อมูลจะถูกบันทึกในเบราว์เซอร์ของคุณเท่านั้น</p>
+        <p>Developed for Satriwitthaya Pre-test Takers | ข้อมูลจะถูกบันทึกใน Google Sheet เท่านั้น</p>
     </footer>
 
     <script>
@@ -1038,21 +1035,6 @@
             }, 5000);
         }
 
-        // ฟังก์ชันโหลดข้อมูลจาก localStorage
-        function loadLocalScores() {
-            try {
-                const savedScores = localStorage.getItem('pretestScores');
-                allScores = savedScores ? JSON.parse(savedScores) : [];
-                document.getElementById('data-source-info').innerHTML = '<i class="fas fa-database mr-2"></i>แสดงข้อมูลจาก localStorage (' + allScores.length + ' รายการ)';
-                showMessage('โหลดข้อมูลจาก localStorage สำเร็จ!', 'success');
-                applyFilters();
-            } catch (error) {
-                console.error('Error loading data:', error);
-                allScores = [];
-                showMessage('ไม่สามารถโหลดข้อมูลจาก localStorage ได้', 'error');
-            }
-        }
-
         // ฟังก์ชันดึงข้อมูลจาก Google Sheet
         async function fetchScoresFromGoogleSheet() {
             try {
@@ -1075,7 +1057,6 @@
                 if (result.status === 'success') {
                     const convertedData = convertGoogleSheetData(result.data);
                     allScores = convertedData;
-                    localStorage.setItem('pretestScores', JSON.stringify(allScores));
                     
                     document.getElementById('data-source-info').innerHTML = '<i class="fas fa-cloud mr-2"></i>แสดงข้อมูลจาก Google Sheet (' + allScores.length + ' รายการ) - อัปเดตล่าสุด: ' + new Date().toLocaleTimeString('th-TH');
                     
@@ -1088,7 +1069,7 @@
             } catch (error) {
                 console.error('Error fetching from Google Sheet:', error);
                 showMessage('ไม่สามารถโหลดข้อมูลจาก Google Sheet ได้: ' + error.message, 'error');
-                loadLocalScores();
+                document.getElementById('data-source-info').innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>ไม่สามารถโหลดข้อมูลจาก Google Sheet ได้';
             } finally {
                 document.getElementById('loading-indicator').classList.add('hidden');
             }
@@ -1294,23 +1275,13 @@
             // ส่งข้อมูลไปยัง Google Apps Script
             const appScriptSuccess = await submitToAppScript(formData);
             
-            // บันทึกใน localStorage
-            try {
-                allScores.push(formData);
-                localStorage.setItem('pretestScores', JSON.stringify(allScores));
-                
+            if (appScriptSuccess) {
                 // แสดงผลสำเร็จ
                 document.getElementById('form-section').classList.add('hidden');
                 document.getElementById('success-message').classList.remove('hidden');
-                
-                if (appScriptSuccess) {
-                    showMessage("ส่งข้อมูลสำเร็จ! ข้อมูลถูกบันทึกในระบบและ Google Sheet อัตโนมัติแล้ว 🎉", "success");
-                } else {
-                    showMessage("ส่งข้อมูลสำเร็จ! (บันทึกเฉพาะในเบราว์เซอร์)", "success");
-                }
-                
-            } catch (error) {
-                showMessage("เกิดข้อผิดพลาดในการบันทึกข้อมูล", "error");
+                showMessage("ส่งข้อมูลสำเร็จ! ข้อมูลถูกบันทึกใน Google Sheet แล้ว 🎉", "success");
+            } else {
+                showMessage("เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองอีกครั้ง", "error");
             }
         }
 
@@ -1624,7 +1595,6 @@
 
         // ตั้งค่าเมื่อโหลดหน้าเว็บ
         document.addEventListener('DOMContentLoaded', function() {
-            loadLocalScores();
             setupAutoCalculate();
             
             // Event Listeners
