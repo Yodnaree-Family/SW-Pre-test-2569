@@ -3,794 +3,496 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569</title>
-    <!-- ใช้ Tailwind CSS ผ่าน CDN -->
+    <title>SW Pre-test สตรีวิทยา | นับถอยหลังและตารางสอบ</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- ใช้ Font Kanit เพื่อให้เข้ากับภาษาไทย -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
-            font-family: 'Noto Sans Thai', sans-serif;
-            background-color: #f7f8fc;
-            line-height: 1.6;
+            font-family: 'Kanit', sans-serif;
+            /* พื้นหลังไล่เฉดสีนุ่มนวล */
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            position: relative;
         }
-        
-        .header-gradient {
-            background: linear-gradient(135deg, #2a2a72 0%, #009ffd 100%);
-        }
-        
-        .input-field {
-            border-radius: 0.5rem;
-            padding: 0.75rem 1rem;
-            border: 1px solid #d1d5db;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            background-color: #f9fafb;
-            width: 100%;
-        }
-        
-        .input-field:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-            outline: none;
-        }
-        
-        .btn {
-            border-radius: 0.5rem;
-            transition: all 0.2s ease;
-            color: white;
-            font-weight: 600;
-            padding: 0.75rem 1.5rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            border: none;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(to right, #3b82f6, #60a5fa);
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 7px 20px rgba(59, 130, 246, 0.2);
-        }
-        
-        .btn-secondary {
-            background: linear-gradient(to right, #6b7280, #9ca3af);
-        }
-        
-        .btn-secondary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 7px 20px rgba(107, 114, 128, 0.2);
-        }
-        
-        .btn-success {
-            background: linear-gradient(to right, #16a34a, #22c55e);
-        }
-        
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 7px 20px rgba(22, 163, 74, 0.2);
-        }
-        
-        .btn-danger {
-            background: linear-gradient(to right, #dc2626, #ef4444);
-        }
-        
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 7px 20px rgba(220, 38, 38, 0.2);
-        }
-        
-        .curriculum-option {
-            border: 2px solid #e5e7eb;
-            border-radius: 0.75rem;
-            padding: 1rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: white;
-        }
-        
-        .curriculum-option:hover {
-            border-color: #9ca3af;
-        }
-        
-        .curriculum-option.selected {
-            border-color: #3b82f6;
-            background-color: #eff6ff;
-        }
-        
-        .hidden {
-            display: none !important;
-        }
-        
-        .score-input-section {
-            background: #f8f9fa;
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            margin-top: 1rem;
-        }
-        
-        .exam-type-option {
-            border: 2px solid #e5e7eb;
-            border-radius: 0.75rem;
-            padding: 1rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: white;
-        }
-        
-        .exam-type-option:hover {
-            border-color: #9ca3af;
-        }
-        
-        .exam-type-option.selected {
-            border-color: #3b82f6;
-            background-color: #eff6ff;
-        }
-        
-        .success-message {
-            background: #d1fae5;
-            border: 1px solid #a7f3d0;
-            color: #065f46;
-            padding: 2rem;
-            border-radius: 1rem;
-            text-align: center;
-            margin: 2rem 0;
-        }
-        
-        .loading-spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #3b82f6;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .message-box {
+        /* ลายน้ำด้านหลังเพื่อความสวยงาม */
+        body::before {
+            content: "ครอบครัวยอดนารี❤️สตรีวิทยา";
             position: fixed;
-            top: 1rem;
-            right: 1rem;
-            z-index: 50;
-            width: 100%;
-            max-width: 24rem;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 6vw;
+            font-weight: 700;
+            color: rgba(0, 0, 0, 0.04);
+            white-space: nowrap;
+            z-index: 0;
+            pointer-events: none;
         }
-        
-        .message-alert {
+
+        .main-container {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Glassmorphism Card Style */
+        .card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Tab Button Styling */
+        .tab-button {
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-weight: 600;
+        }
+        .tab-button.active {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+        /* Table Styling */
+        .exam-table th {
+            text-align: center;
             padding: 1rem;
-            border-radius: 0.5rem;
-            margin-bottom: 0.5rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .exam-table td {
+            text-align: center;
+            padding: 1rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.08);
+        }
+        .exam-table .subject {
+            text-align: left;
+            font-weight: 500;
         }
     </style>
 </head>
-<body class="p-4">
-    <!-- Message Box -->
-    <div id="message-box" class="message-box"></div>
-    
-    <!-- Header -->
-    <div class="max-w-7xl mx-auto text-center py-3 mb-4 bg-pink-100 rounded-xl shadow-md border-2 border-pink-300">
-        <h2 class="text-2xl font-extrabold text-pink-700 tracking-wider">
-            ครอบครัวยอดนารี ❤️ สตรีวิทยา
-        </h2>
-    </div>
-    
-    <!-- Main Content -->
-    <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-        <header class="text-center p-8 header-gradient">
-            <h1 class="text-3xl font-extrabold text-white leading-tight">
-                ระบบสำรวจและวิเคราะห์คะแนน Pre-test สตรีวิทยา
-            </h1>
-            <p class="text-lg text-blue-200 mt-2">ปีการศึกษา 2569</p>
+<body class="text-gray-800">
+
+    <div class="main-container container mx-auto p-4 sm:p-6 md:p-8 max-w-6xl">
+        <!-- Header -->
+        <header class="text-center mb-10 pt-4">
+        <h1 class="text-4xl sm:text-5xl font-extrabold text-red-800 leading-tight text-center">
+            SW Pre-test 2569
+        </h1>
+            <p class="text-gray-600 mt-2 text-lg">โรงเรียนสตรีวิทยา (Satriwithaya School)</p>
         </header>
-        
-        <main class="p-6">
-            <!-- Success Message -->
-            <div id="success-message" class="success-message hidden">
-                <i class="fas fa-check-circle text-4xl mb-4 text-green-600"></i>
-                <h3 class="text-2xl font-bold mb-4">ส่งข้อมูลสำเร็จ! 🎉</h3>
-                <p class="mb-4 text-lg">ขอบคุณที่ร่วมแบ่งปันข้อมูลคะแนน 🙏</p>
-                <p class="mb-6">ข้อมูลของคุณจะถูกบันทึกในระบบและช่วยให้น้องๆ ทุกคนได้เห็นภาพรวมคะแนน</p>
-                <button onclick="resetForm()" class="btn btn-primary">
-                    <i class="fas fa-plus mr-2"></i> ส่งข้อมูลเพิ่มเติม
-                </button>
-            </div>
-            
-            <!-- Form Section -->
-            <div id="form-section">
-                <form id="survey-form" class="space-y-8 max-w-4xl mx-auto">
-                    <!-- ชื่อเล่น -->
-                    <div>
-                        <label for="nickname" class="block text-gray-700 font-semibold mb-2">ชื่อเล่น / นามแฝง (ไม่บังคับ)</label>
-                        <input type="text" id="nickname" class="input-field w-full" placeholder="เช่น น้องยอดนารี">
-                    </div>
-                    
-                    <!-- ส่วนที่ 0: กำลังศึกษาอยู่ในระดับชั้น -->
-                    <div class="border rounded-lg p-6 bg-gray-50">
-                        <h3 class="font-semibold text-lg text-gray-800 mb-4">กำลังศึกษาอยู่ในระดับชั้น</h3>
-                        
-                        <div class="space-y-3">
-                            <label class="curriculum-option flex items-center">
-                                <input type="radio" name="currentGrade" value="grade4" class="mr-3">
-                                <div>
-                                    <span class="font-medium">ประถมศึกษาปีที่ 4 (ป.4)</span>
-                                </div>
-                            </label>
-                            <label class="curriculum-option flex items-center">
-                                <input type="radio" name="currentGrade" value="grade5" class="mr-3">
-                                <div>
-                                    <span class="font-medium">ประถมศึกษาปีที่ 5 (ป.5)</span>
-                                </div>
-                            </label>
-                            <label class="curriculum-option flex items-center">
-                                <input type="radio" name="currentGrade" value="grade6" class="mr-3">
-                                <div>
-                                    <span class="font-medium">ประถมศึกษาปีที่ 6 (ป.6)</span>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <!-- ส่วนที่ 1: แบบสำรวจคะแนนสอบ Pre-test -->
-                    <div class="border rounded-lg p-6 bg-gray-50">
-                        <h3 class="font-semibold text-lg text-gray-800 mb-4">ส่วนที่ 1: แบบสำรวจคะแนนสอบ Pre-test</h3>
-                        
-                        <div class="mb-6">
-                            <label class="block text-gray-700 font-semibold mb-3">เลือกหลักสูตรที่สอบ Pre-test</label>
-                            <div class="space-y-3">
-                                <label class="curriculum-option flex items-center">
-                                    <input type="radio" name="pretestCurriculum" value="special" class="mr-3" onchange="toggleExamTypeSelection()">
-                                    <div>
-                                        <span class="font-medium">ห้องเรียนพิเศษ</span>
-                                        <p class="text-sm text-gray-600 mt-1">สอบ 3 วิชา: คณิต 50 คะแนน, วิทย์ 30 คะแนน, English 30 คะแนน</p>
-                                    </div>
-                                </label>
-                                <label class="curriculum-option flex items-center">
-                                    <input type="radio" name="pretestCurriculum" value="normal" class="mr-3" onchange="toggleExamTypeSelection()">
-                                    <div>
-                                        <span class="font-medium">ห้องเรียนปกติ</span>
-                                        <p class="text-sm text-gray-600 mt-1">สอบ 5 วิชา: คณิต 30, วิทย์ 30, English 30, ไทย 30, สังคม 30 คะแนน</p>
-                                    </div>
-                                </label>
-                                <label class="curriculum-option flex items-center">
-                                    <input type="radio" name="pretestCurriculum" value="both" class="mr-3" onchange="toggleExamTypeSelection()">
-                                    <div>
-                                        <span class="font-medium">สอบทั้ง 2 หลักสูตร</span>
-                                        <p class="text-sm text-gray-600 mt-1">สอบทั้งห้องเรียนพิเศษและห้องเรียนปกติ</p>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <!-- ส่วนเลือกประเภทการสอบ -->
-                        <div id="exam-type-selection" class="mb-6">
-                            <label class="block text-gray-700 font-semibold mb-3">เลือกประเภทการสอบ</label>
-                            <div class="space-y-3">
-                                <!-- แสดงเมื่อเลือกห้องเรียนพิเศษ -->
-                                <div id="special-exam-type" class="hidden">
-                                    <label class="block text-gray-700 mb-2">ห้องเรียนพิเศษ</label>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                        <label class="exam-type-option flex items-center">
-                                            <input type="radio" name="specialExamType" value="Online" class="mr-3">
-                                            <div>
-                                                <span class="font-medium">Online</span>
-                                                <p class="text-sm text-gray-600 mt-1">สอบออนไลน์</p>
-                                            </div>
-                                        </label>
-                                        <label class="exam-type-option flex items-center">
-                                            <input type="radio" name="specialExamType" value="On-site" class="mr-3">
-                                            <div>
-                                                <span class="font-medium">On-site</span>
-                                                <p class="text-sm text-gray-600 mt-1">สอบที่โรงเรียน</p>
-                                            </div>
-                                        </label>
-                                    </div>
-                                </div>
-                                
-                                <!-- แสดงเมื่อเลือกห้องเรียนปกติ -->
-                                <div id="normal-exam-type" class="hidden">
-                                    <label class="block text-gray-700 mb-2">ห้องเรียนปกติ</label>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                        <label class="exam-type-option flex items-center">
-                                            <input type="radio" name="normalExamType" value="Online" class="mr-3">
-                                            <div>
-                                                <span class="font-medium">Online</span>
-                                                <p class="text-sm text-gray-600 mt-1">สอบออนไลน์</p>
-                                            </div>
-                                        </label>
-                                        <label class="exam-type-option flex items-center">
-                                            <input type="radio" name="normalExamType" value="On-site" class="mr-3">
-                                            <div>
-                                                <span class="font-medium">On-site</span>
-                                                <p class="text-sm text-gray-600 mt-1">สอบที่โรงเรียน</p>
-                                            </div>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!-- ส่วนกรอกคะแนน Pre-test -->
-                    <div id="score-inputs-container">
-                        <!-- คะแนนห้องเรียนพิเศษ -->
-                        <div id="special-scores-section" class="score-input-section hidden">
-                            <h3 class="font-semibold text-lg text-gray-800 mb-4">คะแนนห้องเรียนพิเศษ</h3>
-                            
-                            <!-- อันดับ -->
-                            <div class="mb-6">
-                                <label for="special_rank" class="block text-gray-700 font-semibold mb-2">อันดับที่ได้</label>
-                                <input type="number" id="special_rank" class="input-field w-full md:w-48" placeholder="กรอกอันดับ" min="1">
-                            </div>
-                            
-                            <!-- คะแนนแต่ละวิชา -->
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                <div>
-                                    <label for="score_special_math" class="block text-gray-700 font-semibold mb-2">คณิตศาสตร์</label>
-                                    <div class="relative">
-                                        <input type="number" id="score_special_math" class="input-field w-full pr-16" placeholder="0.00" min="0" max="50" step="0.01">
-                                        <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">/50</span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label for="score_special_science" class="block text-gray-700 font-semibold mb-2">วิทยาศาสตร์</label>
-                                    <div class="relative">
-                                        <input type="number" id="score_special_science" class="input-field w-full pr-16" placeholder="0.00" min="0" max="30" step="0.01">
-                                        <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">/30</span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label for="score_special_english" class="block text-gray-700 font-semibold mb-2">ภาษาอังกฤษ</label>
-                                    <div class="relative">
-                                        <input type="number" id="score_special_english" class="input-field w-full pr-16" placeholder="0.00" min="0" max="30" step="0.01">
-                                        <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">/30</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- คะแนนรวม -->
-                            <div class="bg-blue-50 p-4 rounded-lg">
-                                <div class="flex justify-between items-center">
-                                    <span class="font-semibold text-gray-700">คะแนนรวม:</span>
-                                    <span id="special-total-score" class="text-2xl font-bold text-blue-600">0.00</span>
-                                </div>
-                            </div>
-                        </div>
+        <!-- Countdown Card (MODIFIED) -->
+        <div class="card mb-12">
+            <div class="p-6 md:p-8 text-center">
+                <!-- === MODIFIED: Title === -->
+                <h2 class="text-2xl font-semibold text-gray-800 mb-6">
+                    เหลือเวลาสมัครสอบอีก (สิ้นสุด 8 ธ.ค. 68 16:00น.)
+                </h2>
 
-                        <!-- คะแนนห้องเรียนปกติ -->
-                        <div id="normal-scores-section" class="score-input-section hidden">
-                            <h3 class="font-semibold text-lg text-gray-800 mb-4">คะแนนห้องเรียนปกติ</h3>
-                            
-                            <!-- อันดับ -->
-                            <div class="mb-6">
-                                <label for="normal_rank" class="block text-gray-700 font-semibold mb-2">อันดับที่ได้</label>
-                                <input type="number" id="normal_rank" class="input-field w-full md:w-48" placeholder="กรอกอันดับ" min="1">
-                            </div>
-                            
-                            <!-- คะแนนแต่ละวิชา -->
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                <div>
-                                    <label for="score_normal_math" class="block text-gray-700 font-semibold mb-2">คณิตศาสตร์</label>
-                                    <div class="relative">
-                                        <input type="number" id="score_normal_math" class="input-field w-full pr-16" placeholder="0.00" min="0" max="30" step="0.01">
-                                        <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">/30</span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label for="score_normal_science" class="block text-gray-700 font-semibold mb-2">วิทยาศาสตร์</label>
-                                    <div class="relative">
-                                        <input type="number" id="score_normal_science" class="input-field w-full pr-16" placeholder="0.00" min="0" max="30" step="0.01">
-                                        <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">/30</span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label for="score_normal_english" class="block text-gray-700 font-semibold mb-2">ภาษาอังกฤษ</label>
-                                    <div class="relative">
-                                        <input type="number" id="score_normal_english" class="input-field w-full pr-16" placeholder="0.00" min="0" max="30" step="0.01">
-                                        <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">/30</span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label for="score_normal_thai" class="block text-gray-700 font-semibold mb-2">ภาษาไทย</label>
-                                    <div class="relative">
-                                        <input type="number" id="score_normal_thai" class="input-field w-full pr-16" placeholder="0.00" min="0" max="30" step="0.01">
-                                        <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">/30</span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label for="score_normal_social" class="block text-gray-700 font-semibold mb-2">สังคมศึกษา</label>
-                                    <div class="relative">
-                                        <input type="number" id="score_normal_social" class="input-field w-full pr-16" placeholder="0.00" min="0" max="30" step="0.01">
-                                        <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">/30</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- คะแนนรวม -->
-                            <div class="bg-green-50 p-4 rounded-lg">
-                                <div class="flex justify-between items-center">
-                                    <span class="font-semibold text-gray-700">คะแนนรวม:</span>
-                                    <span id="normal-total-score" class="text-2xl font-bold text-green-600">0.00</span>
-                                </div>
-                            </div>
-                        </div>
+                <!-- Countdown Display Area -->
+                <div id="countdown" class="flex justify-center gap-4 sm:gap-6 mb-4">
+                    <div class="time-box">
+                        <div id="days" class="time-value">0</div>
+                        <div class="time-label">วัน</div>
                     </div>
-                    
-                    <!-- ส่วนที่ 2: เป้าหมายหลักสูตรในการสอบเข้า -->
-                    <div class="border rounded-lg p-6 bg-gray-50">
-                        <h3 class="font-semibold text-lg text-gray-800 mb-4">ส่วนที่ 2: เป้าหมายหลักสูตรในการสอบเข้า</h3>
-                        
-                        <!-- เป้าหมายห้องเรียนพิเศษ -->
-                        <div id="target-special-section" class="mb-6 hidden">
-                            <label class="block text-gray-700 font-semibold mb-3">หลักสูตรห้องเรียนพิเศษ</label>
-                            <div class="space-y-3">
-                                <label class="curriculum-option flex items-center">
-                                    <input type="radio" name="targetSpecial" value="EP" class="mr-3">
-                                    <div>
-                                        <span class="font-medium">EP (English Program)</span>
-                                        <p class="text-sm text-gray-600 mt-1">สอบ 4 วิชา: English 80, คณิต 50, วิทย์ 50, สัมภาษณ์ 20 คะแนน (เต็ม 200)</p>
-                                    </div>
-                                </label>
-                                <label class="curriculum-option flex items-center">
-                                    <input type="radio" name="targetSpecial" value="SMTE" class="mr-3">
-                                    <div>
-                                        <span class="font-medium">SMTE (Science Math Technology and Environment)</span>
-                                        <p class="text-sm text-gray-600 mt-1">สอบ 2 วิชา: คณิต 50, วิทย์ 50 คะแนน (เต็ม 100)</p>
-                                    </div>
-                                </label>
-                                <label class="curriculum-option flex items-center">
-                                    <input type="radio" name="targetSpecial" value="GM" class="mr-3">
-                                    <div>
-                                        <span class="font-medium">Gifted Math</span>
-                                        <p class="text-sm text-gray-600 mt-1">สอบ 3 วิชา: คณิต 50, วิทย์ 50, English 10 คะแนน (เต็ม 110)</p>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-                        
-                        <!-- เป้าหมายห้องเรียนปกติ -->
-                        <div id="target-normal-section" class="hidden">
-                            <label class="block text-gray-700 font-semibold mb-3">หลักสูตรห้องเรียนปกติ</label>
-                            <div class="space-y-3">
-                                <label class="curriculum-option flex items-center">
-                                    <input type="radio" name="targetNormal" value="Normal_In" class="mr-3">
-                                    <div>
-                                        <span class="font-medium">ในเขตพื้นที่บริการ</span>
-                                        <p class="text-sm text-gray-600 mt-1">สอบ 5 วิชา: คณิต 20, วิทย์ 20, English 20, ไทย 20, สังคม 20 คะแนน (เต็ม 100)</p>
-                                    </div>
-                                </label>
-                                <label class="curriculum-option flex items-center">
-                                    <input type="radio" name="targetNormal" value="Normal_Out" class="mr-3">
-                                    <div>
-                                        <span class="font-medium">นอกเขตพื้นที่บริการ</span>
-                                        <p class="text-sm text-gray-600 mt-1">สอบ 5 วิชา: คณิต 20, วิทย์ 20, English 20, ไทย 20, สังคม 20 คะแนน (เต็ม 100)</p>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
+                    <div class="time-box">
+                        <div id="hours" class="time-value">00</div>
+                        <div class="time-label">ชม.</div>
                     </div>
-                    
-                    <div class="text-center pt-6 flex justify-center space-x-4">
-                        <button type="submit" class="btn btn-primary text-lg">
-                            <i class="fas fa-paper-plane mr-2"></i> ส่งข้อมูลผลสำรวจ
-                        </button>
-                        <button type="button" id="reset-btn" class="btn btn-danger text-lg">
-                            <i class="fas fa-undo mr-2"></i> รีเซ็ตข้อมูล
-                        </button>
+                    <div class="time-box">
+                        <div id="minutes" class="time-value">00</div>
+                        <div class="time-label">นาที</div>
                     </div>
-                </form>
+                    <div class="time-box">
+                        <div id="seconds" class="time-value">00</div>
+                        <div class="time-label">วินาที</div>
+                    </div>
+                </div>
+
+                <!-- === MODIFIED: Subtitle === -->
+                <p class="text-base text-gray-700 mt-3 italic">
+                    ปิดรับสมัครวันที่ 8 ธันวาคม 2568 (เวลา 16:00 น.)
+                </p>
             </div>
-        </main>
-        
-        <!-- Footer -->
-        <div class="bg-blue-50 p-6 text-center">
-            <p class="text-gray-600">Developed for Satriwitthaya Pre-test Takers | ข้อมูลจะถูกบันทึกใน Google Sheet เท่านั้น</p>
+
+            <!-- Countdown Style -->
+            <style>
+                .time-box {
+                    background-color: #fee2e2;
+                    /* พื้นแดงอ่อน */
+                    border-radius: 0.75rem;
+                    padding: 1rem 1.25rem;
+                    width: 80px;
+                    text-align: center;
+                    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+                }
+
+                .time-value {
+                    font-size: 2rem;
+                    font-weight: 700;
+                    color: #dc2626;
+                    /* แดงสด */
+                }
+
+                .time-label {
+                    font-size: 0.875rem;
+                    color: #4b5563;
+                    margin-top: 0.25rem;
+                }
+
+                @media (min-width: 640px) {
+                    .time-box {
+                        width: 100px;
+                        padding: 1.25rem 1.5rem;
+                    }
+
+                    .time-value {
+                        font-size: 2.5rem;
+                    }
+                }
+            </style>
         </div>
+
+        <!-- Timeline Section -->
+        <div class="card mb-12">
+            <div class="p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-gray-800 text-center mb-8">Timeline กำหนดการสำคัญ</h2>
+                <div class="relative max-w-2xl mx-auto">
+                    <!-- Vertical Line -->
+                    <div class="absolute left-4 sm:left-1/2 -top-4 h-full w-0.5 bg-gray-300" style="height: calc(100% + 2rem);"></div>
+                    <div class="space-y-10">
+
+                        <!-- Timeline Item 1: รับสมัครสอบ (Targeted by countdown) -->
+                        <div class="relative flex items-center sm:justify-normal sm:odd:flex-row-reverse pl-12 sm:pl-0">
+                            <div class="w-full sm:w-1/2 sm:pr-8 sm:odd:pr-0 sm:odd:pl-8">
+                                <div class="bg-white p-4 rounded-xl shadow-lg border border-blue-100">
+                                    <p class="font-bold text-blue-600 text-lg">รับสมัครสอบ</p>
+                                    <p class="text-sm text-gray-600">28 ต.ค. - 8 ธ.ค. 68 (ภายใน 16.00 น.)</p>
+                                </div>
+                            </div>
+                            <div class="absolute left-4 sm:left-1/2 -translate-x-1/2 bg-blue-500 w-5 h-5 rounded-full border-4 border-white shadow-md"></div>
+                        </div>
+
+                        <!-- Timeline Item 2: ประกาศรายชื่อผู้มีสิทธิ์สอบ -->
+                        <div class="relative flex items-center sm:justify-normal sm:odd:flex-row-reverse pl-12 sm:pl-0">
+                            <div class="w-full sm:w-1/2 sm:pr-8 sm:odd:pr-0 sm:odd:pl-8">
+                                <div class="bg-white p-4 rounded-xl shadow-lg border border-green-100">
+                                    <p class="font-bold text-green-600 text-lg">ประกาศรายชื่อผู้มีสิทธิ์สอบ</p>
+                                    <p class="text-sm text-gray-600">15 ธันวาคม 2568</p>
+                                </div>
+                            </div>
+                            <div class="absolute left-4 sm:left-1/2 -translate-x-1/2 bg-green-500 w-5 h-5 rounded-full border-4 border-white shadow-md"></div>
+                        </div>
+
+                        <!-- Timeline Item 3: กำหนดการสอบ -->
+                        <div class="relative flex items-center sm:justify-normal sm:odd:flex-row-reverse pl-12 sm:pl-0">
+                            <div class="w-full sm:w-1/2 sm:pr-8 sm:odd:pr-0 sm:odd:pl-8">
+                                <div class="bg-white p-4 rounded-xl shadow-lg border border-purple-100">
+                                    <p class="font-bold text-purple-600 text-lg">วันสอบจริง</p>
+                                    <p class="text-sm text-gray-600"><strong>ON-SITE:</strong> 20 ธันวาคม 2568</p>
+                                    <p class="text-sm text-gray-600"><strong>ONLINE:</strong> 21 ธันวาคม 2568</p>
+                                </div>
+                            </div>
+                            <div class="absolute left-4 sm:left-1/2 -translate-x-1/2 bg-purple-500 w-5 h-5 rounded-full border-4 border-white shadow-md"></div>
+                        </div>
+
+                        <!-- Timeline Item 4: ประกาศผลการสอบ -->
+                        <div class="relative flex items-center sm:justify-normal sm:odd:flex-row-reverse pl-12 sm:pl-0">
+                            <div class="w-full sm:w-1/2 sm:pr-8 sm:odd:pr-0 sm:odd:pl-8">
+                                <div class="bg-white p-4 rounded-xl shadow-lg border border-red-100">
+                                    <p class="font-bold text-red-600 text-lg">ประกาศผลการสอบ</p>
+                                    <p class="text-sm text-gray-600">29 ธันวาคม 2568</p>
+                                </div>
+                            </div>
+                            <div class="absolute left-4 sm:left-1/2 -translate-x-1/2 bg-red-500 w-5 h-5 rounded-full border-4 border-white shadow-md"></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Application Info Card -->
+        <div class="card mb-12">
+            <div class="p-6 md:p-8">
+                <h2 class="text-3xl font-bold text-gray-800 text-center mb-8">การรับสมัครสอบ</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <!-- Left Column -->
+                    <div class="border-b md:border-b-0 md:border-r pb-6 md:pb-0 md:pr-10 border-gray-200">
+                        <h3 class="font-extrabold text-xl mb-4 text-blue-600 flex items-center gap-2">
+                            <!-- Icon for detail -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            รายละเอียดการสมัคร
+                        </h3>
+                        <div class="space-y-6 mt-4">
+                            <div>
+                                <p class="font-bold text-gray-800">ช่องทางการสมัคร:</p>
+                                <a href="https://www.psschool.in.th/sites/satriwit.ac.th/pretest/index.php?/register/general/" target="_blank" class="text-blue-500 hover:text-blue-700 font-medium hover:underline transition-colors">
+                                    เว็บไซต์โรงเรียนสตรีวิทยา (ออนไลน์)
+                                </a>
+                            </div>
+                            <div>
+                                <p class="font-bold text-gray-800">ค่าสมัครสอบ:</p>
+                                <ul class="space-y-1 list-disc list-inside text-gray-700 ml-2">
+                                    <li><span class="font-semibold text-rose-500">On-site:</span> 500 บาท</li>
+                                    <li><span class="font-semibold text-sky-500">Online:</span> 300 บาท</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Right Column -->
+                    <div class="md:pl-10 pt-6 md:pt-0">
+                        <h3 class="font-extrabold text-xl mb-4 text-green-600 flex items-center gap-2">
+                            <!-- Icon for steps -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
+                            ขั้นตอนการสมัคร
+                        </h3>
+                        <ol class="list-decimal list-inside space-y-3 text-gray-700 ml-2 mt-4">
+                            <li>เข้าสู่ระบบการรับสมัครออนไลน์</li>
+                            <li>พิมพ์แบบฟอร์มชำระเงิน และกรอกข้อมูลให้ครบถ้วน</li>
+                            <li>ชำระค่าสมัครให้ครบถ้วน ภายใน <strong class="text-red-500">8 ธ.ค. 68 (16:00 น.)</strong></li>
+                            <li>หลังจากชำระเงิน ตรวจสอบสถานะการสมัคร<strong class="text-red-500">ในวันถัดไป</strong></li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Tab Selection -->
+        <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">ตารางสอบแยกตามโครงการ</h2>
+        <div class="flex justify-center gap-4 my-8">
+            <button id="special-btn" class="tab-button active w-full sm:w-auto flex-1 md:flex-none md:w-1/3 py-3 px-6 bg-rose-500 text-white rounded-xl focus:outline-none" onclick="showTab('special')">
+                ห้องเรียนพิเศษ (EP, GM, SMTE)
+            </button>
+            <button id="regular-btn" class="tab-button w-full sm:w-auto flex-1 md:flex-none md:w-1/3 py-3 px-6 bg-white text-sky-600 border-2 border-sky-400 rounded-xl focus:outline-none" onclick="showTab('regular')">
+                ห้องเรียนปกติ
+            </button>
+        </div>
+
+        <!-- Content Area -->
+        <div id="content-area">
+            <!-- Special Program Content -->
+            <div id="special-content">
+                <div class="card p-6 md:p-8">
+                    <h3 class="text-2xl font-bold text-rose-600 mb-6 text-center">ตารางสอบห้องเรียนพิเศษ (EP, GM, SMTE)</h3>
+                    <p class="font-semibold text-center text-gray-700 bg-rose-100 p-3 rounded-xl mb-6 border border-rose-200">On-site: 20 ธ.ค. 68 | Online: 21 ธ.ค. 68</p>
+                    <div class="overflow-x-auto shadow-inner rounded-xl">
+                        <table class="w-full exam-table min-w-[500px]">
+                            <thead class="bg-rose-500 text-white">
+                                <tr><th>เวลา</th><th>นาที</th><th>รายวิชา</th><th>จำนวนข้อ</th><th>คะแนนเต็ม</th></tr>
+                            </thead>
+                            <tbody class="text-gray-700 bg-white">
+                                <tr><td>08.30 - 09.30 น.</td><td>60</td><td class="subject">คณิตศาสตร์</td><td>25 ข้อ</td><td>50</td></tr>
+                                <tr><td>09.30 - 10.30 น.</td><td>60</td><td class="subject">ภาษาอังกฤษ</td><td>30 ข้อ</td><td>30</td></tr>
+                                <tr><td>10.30 - 11.30 น.</td><td>60</td><td class="subject">วิทยาศาสตร์</td><td>30 ข้อ</td><td>30</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-6 text-center bg-rose-500 text-white font-extrabold p-4 rounded-xl text-xl shadow-lg">
+                        รวม 110 คะแนน
+                    </div>
+                </div>
+            </div>
+
+            <!-- Regular Program Content -->
+            <div id="regular-content" class="hidden">
+                <div class="card p-6 md:p-8">
+                    <h3 class="text-2xl font-bold text-sky-600 mb-6 text-center">ตารางสอบห้องเรียนปกติ</h3>
+                    <p class="font-semibold text-center text-gray-700 bg-sky-100 p-3 rounded-xl mb-6 border border-sky-200">On-site: 20 ธ.ค. 68 | Online: 21 ธ.ค. 68</p>
+                    <div class="overflow-x-auto shadow-inner rounded-xl">
+                        <table class="w-full exam-table min-w-[600px]">
+                            <thead class="bg-sky-500 text-white">
+                                <tr><th>ชุดที่</th><th>เวลา</th><th>นาที</th><th>รายวิชา</th><th>จำนวนข้อ</th><th>คะแนนเต็ม</th></tr>
+                            </thead>
+                            <tbody class="text-gray-700 bg-white">
+                                <tr><td rowspan="3" class="font-bold bg-sky-50">ชุดที่ 1</td><td>13.30 - 14.05 น.</td><td>35</td><td class="subject">คณิตศาสตร์</td><td>20 ข้อ</td><td>30</td></tr>
+                                <tr><td>14.05 - 14.40 น.</td><td>35</td><td class="subject">ภาษาไทย</td><td>30 ข้อ</td><td>30</td></tr>
+                                <tr><td>14.40 - 15.15 น.</td><td>35</td><td class="subject">สังคมศึกษา</td><td>30 ข้อ</td><td>30</td></tr>
+                                <tr class="bg-gray-100"><td colspan="6" class="font-semibold text-sm py-2 text-gray-500">พัก 5 นาที</td></tr>
+                                <tr><td rowspan="2" class="font-bold bg-sky-50">ชุดที่ 2</td><td>15.20 - 15.55 น.</td><td>35</td><td class="subject">วิทยาศาสตร์</td><td>30 ข้อ</td><td>30</td></tr>
+                                <tr><td>15.55 - 16.30 น.</td><td>35</td><td class="subject">ภาษาอังกฤษ</td><td>30 ข้อ</td><td>30</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-6 text-center bg-sky-500 text-white font-extrabold p-4 rounded-xl text-xl shadow-lg">
+                        รวม 150 คะแนน
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Criteria -->
+        <div class="card mt-12">
+             <div class="p-6 md:p-8">
+                  <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">หลักเกณฑ์การตัดสินผลการทดสอบ</h2>
+                  <ul class="space-y-4 text-gray-700">
+                        <li class="flex items-start"><span class="text-blue-500 mr-3 mt-1 text-2xl font-bold">①</span>พิจารณาจากผลรวมคะแนนเรียงลำดับจากคะแนนสูงสุด</li>
+                        <li class="flex items-start"><span class="text-blue-500 mr-3 mt-1 text-2xl font-bold">②</span>กรณีคะแนนรวมเท่ากัน จะพิจารณาเรียงลำดับคะแนนจากวิชา: <strong class="ml-2 text-red-500">คณิตศาสตร์ &gt; วิทยาศาสตร์ &gt; ภาษาอังกฤษ</strong></li>
+                        <li class="flex items-start"><span class="text-blue-500 mr-3 mt-1 text-2xl font-bold">③</span>หากคะแนนยังเท่ากัน จะพิจารณาจาก <span class="font-bold ml-1 text-red-500">ลำดับการสมัครสอบ</span> ก่อน</li>
+                  </ul>
+             </div>
+        </div>
+
+        <!-- Additional Info & Contact -->
+        <div class="card mt-12">
+            <div class="p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-gray-800 text-center mb-6">รายละเอียดเพิ่มเติมและช่องทางการติดต่อ</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-gray-700">
+                    <!-- Left Column: Links & Line OPC -->
+                    <div>
+                        <h3 class="font-extrabold text-xl mb-4 text-indigo-600">ประกาศและข้อมูลเพิ่มเติม</h3>
+                        <ul class="space-y-3">
+                            <li><span class="font-bold text-indigo-500">ประกาศพิเศษ:</span> <a href="https://drive.google.com/file/d/1ANHJQcTnyFm08UMA2t2guPFJ58ObCNn0/view?usp=sharing" target="_blank" class="text-blue-500 hover:underline">ห้องเรียนพิเศษ คลิกที่นี่</a></li>
+                            <li><span class="font-bold text-indigo-500">ประกาศปกติ:</span> <a href="https://drive.google.com/file/d/1AYDXEpeodNYrPIJpwI5gEYDLK5A908ro/view?usp=sharing" target="_blank" class="text-blue-500 hover:underline">ห้องเรียนปกติ คลิกที่นี่</a></li>
+                            <li><span class="font-bold text-indigo-500">Facebook:</span> <a href="https://www.facebook.com/share/p/1GaST4RN1y/" target="_blank" class="text-blue-500 hover:underline">รายละเอียดเพิ่มเติม</a></li>
+                        </ul>
+
+
+                        <h3 class="font-extrabold text-xl mt-8 mb-4 text-green-600">Line OPC : SW Pre-Test 69</h3>
+                        <p class="mb-3 text-sm">โดยกลุ่มบริหารวิชาการ</p>
+                        <a href="https://line.me/ti/g2/Ph1lGH1vIaQ8S-HmEvmJbqa_mrOnS5yn7jVX0Q?utm_source=invitation&utm_medium=link_copy&utm_campaign=default" target="_blank" class="inline-flex items-center gap-2 bg-green-500 text-white font-bold py-3 px-6 rounded-xl hover:bg-green-600 transition-colors shadow-lg">
+                            <!-- Line Icon (Inline SVG) -->
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M16.29,14.68,14.68,13,13,14.68l-1.61-1.6,2.28-2.29a1,1,0,0,0,0-1.42,1,1,0,0,0-1.42,0L10,11.6,8.38,10,10,8.38l-1.6-1.61L6.1,9.05a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0L9.05,9,10.7,10.7,9,12.38l1.6,1.61,2.29-2.28a1,1,0,0,0,1.42,0,1,1,0,0,0,0-1.42Zm5.63-3.25a10,10,0,1,0-17.84,6,1,1,0,0,0,.62,1,8.4,8.4,0,0,1,3.47.81,1,1,0,0,0,1-.6A6.44,6.44,0,0,1,15.1,16a1,1,0,0,0,.86.49,1,1,0,0,0,.52-.15,8.4,8.4,0,0,1,4.24-2.22,1,1,0,0,0,.7-1.29Z"/></svg>
+                            เข้าร่วมกลุ่ม Line OPC
+                        </a>
+                    </div>
+                    <!-- Right Column: Contact Numbers -->
+                    <div>
+                        <h3 class="font-extrabold text-xl mb-4 text-indigo-600">เบอร์ติดต่อโรงเรียน</h3>
+                        <ul class="space-y-3">
+                           <li class="flex items-center gap-3">
+                               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-500" viewBox="0 0 20 20" fill="currentColor"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" /></svg>
+                               <span>ฝ่ายวิชาการโครงการ: <a href="tel:022816505" class="hover:underline text-lg font-medium">02-281-6505 ต่อ 601</a></span>
+                           </li>
+                           <li class="flex items-center gap-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-500" viewBox="0 0 20 20" fill="currentColor"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" /></svg>
+                               <span>ฝ่ายการเงินโครงการ: <a href="tel:022821626" class="hover:underline text-lg font-medium">02-282-1626 ต่อ 123</a></span>
+                           </li>
+                           <li class="flex items-center gap-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-500" viewBox="0 0 20 20" fill="currentColor"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" /></svg>
+                               <span>ฝ่ายประชาสัมพันธ์: <a href="tel:022821915" class="hover:underline text-lg font-medium">02-282-1915</a></span>
+                           </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center mt-12 text-grey-600 text-base pb-8">
+            <p>ด้วยความปรารถนาดีจาก...ลุ้นสอวอไปด้วยกันนะ</p>
+            <p class="font-semibold text-lg mt-1">ครอบครัวยอดนารี❤️สตรีวิทยา</p>
+
+            <a href="https://shorturl.asia/BlJVn" target="_blank"
+            class="inline-flex items-center gap-2 mt-3 text-green-600 hover:text-green-700 hover:underline text-base">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M16.29,14.68,14.68,13,13,14.68l-1.61-1.6,2.28-2.29a1,1,0,0,0,0-1.42,1,1,0,0,0-1.42,0L10,11.6,8.38,10,10,8.38l-1.6-1.61L6.1,9.05a1,1,0,0,0,0,1.42,1,1,0,0,0,1.42,0L9.05,9,10.7,10.7,9,12.38l1.6,1.61,2.29-2.28a1,1,0,0,0,1.42,0,1,1,0,0,0,0-1.42Zm5.63-3.25a10,10,0,1,0-17.84,6,1,1,0,0,0,.62,1,8.4,8.4,0,0,1,3.47.81,1,1,0,0,0,1-.6A6.44,6.44,0,0,1,15.1,16a1,1,0,0,0,.86.49,1,1,0,0,0,.52-.15,8.4,8.4,0,0,1,4.24-2.22,1,1,0,0,0,.7-1.29Z"/>
+                </svg>
+                <span>LINE OPC</span>
+            </a>
+
+            <p class="mt-3 text-sm text-red-500">ข้อมูลกำหนดการอ้างอิงจากประกาศของโรงเรียนสตรีวิทยา</p>
+        </footer>
     </div>
 
     <script>
-        // URL ของ Google Apps Script Web App ใหม่
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzOduVeNqTvS46N96Ay4O8teq_a2wuOScuYK0m6GwTEIxQ-f9c3fZmjuYzh1UGL-gax2A/exec';
+        // Get elements needed for countdown and tab switching
+        const daysEl = document.getElementById("days");
+        const hoursEl = document.getElementById("hours");
+        const minutesEl = document.getElementById("minutes");
+        const secondsEl = document.getElementById("seconds");
+        const countdownEl = document.getElementById("countdown"); // Parent container
 
-        // ฟังก์ชันสำหรับแสดง/ซ่อนส่วนเลือกประเภทการสอบและส่วนกรอกคะแนน
-        window.toggleExamTypeSelection = () => {
-            const selectedCurriculum = document.querySelector('input[name="pretestCurriculum"]:checked');
-            if (!selectedCurriculum) return;
-            
-            const selectedValue = selectedCurriculum.value;
-            
-            // ซ่อนทุกส่วนก่อน
-            document.getElementById('special-exam-type').classList.add('hidden');
-            document.getElementById('normal-exam-type').classList.add('hidden');
-            document.getElementById('special-scores-section').classList.add('hidden');
-            document.getElementById('normal-scores-section').classList.add('hidden');
-            document.getElementById('target-special-section').classList.add('hidden');
-            document.getElementById('target-normal-section').classList.add('hidden');
-            
-            // ล้างค่าที่เลือก
-            document.querySelectorAll('input[name="specialExamType"]').forEach(input => input.checked = false);
-            document.querySelectorAll('input[name="normalExamType"]').forEach(input => input.checked = false);
-            document.querySelectorAll('input[name="targetSpecial"]').forEach(input => input.checked = false);
-            document.querySelectorAll('input[name="targetNormal"]').forEach(input => input.checked = false);
-            
-            if (selectedValue === 'both') {
-                document.getElementById('special-exam-type').classList.remove('hidden');
-                document.getElementById('normal-exam-type').classList.remove('hidden');
-                document.getElementById('special-scores-section').classList.remove('hidden');
-                document.getElementById('normal-scores-section').classList.remove('hidden');
-                document.getElementById('target-special-section').classList.remove('hidden');
-                document.getElementById('target-normal-section').classList.remove('hidden');
-            } else if (selectedValue === 'special') {
-                document.getElementById('special-exam-type').classList.remove('hidden');
-                document.getElementById('special-scores-section').classList.remove('hidden');
-                document.getElementById('target-special-section').classList.remove('hidden');
-            } else if (selectedValue === 'normal') {
-                document.getElementById('normal-exam-type').classList.remove('hidden');
-                document.getElementById('normal-scores-section').classList.remove('hidden');
-                document.getElementById('target-normal-section').classList.remove('hidden');
+        // ----------------------------------------------------
+        // JAVASCRIPT: COUNTDOWN LOGIC (MODIFIED)
+        // ----------------------------------------------------
+        function updateCountdown() {
+            // Check if essential elements are available before attempting to update them.
+            if (!daysEl || !hoursEl || !minutesEl || !secondsEl || !countdownEl) return;
+
+            // Target date is the END of registration: 8 December 2025 (2568 BE) at 16:00:00
+            const targetDate = new Date("2025-12-08T16:00:00");
+            const today = new Date();
+
+            const diff = targetDate - today;
+
+            if (diff <= 0) {
+                // If past the end date (Dec 8, 4 PM)
+                let messageHTML = '<div class="text-3xl font-bold text-gray-500">การรับสมัครสิ้นสุดแล้ว</div>';
+
+                // Replace the countdown display with the message
+                countdownEl.innerHTML = messageHTML;
+
+                // Stop the interval if it's running
+                if (window.countdownTimer) {
+                    clearInterval(window.countdownTimer);
+                }
+                return;
             }
-        };
 
-        // ฟังก์ชันคำนวณคะแนนรวมอัตโนมัติ
-        function setupAutoCalculate() {
-            // คะแนนห้องเรียนพิเศษ
-            ['score_special_math', 'score_special_science', 'score_special_english'].forEach(id => {
-                document.getElementById(id)?.addEventListener('input', calculateSpecialTotal);
-            });
+            // Calculate time components
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-            // คะแนนห้องเรียนปกติ
-            ['score_normal_math', 'score_normal_science', 'score_normal_english', 'score_normal_thai', 'score_normal_social'].forEach(id => {
-                document.getElementById(id)?.addEventListener('input', calculateNormalTotal);
-            });
+            // Update individual display elements to display the remaining time
+            daysEl.textContent = days;
+            hoursEl.textContent = String(hours).padStart(2, "0");
+            minutesEl.textContent = String(minutes).padStart(2, "0");
+            secondsEl.textContent = String(seconds).padStart(2, "0");
         }
 
-        function calculateSpecialTotal() {
-            const math = parseFloat(document.getElementById('score_special_math').value) || 0;
-            const science = parseFloat(document.getElementById('score_special_science').value) || 0;
-            const english = parseFloat(document.getElementById('score_special_english').value) || 0;
-            const total = math + science + english;
-            document.getElementById('special-total-score').textContent = total.toFixed(2);
-        }
+        // Initialize and update countdown every 1 second
+        window.countdownTimer = setInterval(updateCountdown, 1000);
+        updateCountdown();
 
-        function calculateNormalTotal() {
-            const math = parseFloat(document.getElementById('score_normal_math').value) || 0;
-            const science = parseFloat(document.getElementById('score_normal_science').value) || 0;
-            const english = parseFloat(document.getElementById('score_normal_english').value) || 0;
-            const thai = parseFloat(document.getElementById('score_normal_thai').value) || 0;
-            const social = parseFloat(document.getElementById('score_normal_social').value) || 0;
-            const total = math + science + english + thai + social;
-            document.getElementById('normal-total-score').textContent = total.toFixed(2);
-        }
+        // ----------------------------------------------------
+        // JAVASCRIPT: TAB SWITCHING LOGIC
+        // ----------------------------------------------------
+        const specialBtn = document.getElementById('special-btn');
+        const regularBtn = document.getElementById('regular-btn');
+        const specialContent = document.getElementById('special-content');
+        const regularContent = document.getElementById('regular-content');
 
-        // ฟังก์ชันสำหรับรีเซ็ตฟอร์ม
-        function resetForm() {
-            document.getElementById('survey-form').reset();
-            document.getElementById('special-scores-section').classList.add('hidden');
-            document.getElementById('normal-scores-section').classList.add('hidden');
-            document.getElementById('special-exam-type').classList.add('hidden');
-            document.getElementById('normal-exam-type').classList.add('hidden');
-            document.getElementById('target-special-section').classList.add('hidden');
-            document.getElementById('target-normal-section').classList.add('hidden');
-            document.getElementById('special-total-score').textContent = '0.00';
-            document.getElementById('normal-total-score').textContent = '0.00';
-            document.getElementById('success-message').classList.add('hidden');
-            document.getElementById('form-section').classList.remove('hidden');
-        }
+        function showTab(tabName) {
+            if (tabName === 'special') {
+                // Show Special Content
+                specialContent.classList.remove('hidden');
+                regularContent.classList.add('hidden');
 
-        // ฟังก์ชันแสดงข้อความแจ้งเตือน
-        function showMessage(message, type = 'success') {
-            const box = document.getElementById('message-box');
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `message-alert bg-${type === 'success' ? 'green' : type === 'error' ? 'red' : 'yellow'}-100 border-l-4 border-${type === 'success' ? 'green' : type === 'error' ? 'red' : 'yellow'}-500 text-${type === 'success' ? 'green' : type === 'error' ? 'red' : 'yellow'}-800`;
-            alertDiv.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-times-circle' : 'fa-exclamation-triangle'} mr-2"></i> <span class="font-semibold">${message}</span>`;
-            
-            box.prepend(alertDiv);
-            setTimeout(() => alertDiv.remove(), 5000);
-        }
+                // Style Special Button (Active)
+                specialBtn.classList.add('active', 'bg-rose-500', 'text-white');
+                specialBtn.classList.remove('bg-white', 'text-rose-600', 'border-2', 'border-rose-400');
 
-        // ฟังก์ชันส่งข้อมูลไปยัง Google Apps Script
-        async function submitToAppScript(formData) {
-            try {
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: new URLSearchParams(formData).toString()
-                });
-                
-                const result = await response.json();
-                return result;
-                
-            } catch (error) {
-                console.error('Error submitting to App Script:', error);
-                return { status: 'error', message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ' };
+                // Style Regular Button (Inactive)
+                regularBtn.classList.remove('active', 'bg-sky-500', 'text-white');
+                regularBtn.classList.add('bg-white', 'text-sky-600', 'border-2', 'border-sky-400');
+
+            } else {
+                // Show Regular Content
+                specialContent.classList.add('hidden');
+                regularContent.classList.remove('hidden');
+
+                // Style Regular Button (Active)
+                regularBtn.classList.add('active', 'bg-sky-500', 'text-white');
+                regularBtn.classList.remove('bg-white', 'text-sky-600', 'border-2', 'border-sky-400');
+
+                // Style Special Button (Inactive)
+                specialBtn.classList.remove('active', 'bg-rose-500', 'text-white');
+                specialBtn.classList.add('bg-white', 'text-rose-600', 'border-2', 'border-rose-400');
             }
         }
-
-        // ฟังก์ชันจัดการการส่งฟอร์ม
-        async function handleFormSubmit(e) {
-            e.preventDefault();
-            
-            // แสดงสถานะกำลังส่ง
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> กำลังส่งข้อมูล...';
-            submitBtn.disabled = true;
-
-            try {
-                const nickname = document.getElementById('nickname').value.trim() || 'ไม่ประสงค์ออกนาม';
-                const currentGrade = document.querySelector('input[name="currentGrade"]:checked');
-                const pretestCurriculum = document.querySelector('input[name="pretestCurriculum"]:checked');
-                
-                if (!currentGrade) {
-                    showMessage('กรุณาเลือกระดับชั้น', 'error');
-                    return;
-                }
-                
-                if (!pretestCurriculum) {
-                    showMessage('กรุณาเลือกหลักสูตรที่สอบ Pre-test', 'error');
-                    return;
-                }
-
-                // ตรวจสอบข้อมูลคะแนน
-                const validationErrors = validateFormData();
-                if (validationErrors.length > 0) {
-                    showMessage(validationErrors[0], 'error');
-                    return;
-                }
-
-                // เตรียมข้อมูลสำหรับส่ง
-                const formData = {
-                    nickname: nickname,
-                    currentGrade: currentGrade.value,
-                    pretestCurriculum: pretestCurriculum.value,
-                    targetSpecial: document.querySelector('input[name="targetSpecial"]:checked')?.value || '',
-                    targetNormal: document.querySelector('input[name="targetNormal"]:checked')?.value || '',
-                    timestamp: new Date().toISOString()
-                };
-
-                // เพิ่มข้อมูลคะแนนห้องเรียนพิเศษ
-                if (formData.pretestCurriculum === 'special' || formData.pretestCurriculum === 'both') {
-                    const specialExamType = document.querySelector('input[name="specialExamType"]:checked');
-                    if (!specialExamType) {
-                        showMessage('กรุณาเลือกประเภทการสอบสำหรับห้องเรียนพิเศษ', 'error');
-                        return;
-                    }
-                    
-                    formData.specialExamType = specialExamType.value;
-                    formData.specialRank = document.getElementById('special_rank').value || '';
-                    formData.specialMath = document.getElementById('score_special_math').value || '';
-                    formData.specialScience = document.getElementById('score_special_science').value || '';
-                    formData.specialEnglish = document.getElementById('score_special_english').value || '';
-                    formData.specialTotal = (parseFloat(document.getElementById('score_special_math').value) || 0) +
-                                           (parseFloat(document.getElementById('score_special_science').value) || 0) +
-                                           (parseFloat(document.getElementById('score_special_english').value) || 0);
-                }
-
-                // เพิ่มข้อมูลคะแนนห้องเรียนปกติ
-                if (formData.pretestCurriculum === 'normal' || formData.pretestCurriculum === 'both') {
-                    const normalExamType = document.querySelector('input[name="normalExamType"]:checked');
-                    if (!normalExamType) {
-                        showMessage('กรุณาเลือกประเภทการสอบสำหรับห้องเรียนปกติ', 'error');
-                        return;
-                    }
-                    
-                    formData.normalExamType = normalExamType.value;
-                    formData.normalRank = document.getElementById('normal_rank').value || '';
-                    formData.normalMath = document.getElementById('score_normal_math').value || '';
-                    formData.normalScience = document.getElementById('score_normal_science').value || '';
-                    formData.normalEnglish = document.getElementById('score_normal_english').value || '';
-                    formData.normalThai = document.getElementById('score_normal_thai').value || '';
-                    formData.normalSocial = document.getElementById('score_normal_social').value || '';
-                    formData.normalTotal = (parseFloat(document.getElementById('score_normal_math').value) || 0) +
-                                          (parseFloat(document.getElementById('score_normal_science').value) || 0) +
-                                          (parseFloat(document.getElementById('score_normal_english').value) || 0) +
-                                          (parseFloat(document.getElementById('score_normal_thai').value) || 0) +
-                                          (parseFloat(document.getElementById('score_normal_social').value) || 0);
-                }
-
-                console.log('Form data prepared:', formData);
-
-                // ส่งข้อมูลไปยัง Google Apps Script
-                showMessage('กำลังส่งข้อมูล...', 'info');
-                const result = await submitToAppScript(formData);
-                
-                if (result.status === 'success') {
-                    // แสดงผลสำเร็จ
-                    document.getElementById('form-section').classList.add('hidden');
-                    document.getElementById('success-message').classList.remove('hidden');
-                    showMessage("ส่งข้อมูลสำเร็จ! ข้อมูลถูกบันทึกในระบบแล้ว 🎉", "success");
-                    
-                } else {
-                    showMessage("เกิดข้อผิดพลาด: " + result.message, "error");
-                }
-                
-            } catch (error) {
-                console.error('Error in form submission:', error);
-                showMessage("เกิดข้อผิดพลาดในการส่งข้อมูล: " + error.message, "error");
-            } finally {
-                // คืนสถานะปุ่มส่ง
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            }
-        }
-
-        // ฟังก์ชันตรวจสอบความถูกต้องของข้อมูล
-        function validateFormData() {
-            const errors = [];
-            
-            // ตรวจสอบว่ามีการกรอกคะแนนอย่างน้อยหนึ่งวิชา
-            const hasSpecialScores = document.getElementById('score_special_math') && 
-                                    (parseFloat(document.getElementById('score_special_math').value) > 0 ||
-                                     parseFloat(document.getElementById('score_special_science').value) > 0 ||
-                                     parseFloat(document.getElementById('score_special_english').value) > 0);
-            
-            const hasNormalScores = document.getElementById('score_normal_math') && 
-                                   (parseFloat(document.getElementById('score_normal_math').value) > 0 ||
-                                    parseFloat(document.getElementById('score_normal_science').value) > 0 ||
-                                    parseFloat(document.getElementById('score_normal_english').value) > 0 ||
-                                    parseFloat(document.getElementById('score_normal_thai').value) > 0 ||
-                                    parseFloat(document.getElementById('score_normal_social').value) > 0);
-            
-            const selectedCurriculum = document.querySelector('input[name="pretestCurriculum"]:checked');
-            
-            if (selectedCurriculum) {
-                if (selectedCurriculum.value === 'special' && !hasSpecialScores) {
-                    errors.push('กรุณากรอกคะแนนสำหรับห้องเรียนพิเศษอย่างน้อยหนึ่งวิชา');
-                } else if (selectedCurriculum.value === 'normal' && !hasNormalScores) {
-                    errors.push('กรุณากรอกคะแนนสำหรับห้องเรียนปกติอย่างน้อยหนึ่งวิชา');
-                } else if (selectedCurriculum.value === 'both' && !hasSpecialScores && !hasNormalScores) {
-                    errors.push('กรุณากรอกคะแนนอย่างน้อยหนึ่งหลักสูตร');
-                }
-            }
-            
-            return errors;
-        }
-
-        // ตั้งค่าเมื่อโหลดหน้าเว็บ
-        document.addEventListener('DOMContentLoaded', function() {
-            setupAutoCalculate();
-            
-            // Event Listeners
-            document.querySelectorAll('.curriculum-option').forEach(option => {
-                option.addEventListener('click', function() {
-                    const radio = this.querySelector('input[type="radio"]');
-                    if (radio) {
-                        radio.checked = true;
-                        document.querySelectorAll('.curriculum-option').forEach(opt => {
-                            opt.classList.remove('selected');
-                        });
-                        this.classList.add('selected');
-                        if (radio.name === 'pretestCurriculum') {
-                            toggleExamTypeSelection();
-                        }
-                    }
-                });
-            });
-
-            document.getElementById('reset-btn').addEventListener('click', resetForm);
-            document.getElementById('survey-form').addEventListener('submit', handleFormSubmit);
-        });
     </script>
+
 </body>
 </html>
