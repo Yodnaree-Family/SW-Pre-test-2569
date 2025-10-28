@@ -93,7 +93,7 @@
         <div class="card mb-12">
             <div class="p-6 md:p-8 text-center">
                 <h2 class="text-2xl font-semibold text-gray-800 mb-6">
-                    เหลือเวลากี่วันถึงวันสมัครสอบ (28 ตุลาคม 2568)
+                    เหลือเวลากี่วันถึงวันสิ้นสุดรับสมัคร (8 ธันวาคม 2568 เวลา 16.00 น.)
                 </h2>
 
                 <!-- Countdown Display Area -->
@@ -117,7 +117,7 @@
                 </div>
 
                 <p class="text-base text-gray-700 mt-3 italic">
-                    เริ่มรับสมัคร 28 ต.ค. 68 ถึง 8 ธ.ค. 68
+                    เริ่มรับสมัคร 28 ต.ค. 68 ถึง 8 ธ.ค. 68 (ภายใน 16.00 น.)
                 </p>
             </div>
 
@@ -418,23 +418,16 @@
             // Check if essential elements are available before attempting to update them.
             if (!daysEl || !hoursEl || !minutesEl || !secondsEl || !countdownEl) return;
 
-            // Target date is the start of registration: 28 October 2025 (2568 BE) at 08:00:00
-            const targetDate = new Date("2025-10-28T08:00:00");
+            // Target date is the end of registration: 8 December 2025 (2568 BE) at 16:00:00
+            const targetDate = new Date("2025-12-08T16:00:00");
             const today = new Date();
-            const registrationEndDate = new Date("2025-12-08T16:00:00");
 
             const diff = targetDate - today;
 
             if (diff <= 0) {
-                // If past the start date (Oct 28)
+                // If past the end date (Dec 8, 4 PM)
                 let messageHTML = '';
-                if (today < registrationEndDate) {
-                    // If still within the registration period (before Dec 8, 4 PM)
-                    messageHTML = '<div class="text-3xl font-bold text-green-600">เริ่มสมัครสอบแล้ว!</div>';
-                } else {
-                    // Registration has ended
-                    messageHTML = '<div class="text-3xl font-bold text-gray-500">การรับสมัครสิ้นสุดแล้ว</div>';
-                }
+                messageHTML = '<div class="text-3xl font-bold text-gray-500">การรับสมัครสิ้นสุดแล้ว</div>';
 
                 // Replace the countdown display with the message
                 countdownEl.innerHTML = messageHTML;
