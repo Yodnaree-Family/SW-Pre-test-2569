@@ -4,44 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569</title>
-    <!-- ใช้ Tailwind CSS ผ่าน CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
             font-family: 'Noto Sans Thai', sans-serif;
             background-color: #f7f8fc;
-            line-height: 1.6;
         }
-        
         .header-gradient {
-            background: linear-gradient(135deg, #2a2a72 0%, #009ffd 100%);
+            background-image: linear-gradient(135deg, #2a2a72 0%, #009ffd 100%);
         }
-        
         .input-field {
             border-radius: 0.5rem;
             padding: 0.75rem 1rem;
             border: 1px solid #d1d5db;
             transition: border-color 0.2s, box-shadow 0.2s;
             background-color: #f9fafb;
-            width: 100%;
         }
-        
         .input-field:focus {
             border-color: #3b82f6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
             outline: none;
         }
-        
         .btn {
             border-radius: 0.5rem;
             transition: all 0.2s ease;
@@ -51,104 +38,93 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             border: none;
             cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
         }
-        
         .btn-primary {
-            background: linear-gradient(to right, #3b82f6, #60a5fa);
+            background-image: linear-gradient(to right, #3b82f6, #60a5fa);
         }
-        
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 7px 20px rgba(59, 130, 246, 0.2);
         }
-        
         .btn-secondary {
-            background: linear-gradient(to right, #6b7280, #9ca3af);
+            background-image: linear-gradient(to right, #6b7280, #9ca3af);
         }
-        
         .btn-secondary:hover {
             transform: translateY(-2px);
             box-shadow: 0 7px 20px rgba(107, 114, 128, 0.2);
         }
-        
         .btn-success {
-            background: linear-gradient(to right, #16a34a, #22c55e);
+            background-image: linear-gradient(to right, #16a34a, #22c55e);
         }
-        
         .btn-success:hover {
             transform: translateY(-2px);
             box-shadow: 0 7px 20px rgba(22, 163, 74, 0.2);
         }
-        
         .btn-danger {
-            background: linear-gradient(to right, #dc2626, #ef4444);
+            background-image: linear-gradient(to right, #dc2626, #ef4444);
         }
-        
         .btn-danger:hover {
             transform: translateY(-2px);
             box-shadow: 0 7px 20px rgba(220, 38, 38, 0.2);
         }
-        
-        .btn-warning {
-            background: linear-gradient(to right, #d97706, #f59e0b);
-        }
-        
-        .btn-warning:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 7px 20px rgba(217, 119, 6, 0.2);
-        }
-        
         .curriculum-option {
             border: 2px solid #e5e7eb;
             border-radius: 0.75rem;
             padding: 1rem;
             cursor: pointer;
             transition: all 0.2s;
-            background: white;
         }
-        
-        .curriculum-option:hover {
-            border-color: #9ca3af;
-        }
-        
         .curriculum-option.selected {
             border-color: #3b82f6;
             background-color: #eff6ff;
         }
-        
-        .hidden {
-            display: none !important;
+        .line-opc-section {
+            background: linear-gradient(135deg, #06c755 0%, #00b34c 100%);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            color: white;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(6, 199, 85, 0.2);
         }
-        
+        .line-opc-button {
+            display: inline-flex;
+            align-items: center;
+            background: white;
+            color: #06c755;
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            text-decoration: none;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .line-opc-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(0, 0, 0, 0.15);
+            color: #06c755;
+        }
+        .hidden {
+            display: none;
+        }
         .score-input-section {
             background: #f8f9fa;
             border-radius: 0.75rem;
             padding: 1.5rem;
             margin-top: 1rem;
         }
-        
         .exam-type-option {
             border: 2px solid #e5e7eb;
             border-radius: 0.75rem;
             padding: 1rem;
             cursor: pointer;
             transition: all 0.2s;
-            background: white;
         }
-        
-        .exam-type-option:hover {
-            border-color: #9ca3af;
-        }
-        
         .exam-type-option.selected {
             border-color: #3b82f6;
             background-color: #eff6ff;
         }
-        
         .success-message {
             background: #d1fae5;
             border: 1px solid #a7f3d0;
@@ -157,8 +133,8 @@
             border-radius: 1rem;
             text-align: center;
             margin: 2rem 0;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
-        
         .tab-button {
             padding: 0.75rem 1.5rem;
             border-radius: 0.5rem;
@@ -166,16 +142,16 @@
             cursor: pointer;
             transition: all 0.2s;
             border: 2px solid transparent;
-            background: #f9fafb;
-            color: #4b5563;
         }
-        
         .tab-button.active {
             background-color: #e0e7ff;
             color: #4338ca;
             border-color: #a5b4fc;
         }
-        
+        .tab-button:not(.active) {
+            color: #4b5563;
+            background-color: #f9fafb;
+        }
         .result-tab {
             padding: 0.5rem 1rem;
             border-radius: 0.5rem;
@@ -183,16 +159,16 @@
             cursor: pointer;
             transition: all 0.2s;
             border: 2px solid transparent;
-            background: #f9fafb;
-            color: #4b5563;
         }
-        
         .result-tab.active {
             background-color: #e0e7ff;
             color: #4338ca;
             border-color: #a5b4fc;
         }
-        
+        .result-tab:not(.active) {
+            color: #4b5563;
+            background-color: #f9fafb;
+        }
         .exam-type-tab {
             padding: 0.5rem 1rem;
             border-radius: 0.5rem;
@@ -200,21 +176,37 @@
             cursor: pointer;
             transition: all 0.2s;
             border: 2px solid transparent;
-            background: #f9fafb;
-            color: #4b5563;
         }
-        
         .exam-type-tab.active {
             background-color: #e0e7ff;
             color: #4338ca;
             border-color: #a5b4fc;
         }
-        
+        .exam-type-tab:not(.active) {
+            color: #4b5563;
+            background-color: #f9fafb;
+        }
+        .grade-tab {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .grade-tab.active {
+            background-color: #e0e7ff;
+            color: #4338ca;
+            border-color: #a5b4fc;
+        }
+        .grade-tab:not(.active) {
+            color: #4b5563;
+            background-color: #f9fafb;
+        }
         .table-container {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
         }
-        
         .loading-spinner {
             border: 3px solid #f3f3f3;
             border-top: 3px solid #3b82f6;
@@ -224,40 +216,15 @@
             animation: spin 1s linear infinite;
             margin: 0 auto;
         }
-        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
-        .message-box {
-            position: fixed;
-            top: 1rem;
-            right: 1rem;
-            z-index: 50;
-            width: 100%;
-            max-width: 24rem;
-        }
-        
-        .message-alert {
-            padding: 1rem;
-            border-radius: 0.5rem;
-            margin-bottom: 0.5rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s;
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        
-        .message-alert.show {
-            transform: translateX(0);
-            opacity: 1;
-        }
     </style>
 </head>
-<body class="p-4">
+<body class="p-4 sm:p-6">
     <!-- Message Box -->
-    <div id="message-box" class="message-box"></div>
+    <div id="message-box" class="fixed top-5 right-5 z-50 w-full max-w-sm"></div>
     
     <!-- Header -->
     <div class="max-w-7xl mx-auto text-center py-3 mb-4 bg-pink-100 rounded-xl shadow-md border-2 border-pink-300">
@@ -268,19 +235,19 @@
     
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-        <header class="text-center p-8 header-gradient relative">
+        <header class="text-center p-8 sm:p-10 header-gradient relative">
             <button id="back-to-form-btn" class="absolute top-4 left-4 btn btn-secondary text-sm hidden" onclick="switchView('form')">
                 <i class="fas fa-arrow-left mr-1"></i> กลับหน้ากรอกข้อมูล
             </button>
-            <h1 class="text-3xl font-extrabold text-white leading-tight">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-white leading-tight">
                 ระบบสำรวจและวิเคราะห์คะแนน Pre-test สตรีวิทยา
             </h1>
             <p class="text-lg text-blue-200 mt-2">ปีการศึกษา 2569</p>
         </header>
         
-        <main class="p-6">
+        <main class="p-6 sm:p-8">
             <!-- Tabs -->
-            <div class="flex flex-wrap justify-center border-b mb-8 space-x-2">
+            <div class="flex flex-wrap justify-center border-b mb-8 space-x-2 sm:space-x-4">
                 <button id="tab-form" class="tab-button active" onclick="switchView('form')"><i class="fas fa-edit mr-2"></i>กรอกข้อมูล</button>
                 <button id="tab-results" class="tab-button" onclick="switchView('results')"><i class="fas fa-chart-bar mr-2"></i>ดูผลสำรวจรวม</button>
                 <button id="tab-analysis" class="tab-button" onclick="switchView('analysis')"><i class="fas fa-calculator mr-2"></i>วิเคราะห์คะแนน</button>
@@ -300,36 +267,35 @@
             <!-- Form Section -->
             <div id="form-section">
                 <form id="survey-form" class="space-y-8 max-w-4xl mx-auto">
-                    <!-- ชื่อเล่น -->
+                    <!-- ระดับชั้นการศึกษา -->
                     <div>
-                        <label for="nickname" class="block text-gray-700 font-semibold mb-2">ชื่อเล่น / นามแฝง (ไม่บังคับ)</label>
-                        <input type="text" id="nickname" class="input-field w-full" placeholder="เช่น น้องยอดนารี">
-                    </div>
-                    
-                    <!-- ส่วนที่ 0: กำลังศึกษาอยู่ในระดับชั้น -->
-                    <div class="border rounded-lg p-6 bg-gray-50">
-                        <h3 class="font-semibold text-lg text-gray-800 mb-4">กำลังศึกษาอยู่ในระดับชั้น</h3>
-                        
-                        <div class="space-y-3">
+                        <label for="grade" class="block text-gray-700 font-semibold mb-2">ระดับชั้นการศึกษา</label>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <label class="curriculum-option flex items-center">
-                                <input type="radio" name="currentGrade" value="grade4" class="mr-3">
+                                <input type="radio" name="grade" value="ป.4" class="mr-3">
                                 <div>
                                     <span class="font-medium">ประถมศึกษาปีที่ 4 (ป.4)</span>
                                 </div>
                             </label>
                             <label class="curriculum-option flex items-center">
-                                <input type="radio" name="currentGrade" value="grade5" class="mr-3">
+                                <input type="radio" name="grade" value="ป.5" class="mr-3">
                                 <div>
                                     <span class="font-medium">ประถมศึกษาปีที่ 5 (ป.5)</span>
                                 </div>
                             </label>
                             <label class="curriculum-option flex items-center">
-                                <input type="radio" name="currentGrade" value="grade6" class="mr-3">
+                                <input type="radio" name="grade" value="ป.6" class="mr-3">
                                 <div>
                                     <span class="font-medium">ประถมศึกษาปีที่ 6 (ป.6)</span>
                                 </div>
                             </label>
                         </div>
+                    </div>
+                    
+                    <!-- ชื่อเล่น -->
+                    <div>
+                        <label for="nickname" class="block text-gray-700 font-semibold mb-2">ชื่อเล่น / นามแฝง (ไม่บังคับ)</label>
+                        <input type="text" id="nickname" class="input-field w-full" placeholder="เช่น น้องยอดนารี">
                     </div>
                     
                     <!-- ส่วนที่ 1: แบบสำรวจคะแนนสอบ Pre-test -->
@@ -372,17 +338,17 @@
                                     <label class="block text-gray-700 mb-2">ห้องเรียนพิเศษ</label>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                         <label class="exam-type-option flex items-center">
-                                            <input type="radio" name="specialExamType" value="Online" class="mr-3">
-                                            <div>
-                                                <span class="font-medium">Online</span>
-                                                <p class="text-sm text-gray-600 mt-1">สอบออนไลน์</p>
-                                            </div>
-                                        </label>
-                                        <label class="exam-type-option flex items-center">
                                             <input type="radio" name="specialExamType" value="On-site" class="mr-3">
                                             <div>
                                                 <span class="font-medium">On-site</span>
                                                 <p class="text-sm text-gray-600 mt-1">สอบที่โรงเรียน</p>
+                                            </div>
+                                        </label>
+                                        <label class="exam-type-option flex items-center">
+                                            <input type="radio" name="specialExamType" value="Online" class="mr-3">
+                                            <div>
+                                                <span class="font-medium">Online</span>
+                                                <p class="text-sm text-gray-600 mt-1">สอบออนไลน์</p>
                                             </div>
                                         </label>
                                     </div>
@@ -393,17 +359,17 @@
                                     <label class="block text-gray-700 mb-2">ห้องเรียนปกติ</label>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                         <label class="exam-type-option flex items-center">
-                                            <input type="radio" name="normalExamType" value="Online" class="mr-3">
-                                            <div>
-                                                <span class="font-medium">Online</span>
-                                                <p class="text-sm text-gray-600 mt-1">สอบออนไลน์</p>
-                                            </div>
-                                        </label>
-                                        <label class="exam-type-option flex items-center">
                                             <input type="radio" name="normalExamType" value="On-site" class="mr-3">
                                             <div>
                                                 <span class="font-medium">On-site</span>
                                                 <p class="text-sm text-gray-600 mt-1">สอบที่โรงเรียน</p>
+                                            </div>
+                                        </label>
+                                        <label class="exam-type-option flex items-center">
+                                            <input type="radio" name="normalExamType" value="Online" class="mr-3">
+                                            <div>
+                                                <span class="font-medium">Online</span>
+                                                <p class="text-sm text-gray-600 mt-1">สอบออนไลน์</p>
                                             </div>
                                         </label>
                                     </div>
@@ -600,6 +566,13 @@
                     <button id="exam-type-online" class="exam-type-tab" onclick="switchExamTypeTab('Online')">Online</button>
                 </div>
                 
+                <div class="flex flex-wrap justify-center mb-6 space-x-2">
+                    <button id="grade-all" class="grade-tab active" onclick="switchGradeTab('all')">ทุกชั้น</button>
+                    <button id="grade-4" class="grade-tab" onclick="switchGradeTab('ป.4')">ป.4</button>
+                    <button id="grade-5" class="grade-tab" onclick="switchGradeTab('ป.5')">ป.5</button>
+                    <button id="grade-6" class="grade-tab" onclick="switchGradeTab('ป.6')">ป.6</button>
+                </div>
+                
                 <div id="loading-indicator" class="text-center py-8">
                     <div class="loading-spinner mb-4"></div>
                     <p class="text-gray-600">กำลังโหลดข้อมูลจาก Google Sheet...</p>
@@ -611,7 +584,7 @@
                             <tr>
                                 <th scope="col" class="py-3 px-4">อันดับ</th>
                                 <th scope="col" class="py-3 px-4">ชื่อ</th>
-                                <th scope="col" class="py-3 px-4">ระดับชั้น</th>
+                                <th scope="col" class="py-3 px-4">ชั้น</th>
                                 <th scope="col" class="py-3 px-4">ประเภทสอบ</th>
                                 <th scope="col" class="py-3 px-4 text-right">คะแนนรวม</th>
                                 <th scope="col" class="py-3 px-4">คณิต</th>
@@ -630,6 +603,9 @@
                 <div class="text-center mt-6">
                     <button onclick="fetchScoresFromGoogleSheet()" class="btn btn-secondary mr-2">
                         <i class="fas fa-sync-alt mr-2"></i> โหลดข้อมูลใหม่
+                    </button>
+                    <button onclick="loadLocalScores()" class="btn btn-secondary mr-2">
+                        <i class="fas fa-database mr-2"></i> โหลดข้อมูลท้องถิ่น
                     </button>
                     <button onclick="exportToCSV()" class="btn btn-success">
                         <i class="fas fa-download mr-2"></i> ดาวน์โหลดข้อมูล
@@ -656,21 +632,37 @@
             </div>
         </main>
         
-        <!-- Footer -->
-        <div class="bg-blue-50 p-6 text-center">
-            <p class="text-gray-600">Developed for Satriwitthaya Pre-test Takers | ข้อมูลจะถูกบันทึกใน Google Sheet เท่านั้น</p>
+        <!-- Line OPC Section -->
+        <div class="line-opc-section mx-6 mb-6">
+            <div class="flex flex-col items-center">
+                <div class="text-center mb-4">
+                    <p class="text-lg font-semibold mb-2">🌟 รวบรวมข้อมูลและจัดทำโดย ... ลุ้นสอวอไปด้วยกันนะ 🌟</p>
+                    <p class="text-xl font-bold">ครอบครัวยอดนารี❤️สตรีวิทยา</p>
+                </div>
+                <a href="https://line.me/ti/g2/ZRIN-ofnybH08hXhS6OYTfIMeKqvupT0Qzd44Q?utm_source=invitation&utm_medium=link_copy&utm_campaign=default" 
+                   target="_blank" class="line-opc-button">
+                    <i class="fab fa-line mr-2 text-xl"></i>
+                    Line OPC
+                </a>
+                <p class="text-sm mt-3 opacity-90">คลิกเพื่อเข้าร่วมกลุ่มไลน์ครอบครัวยอดนารี</p>
+            </div>
         </div>
     </div>
+    
+    <footer class="text-center py-6 text-gray-500 text-sm">
+        <p>Developed for Satriwitthaya Pre-test Takers | ข้อมูลจะถูกบันทึกในเบราว์เซอร์ของคุณเท่านั้น</p>
+    </footer>
 
     <script>
         // ตัวแปรเก็บข้อมูล
         let allScores = [];
         let currentResultTab = 'special';
         let currentExamTypeTab = 'all';
+        let currentGradeTab = 'all';
         let currentView = 'form';
 
-        // URL ของ Google Apps Script Web App
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzOduVeNqTvS46N96Ay4O8teq_a2wuOScuYK0m6GwTEIxQ-f9c3fZmjuYzh1UGL-gax2A/exec';
+        // URL ของ Google Apps Script Web App ใหม่
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwqTunRaAE01ok3KvOcY6-3EHFQB7QZq3tq-pSudInCgOohVnEze3CaEsRLvQ3_DMak5w/exec';
 
         // ข้อมูลสำหรับการวิเคราะห์
         const historicalData2568 = {
@@ -728,6 +720,7 @@
             if (view === 'results' || view === 'analysis') {
                 backBtn.classList.remove('hidden');
                 if (view === 'results') {
+                    // โหลดข้อมูลจาก Google Sheet เมื่อเข้าหน้านี้
                     fetchScoresFromGoogleSheet();
                 } else if (view === 'analysis') {
                     displayAnalysisResults();
@@ -751,6 +744,16 @@
             document.getElementById('exam-type-all').classList.toggle('active', tab === 'all');
             document.getElementById('exam-type-onsite').classList.toggle('active', tab === 'On-site');
             document.getElementById('exam-type-online').classList.toggle('active', tab === 'Online');
+            applyFilters();
+        };
+
+        // ฟังก์ชันสำหรับสลับแท็บระดับชั้น
+        window.switchGradeTab = (tab) => {
+            currentGradeTab = tab;
+            document.getElementById('grade-all').classList.toggle('active', tab === 'all');
+            document.getElementById('grade-4').classList.toggle('active', tab === 'ป.4');
+            document.getElementById('grade-5').classList.toggle('active', tab === 'ป.5');
+            document.getElementById('grade-6').classList.toggle('active', tab === 'ป.6');
             applyFilters();
         };
 
@@ -843,172 +846,229 @@
         function showMessage(message, type = 'success') {
             const box = document.getElementById('message-box');
             const alertDiv = document.createElement('div');
-            alertDiv.className = `message-alert bg-${type === 'success' ? 'green' : type === 'error' ? 'red' : 'yellow'}-100 border-l-4 border-${type === 'success' ? 'green' : type === 'error' ? 'red' : 'yellow'}-500 text-${type === 'success' ? 'green' : type === 'error' ? 'red' : 'yellow'}-800`;
+            alertDiv.className = `p-4 rounded-lg shadow-lg mb-2 bg-${type === 'success' ? 'green' : type === 'error' ? 'red' : 'yellow'}-100 border-l-4 border-${type === 'success' ? 'green' : type === 'error' ? 'red' : 'yellow'}-500 text-${type === 'success' ? 'green' : type === 'error' ? 'red' : 'yellow'}-800 transition-all duration-300 transform translate-x-full opacity-0`;
             alertDiv.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-times-circle' : 'fa-exclamation-triangle'} mr-2"></i> <span class="font-semibold">${message}</span>`;
             
             box.prepend(alertDiv);
-            
+            setTimeout(() => alertDiv.classList.remove('translate-x-full', 'opacity-0'), 10);
             setTimeout(() => {
-                alertDiv.classList.add('show');
-            }, 10);
-            
-            setTimeout(() => {
-                alertDiv.classList.remove('show');
-                setTimeout(() => alertDiv.remove(), 300);
+                alertDiv.classList.add('opacity-0');
+                setTimeout(() => alertDiv.remove(), 400);
             }, 5000);
         }
 
-        // ฟังก์ชันดึงข้อมูลจาก Google Sheet ด้วย JSONP
-        function fetchScoresFromGoogleSheet() {
-            document.getElementById('loading-indicator').classList.remove('hidden');
-            document.getElementById('results-table-body').innerHTML = '';
-            
-            showMessage('กำลังโหลดข้อมูลจาก Google Sheet...', 'info');
-            
-            // สร้าง script element สำหรับ JSONP
-            const callbackName = 'googleSheetDataCallback_' + Date.now();
-            const script = document.createElement('script');
-            script.src = `${GOOGLE_SCRIPT_URL}?action=getData&callback=${callbackName}`;
-            
-            // กำหนด global callback function
-            window[callbackName] = function(data) {
-                // ลบ script element
-                document.head.removeChild(script);
-                delete window[callbackName];
+        // ฟังก์ชันโหลดข้อมูลจาก localStorage
+        function loadLocalScores() {
+            try {
+                const savedScores = localStorage.getItem('pretestScores');
+                allScores = savedScores ? JSON.parse(savedScores) : [];
+                document.getElementById('data-source-info').innerHTML = '<i class="fas fa-database mr-2"></i>แสดงข้อมูลจาก localStorage (' + allScores.length + ' รายการ)';
+                showMessage('โหลดข้อมูลจาก localStorage สำเร็จ!', 'success');
+                applyFilters();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                allScores = [];
+                showMessage('ไม่สามารถโหลดข้อมูลจาก localStorage ได้', 'error');
+            }
+        }
+
+        // ฟังก์ชันดึงข้อมูลจาก Google Sheet
+        async function fetchScoresFromGoogleSheet() {
+            try {
+                // แสดง loading indicator
+                document.getElementById('loading-indicator').classList.remove('hidden');
+                document.getElementById('results-table-body').innerHTML = '';
                 
-                if (data.status === 'success' && data.data) {
-                    // แปลงข้อมูลจาก Google Sheet
-                    allScores = parseGoogleSheetData(data.data);
+                showMessage('กำลังโหลดข้อมูลจาก Google Sheet...', 'info');
+                
+                // ใช้ URL ใหม่ของคุณ
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    // แปลงข้อมูลจาก Google Sheet ให้ตรงกับโครงสร้างของเรา
+                    const convertedData = convertGoogleSheetData(result.data);
+                    allScores = convertedData;
+                    localStorage.setItem('pretestScores', JSON.stringify(allScores));
                     
-                    document.getElementById('data-source-info').innerHTML = 
-                        '<i class="fas fa-database mr-2"></i>ข้อมูลจาก Google Sheet (' + allScores.length + ' รายการ) - ' +
-                        '<span class="text-blue-600">อัปเดตล่าสุด: ' + new Date().toLocaleTimeString('th-TH') + '</span>';
+                    document.getElementById('data-source-info').innerHTML = '<i class="fas fa-cloud mr-2"></i>แสดงข้อมูลจาก Google Sheet (' + allScores.length + ' รายการ) - อัปเดตล่าสุด: ' + new Date().toLocaleTimeString('th-TH');
                     
                     showMessage('โหลดข้อมูลจาก Google Sheet สำเร็จ! (' + allScores.length + ' รายการ)', 'success');
                     applyFilters();
                 } else {
-                    showMessage('ไม่พบข้อมูลใน Google Sheet: ' + (data.message || ''), 'warning');
-                    document.getElementById('data-source-info').innerHTML = 
-                        '<i class="fas fa-exclamation-triangle mr-2"></i>ไม่พบข้อมูลใน Google Sheet';
-                    document.getElementById('results-table-body').innerHTML = 
-                        '<tr><td colspan="10" class="text-center py-6 text-gray-500">ไม่พบข้อมูลในระบบ</td></tr>';
+                    throw new Error(result.message);
                 }
                 
+            } catch (error) {
+                console.error('Error fetching from Google Sheet:', error);
+                showMessage('ไม่สามารถโหลดข้อมูลจาก Google Sheet ได้: ' + error.message, 'error');
+                // โหลดข้อมูลจาก localStorage แทน
+                loadLocalScores();
+            } finally {
+                // ซ่อน loading indicator
                 document.getElementById('loading-indicator').classList.add('hidden');
-            };
-            
-            // เพิ่ม error handling
-            script.onerror = function() {
-                document.head.removeChild(script);
-                delete window[callbackName];
-                
-                showMessage('ไม่สามารถเชื่อมต่อกับ Google Sheet ได้', 'error');
-                document.getElementById('data-source-info').innerHTML = 
-                    '<i class="fas fa-exclamation-triangle mr-2"></i>ไม่สามารถเชื่อมต่อกับ Google Sheet ได้';
-                document.getElementById('results-table-body').innerHTML = 
-                    '<tr><td colspan="10" class="text-center py-6 text-gray-500">เกิดข้อผิดพลาดในการโหลดข้อมูล</td></tr>';
-                document.getElementById('loading-indicator').classList.add('hidden');
-            };
-            
-            // เพิ่ม script ไปยัง head
-            document.head.appendChild(script);
+            }
         }
 
         // ฟังก์ชันแปลงข้อมูลจาก Google Sheet
-        function parseGoogleSheetData(sheetData) {
-            if (!sheetData || sheetData.length < 2) {
-                console.log('No data found in Google Sheet');
-                return [];
-            }
-            
-            const headers = sheetData[0];
-            const dataRows = sheetData.slice(1);
-            const scores = [];
-            
-            dataRows.forEach((row, index) => {
-                if (row.length === 0 || !row[0]) return;
-                
-                try {
-                    const score = {
-                        nickname: row[1] || 'ไม่ระบุชื่อ',
-                        currentGrade: mapGradeToValue(row[2]),
-                        pretestCurriculum: row[3] || '',
-                        timestamp: row[0] || new Date().toISOString(),
-                        targetSpecial: row[18] || '',
-                        targetNormal: row[19] || ''
+        function convertGoogleSheetData(sheetData) {
+            return sheetData.map(row => {
+                const converted = {
+                    nickname: row['ชื่อเล่น'] || 'ไม่ระบุชื่อ',
+                    grade: row['ระดับชั้น'] || '',
+                    timestamp: row['Timestamp'] || new Date().toISOString(),
+                    pretestCurriculum: mapCurriculum(row['หลักสูตรที่สอบ Pre-test']),
+                    targetSpecial: mapTargetSpecial(row['เป้าหมายหลักสูตรพิเศษ']),
+                    targetNormal: mapTargetNormal(row['เป้าหมายหลักสูตรปกติ'])
+                };
+
+                // ข้อมูลห้องเรียนพิเศษ
+                if (converted.pretestCurriculum === 'special' || converted.pretestCurriculum === 'both') {
+                    converted.special = {
+                        examType: row['ประเภทการสอบห้องเรียนพิเศษ'] || '',
+                        rank: parseInt(row['อันดับห้องเรียนพิเศษ']) || 0,
+                        scores: {
+                            math: parseFloat(row['คะแนนคณิตศาสตร์ห้องพิเศษ']) || 0,
+                            science: parseFloat(row['คะแนนวิทยาศาสตร์ห้องพิเศษ']) || 0,
+                            english: parseFloat(row['คะแนนภาษาอังกฤษห้องพิเศษ']) || 0
+                        },
+                        totalScore: (parseFloat(row['คะแนนคณิตศาสตร์ห้องพิเศษ']) || 0) +
+                                   (parseFloat(row['คะแนนวิทยาศาสตร์ห้องพิเศษ']) || 0) +
+                                   (parseFloat(row['คะแนนภาษาอังกฤษห้องพิเศษ']) || 0)
                     };
-                    
-                    // ข้อมูลห้องเรียนพิเศษ
-                    if (score.pretestCurriculum === 'special' || score.pretestCurriculum === 'both') {
-                        score.special = {
-                            examType: row[4] || '',
-                            rank: parseInt(row[5]) || 0,
-                            scores: {
-                                math: parseFloat(row[6]) || 0,
-                                science: parseFloat(row[7]) || 0,
-                                english: parseFloat(row[8]) || 0
-                            },
-                            totalScore: parseFloat(row[9]) || 0
-                        };
-                    }
-                    
-                    // ข้อมูลห้องเรียนปกติ
-                    if (score.pretestCurriculum === 'normal' || score.pretestCurriculum === 'both') {
-                        score.normal = {
-                            examType: row[10] || '',
-                            rank: parseInt(row[11]) || 0,
-                            scores: {
-                                math: parseFloat(row[12]) || 0,
-                                science: parseFloat(row[13]) || 0,
-                                english: parseFloat(row[14]) || 0,
-                                thai: parseFloat(row[15]) || 0,
-                                social: parseFloat(row[16]) || 0
-                            },
-                            totalScore: parseFloat(row[17]) || 0
-                        };
-                    }
-                    
-                    scores.push(score);
-                } catch (error) {
-                    console.error(`Error processing row ${index + 1}:`, error);
                 }
-            });
-            
-            return scores;
+
+                // ข้อมูลห้องเรียนปกติ
+                if (converted.pretestCurriculum === 'normal' || converted.pretestCurriculum === 'both') {
+                    converted.normal = {
+                        examType: row['ประเภทการสอบห้องเรียนปกติ'] || '',
+                        rank: parseInt(row['อันดับห้องเรียนปกติ']) || 0,
+                        scores: {
+                            math: parseFloat(row['คะแนนคณิตศาสตร์ห้องปกติ']) || 0,
+                            science: parseFloat(row['คะแนนวิทยาศาสตร์ห้องปกติ']) || 0,
+                            english: parseFloat(row['คะแนนภาษาอังกฤษห้องปกติ']) || 0,
+                            thai: parseFloat(row['คะแนนภาษาไทยห้องปกติ']) || 0,
+                            social: parseFloat(row['คะแนนสังคมศึกษาห้องปกติ']) || 0
+                        },
+                        totalScore: (parseFloat(row['คะแนนคณิตศาสตร์ห้องปกติ']) || 0) +
+                                   (parseFloat(row['คะแนนวิทยาศาสตร์ห้องปกติ']) || 0) +
+                                   (parseFloat(row['คะแนนภาษาอังกฤษห้องปกติ']) || 0) +
+                                   (parseFloat(row['คะแนนภาษาไทยห้องปกติ']) || 0) +
+                                   (parseFloat(row['คะแนนสังคมศึกษาห้องปกติ']) || 0)
+                    };
+                }
+
+                return converted;
+            }).filter(score => score.pretestCurriculum !== ''); // กรองข้อมูลที่ไม่มีหลักสูตร
         }
 
-        // ฟังก์ชันแปลงระดับชั้นจากข้อความเป็นค่า
-        function mapGradeToValue(gradeText) {
-            if (!gradeText) return '';
-            
-            const text = gradeText.toString().toLowerCase();
-            
-            if (text.includes('4') || text.includes('grade4') || text.includes('ป.4')) return 'grade4';
-            if (text.includes('5') || text.includes('grade5') || text.includes('ป.5')) return 'grade5';
-            if (text.includes('6') || text.includes('grade6') || text.includes('ป.6')) return 'grade6';
-            
-            return gradeText;
+        // ฟังก์ชัน map ข้อมูลหลักสูตร
+        function mapCurriculum(curriculumText) {
+            if (!curriculumText) return '';
+            if (curriculumText.includes('พิเศษ')) return 'special';
+            if (curriculumText.includes('ปกติ')) return 'normal';
+            if (curriculumText.includes('ทั้ง 2') || curriculumText.includes('2 หลักสูตร')) return 'both';
+            return '';
         }
 
-        // ฟังก์ชันส่งข้อมูลไปยัง Google Apps Script
-        async function submitToAppScript(formData) {
+        // ฟังก์ชัน map ข้อมูลเป้าหมาย
+        function mapTargetSpecial(target) {
+            if (!target) return '';
+            if (target.includes('EP')) return 'EP';
+            if (target.includes('SMTE')) return 'SMTE';
+            if (target.includes('GM')) return 'GM';
+            return '';
+        }
+
+        function mapTargetNormal(target) {
+            if (!target) return '';
+            if (target.includes('ในเขต')) return 'Normal_In';
+            if (target.includes('นอกเขต')) return 'Normal_Out';
+            return '';
+        }
+
+        // ฟังก์ชันส่งข้อมูลไปยัง Google Form
+        async function submitToGoogleForm(formData) {
             try {
-                // ใช้ no-cors mode เพื่อหลีกเลี่ยง CORS issues
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScloDITkx1WmkfZDPV975qSMaGboSMsBtlobCZ09O63nxyAYA/formResponse';
+                
+                // สร้าง FormData object
+                const formPayload = new FormData();
+                
+                // Map ข้อมูลตาม Entry IDs จริงจากฟอร์มของคุณ
+                formPayload.append('entry.1203681187', formData.nickname || ''); // ชื่อเล่น
+                
+                // ระดับชั้น
+                formPayload.append('entry.1234567890', formData.grade || ''); // ระดับชั้น
+                
+                // หลักสูตร
+                let curriculumText = '';
+                if (formData.pretestCurriculum === 'special') curriculumText = 'ห้องเรียนพิเศษ';
+                else if (formData.pretestCurriculum === 'normal') curriculumText = 'ห้องเรียนปกติ';
+                else if (formData.pretestCurriculum === 'both') curriculumText = 'สอบทั้ง 2 หลักสูตร';
+                formPayload.append('entry.717862145', curriculumText);
+                
+                // ข้อมูลห้องเรียนพิเศษ
+                if (formData.special) {
+                    formPayload.append('entry.1452731326', formData.special.examType || '');
+                    formPayload.append('entry.1578507020', formData.special.rank?.toString() || '');
+                    formPayload.append('entry.1523644182', formData.special.scores?.math?.toString() || '');
+                    formPayload.append('entry.853575279', formData.special.scores?.science?.toString() || '');
+                    formPayload.append('entry.782860501', formData.special.scores?.english?.toString() || '');
+                } else {
+                    formPayload.append('entry.1452731326', '');
+                    formPayload.append('entry.1578507020', '');
+                    formPayload.append('entry.1523644182', '');
+                    formPayload.append('entry.853575279', '');
+                    formPayload.append('entry.782860501', '');
+                }
+                
+                // ข้อมูลห้องเรียนปกติ
+                if (formData.normal) {
+                    formPayload.append('entry.1009160481', formData.normal.examType || '');
+                    formPayload.append('entry.1481331552', formData.normal.rank?.toString() || '');
+                    formPayload.append('entry.1314262077', formData.normal.scores?.math?.toString() || '');
+                    formPayload.append('entry.316123712', formData.normal.scores?.science?.toString() || '');
+                    formPayload.append('entry.1246530942', formData.normal.scores?.english?.toString() || '');
+                    formPayload.append('entry.841857535', formData.normal.scores?.thai?.toString() || '');
+                    formPayload.append('entry.669330841', formData.normal.scores?.social?.toString() || '');
+                } else {
+                    formPayload.append('entry.1009160481', '');
+                    formPayload.append('entry.1481331552', '');
+                    formPayload.append('entry.1314262077', '');
+                    formPayload.append('entry.316123712', '');
+                    formPayload.append('entry.1246530942', '');
+                    formPayload.append('entry.841857535', '');
+                    formPayload.append('entry.669330841', '');
+                }
+                
+                // เป้าหมาย
+                formPayload.append('entry.242217903', formData.targetSpecial || '');
+                
+                let targetNormalText = '';
+                if (formData.targetNormal === 'Normal_In') targetNormalText = 'ในเขตพื้นที่บริการ';
+                else if (formData.targetNormal === 'Normal_Out') targetNormalText = 'นอกเขตพื้นที่บริการ';
+                formPayload.append('entry.1839336743', targetNormalText);
+
+                // ส่งข้อมูล (ใช้ no-cors เนื่องจากข้าม domain)
+                await fetch(GOOGLE_FORM_URL, {
                     method: 'POST',
                     mode: 'no-cors',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: new URLSearchParams(formData).toString()
+                    body: formPayload
                 });
-                
-                // ใน no-cors mode เราจะถือว่าสำเร็จเสมอ
-                return { status: 'success', message: 'บันทึกข้อมูลสำเร็จ' };
-                
+
+                return true;
             } catch (error) {
-                console.error('Error submitting to App Script:', error);
-                return { status: 'error', message: 'เกิดข้อผิดพลาดในการเชื่อมต่อ' };
+                console.error('Error submitting to Google Form:', error);
+                return false;
             }
         }
 
@@ -1016,141 +1076,97 @@
         async function handleFormSubmit(e) {
             e.preventDefault();
             
-            // แสดงสถานะกำลังส่ง
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> กำลังส่งข้อมูล...';
-            submitBtn.disabled = true;
+            const nickname = document.getElementById('nickname').value.trim() || 'ไม่ประสงค์ออกนาม';
+            const grade = document.querySelector('input[name="grade"]:checked');
+            const pretestCurriculum = document.querySelector('input[name="pretestCurriculum"]:checked');
+            
+            if (!grade) {
+                showMessage('กรุณาเลือกระดับชั้นการศึกษา', 'error');
+                return;
+            }
+            
+            if (!pretestCurriculum) {
+                showMessage('กรุณาเลือกหลักสูตรที่สอบ Pre-test', 'error');
+                return;
+            }
+            
+            const formData = {
+                nickname: nickname,
+                grade: grade.value,
+                pretestCurriculum: pretestCurriculum.value,
+                targetSpecial: document.querySelector('input[name="targetSpecial"]:checked')?.value || '',
+                targetNormal: document.querySelector('input[name="targetNormal"]:checked')?.value || '',
+                timestamp: new Date().toISOString()
+            };
 
-            try {
-                const nickname = document.getElementById('nickname').value.trim() || 'ไม่ประสงค์ออกนาม';
-                const currentGrade = document.querySelector('input[name="currentGrade"]:checked');
-                const pretestCurriculum = document.querySelector('input[name="pretestCurriculum"]:checked');
-                
-                if (!currentGrade) {
-                    showMessage('กรุณาเลือกระดับชั้น', 'error');
+            // เพิ่มข้อมูลคะแนน
+            if (formData.pretestCurriculum === 'special' || formData.pretestCurriculum === 'both') {
+                const specialExamType = document.querySelector('input[name="specialExamType"]:checked');
+                if (!specialExamType) {
+                    showMessage('กรุณาเลือกประเภทการสอบสำหรับห้องเรียนพิเศษ', 'error');
                     return;
                 }
                 
-                if (!pretestCurriculum) {
-                    showMessage('กรุณาเลือกหลักสูตรที่สอบ Pre-test', 'error');
-                    return;
-                }
-
-                // ตรวจสอบข้อมูลคะแนน
-                const validationErrors = validateFormData();
-                if (validationErrors.length > 0) {
-                    showMessage(validationErrors[0], 'error');
-                    return;
-                }
-
-                // เตรียมข้อมูลสำหรับส่ง
-                const formData = {
-                    nickname: nickname,
-                    currentGrade: currentGrade.value,
-                    pretestCurriculum: pretestCurriculum.value,
-                    targetSpecial: document.querySelector('input[name="targetSpecial"]:checked')?.value || '',
-                    targetNormal: document.querySelector('input[name="targetNormal"]:checked')?.value || '',
-                    timestamp: new Date().toISOString(),
-                    source: 'web_form'
+                formData.special = {
+                    examType: specialExamType.value,
+                    rank: parseInt(document.getElementById('special_rank').value) || 0,
+                    scores: {
+                        math: parseFloat(document.getElementById('score_special_math').value) || 0,
+                        science: parseFloat(document.getElementById('score_special_science').value) || 0,
+                        english: parseFloat(document.getElementById('score_special_english').value) || 0
+                    },
+                    totalScore: (parseFloat(document.getElementById('score_special_math').value) || 0) +
+                               (parseFloat(document.getElementById('score_special_science').value) || 0) +
+                               (parseFloat(document.getElementById('score_special_english').value) || 0)
                 };
+            }
 
-                // เพิ่มข้อมูลคะแนนห้องเรียนพิเศษ
-                if (formData.pretestCurriculum === 'special' || formData.pretestCurriculum === 'both') {
-                    const specialExamType = document.querySelector('input[name="specialExamType"]:checked');
-                    if (!specialExamType) {
-                        showMessage('กรุณาเลือกประเภทการสอบสำหรับห้องเรียนพิเศษ', 'error');
-                        return;
-                    }
-                    
-                    formData.specialExamType = specialExamType.value;
-                    formData.specialRank = document.getElementById('special_rank').value || '';
-                    formData.specialMath = document.getElementById('score_special_math').value || '';
-                    formData.specialScience = document.getElementById('score_special_science').value || '';
-                    formData.specialEnglish = document.getElementById('score_special_english').value || '';
-                    formData.specialTotal = (parseFloat(document.getElementById('score_special_math').value) || 0) +
-                                           (parseFloat(document.getElementById('score_special_science').value) || 0) +
-                                           (parseFloat(document.getElementById('score_special_english').value) || 0);
+            if (formData.pretestCurriculum === 'normal' || formData.pretestCurriculum === 'both') {
+                const normalExamType = document.querySelector('input[name="normalExamType"]:checked');
+                if (!normalExamType) {
+                    showMessage('กรุณาเลือกประเภทการสอบสำหรับห้องเรียนปกติ', 'error');
+                    return;
                 }
-
-                // เพิ่มข้อมูลคะแนนห้องเรียนปกติ
-                if (formData.pretestCurriculum === 'normal' || formData.pretestCurriculum === 'both') {
-                    const normalExamType = document.querySelector('input[name="normalExamType"]:checked');
-                    if (!normalExamType) {
-                        showMessage('กรุณาเลือกประเภทการสอบสำหรับห้องเรียนปกติ', 'error');
-                        return;
-                    }
-                    
-                    formData.normalExamType = normalExamType.value;
-                    formData.normalRank = document.getElementById('normal_rank').value || '';
-                    formData.normalMath = document.getElementById('score_normal_math').value || '';
-                    formData.normalScience = document.getElementById('score_normal_science').value || '';
-                    formData.normalEnglish = document.getElementById('score_normal_english').value || '';
-                    formData.normalThai = document.getElementById('score_normal_thai').value || '';
-                    formData.normalSocial = document.getElementById('score_normal_social').value || '';
-                    formData.normalTotal = (parseFloat(document.getElementById('score_normal_math').value) || 0) +
-                                          (parseFloat(document.getElementById('score_normal_science').value) || 0) +
-                                          (parseFloat(document.getElementById('score_normal_english').value) || 0) +
-                                          (parseFloat(document.getElementById('score_normal_thai').value) || 0) +
-                                          (parseFloat(document.getElementById('score_normal_social').value) || 0);
-                }
-
-                console.log('Form data prepared:', formData);
-
-                // ส่งข้อมูลไปยัง Google Apps Script
-                showMessage('กำลังส่งข้อมูล...', 'info');
-                const result = await submitToAppScript(formData);
                 
-                if (result.status === 'success') {
-                    // แสดงผลสำเร็จ
-                    document.getElementById('form-section').classList.add('hidden');
-                    document.getElementById('success-message').classList.remove('hidden');
-                    showMessage("ส่งข้อมูลสำเร็จ! ข้อมูลถูกบันทึกในระบบแล้ว 🎉", "success");
-                    
+                formData.normal = {
+                    examType: normalExamType.value,
+                    rank: parseInt(document.getElementById('normal_rank').value) || 0,
+                    scores: {
+                        math: parseFloat(document.getElementById('score_normal_math').value) || 0,
+                        science: parseFloat(document.getElementById('score_normal_science').value) || 0,
+                        english: parseFloat(document.getElementById('score_normal_english').value) || 0,
+                        thai: parseFloat(document.getElementById('score_normal_thai').value) || 0,
+                        social: parseFloat(document.getElementById('score_normal_social').value) || 0
+                    },
+                    totalScore: (parseFloat(document.getElementById('score_normal_math').value) || 0) +
+                               (parseFloat(document.getElementById('score_normal_science').value) || 0) +
+                               (parseFloat(document.getElementById('score_normal_english').value) || 0) +
+                               (parseFloat(document.getElementById('score_normal_thai').value) || 0) +
+                               (parseFloat(document.getElementById('score_normal_social').value) || 0)
+                };
+            }
+
+            // ส่งข้อมูลไปยัง Google Form
+            const googleFormSuccess = await submitToGoogleForm(formData);
+            
+            // บันทึกใน localStorage
+            try {
+                allScores.push(formData);
+                localStorage.setItem('pretestScores', JSON.stringify(allScores));
+                
+                // แสดงผลสำเร็จ
+                document.getElementById('form-section').classList.add('hidden');
+                document.getElementById('success-message').classList.remove('hidden');
+                
+                if (googleFormSuccess) {
+                    showMessage("ส่งข้อมูลสำเร็จ! ข้อมูลถูกบันทึกในระบบและ Google Sheet อัตโนมัติแล้ว 🎉", "success");
                 } else {
-                    showMessage("เกิดข้อผิดพลาด: " + result.message, "error");
+                    showMessage("ส่งข้อมูลสำเร็จ! (บันทึกเฉพาะในเบราว์เซอร์)", "success");
                 }
                 
             } catch (error) {
-                console.error('Error in form submission:', error);
-                showMessage("เกิดข้อผิดพลาดในการส่งข้อมูล: " + error.message, "error");
-            } finally {
-                // คืนสถานะปุ่มส่ง
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
+                showMessage("เกิดข้อผิดพลาดในการบันทึกข้อมูล", "error");
             }
-        }
-
-        // ฟังก์ชันตรวจสอบความถูกต้องของข้อมูล
-        function validateFormData() {
-            const errors = [];
-            
-            // ตรวจสอบว่ามีการกรอกคะแนนอย่างน้อยหนึ่งวิชา
-            const hasSpecialScores = document.getElementById('score_special_math') && 
-                                    (parseFloat(document.getElementById('score_special_math').value) > 0 ||
-                                     parseFloat(document.getElementById('score_special_science').value) > 0 ||
-                                     parseFloat(document.getElementById('score_special_english').value) > 0);
-            
-            const hasNormalScores = document.getElementById('score_normal_math') && 
-                                   (parseFloat(document.getElementById('score_normal_math').value) > 0 ||
-                                    parseFloat(document.getElementById('score_normal_science').value) > 0 ||
-                                    parseFloat(document.getElementById('score_normal_english').value) > 0 ||
-                                    parseFloat(document.getElementById('score_normal_thai').value) > 0 ||
-                                    parseFloat(document.getElementById('score_normal_social').value) > 0);
-            
-            const selectedCurriculum = document.querySelector('input[name="pretestCurriculum"]:checked');
-            
-            if (selectedCurriculum) {
-                if (selectedCurriculum.value === 'special' && !hasSpecialScores) {
-                    errors.push('กรุณากรอกคะแนนสำหรับห้องเรียนพิเศษอย่างน้อยหนึ่งวิชา');
-                } else if (selectedCurriculum.value === 'normal' && !hasNormalScores) {
-                    errors.push('กรุณากรอกคะแนนสำหรับห้องเรียนปกติอย่างน้อยหนึ่งวิชา');
-                } else if (selectedCurriculum.value === 'both' && !hasSpecialScores && !hasNormalScores) {
-                    errors.push('กรุณากรอกคะแนนอย่างน้อยหนึ่งหลักสูตร');
-                }
-            }
-            
-            return errors;
         }
 
         // ฟังก์ชันกรองและแสดงผลข้อมูล
@@ -1179,6 +1195,13 @@
                         score.normal && score.normal.examType === currentExamTypeTab
                     );
                 }
+            }
+            
+            // กรองตามระดับชั้น
+            if (currentGradeTab !== 'all') {
+                filtered = filtered.filter(score => 
+                    score.grade === currentGradeTab
+                );
             }
             
             renderScoresTable(filtered);
@@ -1212,7 +1235,7 @@
                         <tr class="bg-white border-b hover:bg-gray-50">
                             <td class="py-3 px-4 font-bold text-gray-900">${displayRank}</td>
                             <td class="py-3 px-4">${score.nickname || 'ไม่ระบุชื่อ'}</td>
-                            <td class="py-3 px-4">${getGradeDisplayName(score.currentGrade)}</td>
+                            <td class="py-3 px-4">${score.grade || '-'}</td>
                             <td class="py-3 px-4">
                                 <span class="px-2 py-1 text-xs font-medium rounded-full ${score.special.examType === 'On-site' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'}">
                                     ${score.special.examType || 'ไม่ระบุ'}
@@ -1232,7 +1255,7 @@
                         <tr class="bg-white border-b hover:bg-gray-50">
                             <td class="py-3 px-4 font-bold text-gray-900">${displayRank}</td>
                             <td class="py-3 px-4">${score.nickname || 'ไม่ระบุชื่อ'}</td>
-                            <td class="py-3 px-4">${getGradeDisplayName(score.currentGrade)}</td>
+                            <td class="py-3 px-4">${score.grade || '-'}</td>
                             <td class="py-3 px-4">
                                 <span class="px-2 py-1 text-xs font-medium rounded-full ${score.normal.examType === 'On-site' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'}">
                                     ${score.normal.examType || 'ไม่ระบุ'}
@@ -1252,16 +1275,6 @@
             tableBody.innerHTML = rows;
         }
 
-        // ฟังก์ชันแปลงค่าระดับชั้นเป็นชื่อที่แสดง
-        function getGradeDisplayName(gradeValue) {
-            switch(gradeValue) {
-                case 'grade4': return 'ป.4';
-                case 'grade5': return 'ป.5';
-                case 'grade6': return 'ป.6';
-                default: return gradeValue || '-';
-            }
-        }
-
         // ฟังก์ชันแสดงผลการวิเคราะห์คะแนน
         function displayAnalysisResults() {
             const container = document.getElementById('analysis-results-container');
@@ -1278,7 +1291,7 @@
                 return;
             }
             
-            // หาข้อมูลล่าสุดจาก Google Sheet
+            // ใช้ข้อมูลล่าสุดสำหรับการวิเคราะห์
             const latestScore = allScores[allScores.length - 1];
             let html = '';
             
@@ -1444,7 +1457,7 @@
             allScores.forEach(score => {
                 const row = [
                     score.nickname || '',
-                    getGradeDisplayName(score.currentGrade) || '',
+                    score.grade || '',
                     score.pretestCurriculum || '',
                     score.special?.examType || score.normal?.examType || '',
                     score.special?.rank || score.normal?.rank || '',
@@ -1474,6 +1487,7 @@
 
         // ตั้งค่าเมื่อโหลดหน้าเว็บ
         document.addEventListener('DOMContentLoaded', function() {
+            loadLocalScores();
             setupAutoCalculate();
             
             // Event Listeners
