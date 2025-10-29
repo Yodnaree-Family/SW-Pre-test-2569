@@ -220,6 +220,14 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
     </style>
 </head>
 <body class="p-4 sm:p-6">
@@ -577,6 +585,11 @@
                     <div class="loading-spinner mb-4"></div>
                     <p class="text-gray-600">กำลังโหลดข้อมูลจาก Google Sheet...</p>
                 </div>
+
+                <div id="error-message" class="error-message hidden">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <span id="error-text"></span>
+                </div>
                 
                 <div class="table-container border rounded-lg shadow-md">
                     <table class="w-full text-sm text-left text-gray-600">
@@ -877,6 +890,7 @@
             try {
                 // แสดง loading indicator
                 document.getElementById('loading-indicator').classList.remove('hidden');
+                document.getElementById('error-message').classList.add('hidden');
                 document.getElementById('results-table-body').innerHTML = '';
                 
                 showMessage('กำลังโหลดข้อมูลจาก Google Sheet...', 'info');
@@ -888,7 +902,7 @@
                 });
                 
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 
                 const result = await response.json();
@@ -904,12 +918,20 @@
                     showMessage('โหลดข้อมูลจาก Google Sheet สำเร็จ! (' + allScores.length + ' รายการ)', 'success');
                     applyFilters();
                 } else {
-                    throw new Error(result.message);
+                    throw new Error(result.message || 'Unknown error from Google Script');
                 }
                 
             } catch (error) {
                 console.error('Error fetching from Google Sheet:', error);
+                
+                // แสดงข้อความผิดพลาดในหน้าเว็บ
+                document.getElementById('error-message').classList.remove('hidden');
+                document.getElementById('error-text').textContent = 'ไม่สามารถโหลดข้อมูลจาก Google Sheet ได้: ' + error.message;
+                
+                document.getElementById('data-source-info').innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>ไม่สามารถเชื่อมต่อกับ Google Sheet ได้';
+                
                 showMessage('ไม่สามารถโหลดข้อมูลจาก Google Sheet ได้: ' + error.message, 'error');
+                
                 // โหลดข้อมูลจาก localStorage แทน
                 loadLocalScores();
             } finally {
@@ -920,6 +942,11 @@
 
         // ฟังก์ชันแปลงข้อมูลจาก Google Sheet
         function convertGoogleSheetData(sheetData) {
+            if (!sheetData || !Array.isArray(sheetData)) {
+                console.warn('Invalid sheet data:', sheetData);
+                return [];
+            }
+            
             return sheetData.map(row => {
                 const converted = {
                     nickname: row['ชื่อเล่น'] || 'ไม่ระบุชื่อ',
