@@ -674,8 +674,8 @@
         let currentGradeTab = 'all';
         let currentView = 'form';
 
-        // URL ของ Google Apps Script Web App
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwqTunRaAE01ok3KvOcY6-3EHFQB7QZq3tq-pSudInCgOohVnEze3CaEsRLvQ3_DMak5w/exec';
+        // URL ของ Google Apps Script Web App - ใช้ URL ของคุณ
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyPYEJNpGanQGZwh-02RfK34L6hRcR3EMOY-YlvUhvbHoM06tcvirXgGZSSOb7Mj3WljA/exec';
 
         // ข้อมูลสำหรับการวิเคราะห์
         const historicalData2568 = {
@@ -733,7 +733,6 @@
             if (view === 'results' || view === 'analysis') {
                 backBtn.classList.remove('hidden');
                 if (view === 'results') {
-                    // โหลดข้อมูลจาก Google Sheet เมื่อเข้าหน้านี้
                     fetchScoresFromGoogleSheet();
                 } else if (view === 'analysis') {
                     displayAnalysisResults();
@@ -888,21 +887,23 @@
         // ฟังก์ชันทดสอบการเชื่อมต่อ Google Apps Script
         async function testGoogleAppsScriptConnection() {
             try {
-                const TEST_URL = GOOGLE_SCRIPT_URL + '?action=test&t=' + Date.now();
+                showMessage('กำลังทดสอบการเชื่อมต่อ...', 'info');
                 
-                const response = await fetch(TEST_URL, {
+                const response = await fetch(GOOGLE_SCRIPT_URL + '?action=test&t=' + Date.now(), {
                     method: 'GET',
                     mode: 'cors'
                 });
                 
                 if (response.ok) {
                     const result = await response.json();
-                    console.log('Connection test result:', result);
+                    showMessage('การเชื่อมต่อกับ Google Sheet สำเร็จ!', 'success');
                     return true;
+                } else {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                return false;
             } catch (error) {
                 console.error('Connection test failed:', error);
+                showMessage('การเชื่อมต่อกับ Google Sheet ล้มเหลว: ' + error.message, 'error');
                 return false;
             }
         }
@@ -910,7 +911,6 @@
         // ฟังก์ชันดึงข้อมูลจาก Google Sheet
         async function fetchScoresFromGoogleSheet() {
             try {
-                // แสดง loading indicator
                 document.getElementById('loading-indicator').classList.remove('hidden');
                 document.getElementById('error-message').classList.add('hidden');
                 document.getElementById('results-table-body').innerHTML = '';
@@ -919,10 +919,7 @@
                 
                 const response = await fetch(GOOGLE_SCRIPT_URL + '?action=getScores&t=' + Date.now(), {
                     method: 'GET',
-                    mode: 'cors',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
+                    mode: 'cors'
                 });
                 
                 if (!response.ok) {
@@ -932,9 +929,7 @@
                 const result = await response.json();
                 
                 if (result.status === 'success') {
-                    // แปลงข้อมูลจาก Google Sheet ให้ตรงกับโครงสร้างของเรา
-                    const convertedData = convertGoogleSheetData(result.data);
-                    allScores = convertedData;
+                    allScores = result.data;
                     
                     // บันทึกลง localStorage
                     try {
@@ -955,7 +950,6 @@
             } catch (error) {
                 console.error('Error fetching from Google Sheet:', error);
                 
-                // แสดงข้อความผิดพลาดในหน้าเว็บ
                 document.getElementById('error-message').classList.remove('hidden');
                 document.getElementById('error-text').textContent = 
                     'ไม่สามารถโหลดข้อมูลจาก Google Sheet ได้: ' + error.message;
@@ -965,94 +959,10 @@
                 
                 showMessage('ไม่สามารถโหลดข้อมูลจาก Google Sheet ได้: ' + error.message, 'error');
                 
-                // โหลดข้อมูลจาก localStorage แทน
                 loadLocalScores();
             } finally {
-                // ซ่อน loading indicator
                 document.getElementById('loading-indicator').classList.add('hidden');
             }
-        }
-
-        // ฟังก์ชันแปลงข้อมูลจาก Google Sheet
-        function convertGoogleSheetData(sheetData) {
-            if (!sheetData || !Array.isArray(sheetData)) {
-                console.warn('Invalid sheet data:', sheetData);
-                return [];
-            }
-            
-            return sheetData.map(row => {
-                const converted = {
-                    nickname: row['ชื่อเล่น'] || 'ไม่ระบุชื่อ',
-                    grade: row['ระดับชั้น'] || '',
-                    timestamp: row['Timestamp'] || new Date().toISOString(),
-                    pretestCurriculum: mapCurriculum(row['หลักสูตรที่สอบ Pre-test']),
-                    targetSpecial: mapTargetSpecial(row['เป้าหมายหลักสูตรพิเศษ']),
-                    targetNormal: mapTargetNormal(row['เป้าหมายหลักสูตรปกติ'])
-                };
-
-                // ข้อมูลห้องเรียนพิเศษ
-                if (converted.pretestCurriculum === 'special' || converted.pretestCurriculum === 'both') {
-                    converted.special = {
-                        examType: row['ประเภทการสอบห้องเรียนพิเศษ'] || '',
-                        rank: parseInt(row['อันดับห้องเรียนพิเศษ']) || 0,
-                        scores: {
-                            math: parseFloat(row['คะแนนคณิตศาสตร์ห้องพิเศษ']) || 0,
-                            science: parseFloat(row['คะแนนวิทยาศาสตร์ห้องพิเศษ']) || 0,
-                            english: parseFloat(row['คะแนนภาษาอังกฤษห้องพิเศษ']) || 0
-                        },
-                        totalScore: (parseFloat(row['คะแนนคณิตศาสตร์ห้องพิเศษ']) || 0) +
-                                   (parseFloat(row['คะแนนวิทยาศาสตร์ห้องพิเศษ']) || 0) +
-                                   (parseFloat(row['คะแนนภาษาอังกฤษห้องพิเศษ']) || 0)
-                    };
-                }
-
-                // ข้อมูลห้องเรียนปกติ
-                if (converted.pretestCurriculum === 'normal' || converted.pretestCurriculum === 'both') {
-                    converted.normal = {
-                        examType: row['ประเภทการสอบห้องเรียนปกติ'] || '',
-                        rank: parseInt(row['อันดับห้องเรียนปกติ']) || 0,
-                        scores: {
-                            math: parseFloat(row['คะแนนคณิตศาสตร์ห้องปกติ']) || 0,
-                            science: parseFloat(row['คะแนนวิทยาศาสตร์ห้องปกติ']) || 0,
-                            english: parseFloat(row['คะแนนภาษาอังกฤษห้องปกติ']) || 0,
-                            thai: parseFloat(row['คะแนนภาษาไทยห้องปกติ']) || 0,
-                            social: parseFloat(row['คะแนนสังคมศึกษาห้องปกติ']) || 0
-                        },
-                        totalScore: (parseFloat(row['คะแนนคณิตศาสตร์ห้องปกติ']) || 0) +
-                                   (parseFloat(row['คะแนนวิทยาศาสตร์ห้องปกติ']) || 0) +
-                                   (parseFloat(row['คะแนนภาษาอังกฤษห้องปกติ']) || 0) +
-                                   (parseFloat(row['คะแนนภาษาไทยห้องปกติ']) || 0) +
-                                   (parseFloat(row['คะแนนสังคมศึกษาห้องปกติ']) || 0)
-                    };
-                }
-
-                return converted;
-            }).filter(score => score.pretestCurriculum !== ''); // กรองข้อมูลที่ไม่มีหลักสูตร
-        }
-
-        // ฟังก์ชัน map ข้อมูลหลักสูตร
-        function mapCurriculum(curriculumText) {
-            if (!curriculumText) return '';
-            if (curriculumText.includes('พิเศษ')) return 'special';
-            if (curriculumText.includes('ปกติ')) return 'normal';
-            if (curriculumText.includes('ทั้ง 2') || curriculumText.includes('2 หลักสูตร')) return 'both';
-            return '';
-        }
-
-        // ฟังก์ชัน map ข้อมูลเป้าหมาย
-        function mapTargetSpecial(target) {
-            if (!target) return '';
-            if (target.includes('EP')) return 'EP';
-            if (target.includes('SMTE')) return 'SMTE';
-            if (target.includes('GM')) return 'GM';
-            return '';
-        }
-
-        function mapTargetNormal(target) {
-            if (!target) return '';
-            if (target.includes('ในเขต')) return 'Normal_In';
-            if (target.includes('นอกเขต')) return 'Normal_Out';
-            return '';
         }
 
         // ฟังก์ชันส่งข้อมูลไปยัง Google Apps Script
@@ -1085,91 +995,8 @@
                 
             } catch (error) {
                 console.error('Error submitting to Google Apps Script:', error);
-                
-                // ลองใช้วิธีเดิมกับ Google Form โดยตรง
-                try {
-                    const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScloDITkx1WmkfZDPV975qSMaGboSMsBtlobCZ09O63nxyAYA/formResponse';
-                    
-                    const formPayload = new FormData();
-                    
-                    // Map ข้อมูลตาม Entry IDs
-                    formPayload.append('entry.1203681187', formData.nickname || '');
-                    formPayload.append('entry.1234567890', formData.grade || '');
-                    
-                    let curriculumText = '';
-                    if (formData.pretestCurriculum === 'special') curriculumText = 'ห้องเรียนพิเศษ';
-                    else if (formData.pretestCurriculum === 'normal') curriculumText = 'ห้องเรียนปกติ';
-                    else if (formData.pretestCurriculum === 'both') curriculumText = 'สอบทั้ง 2 หลักสูตร';
-                    formPayload.append('entry.717862145', curriculumText);
-                    
-                    // ข้อมูลห้องเรียนพิเศษ
-                    if (formData.special) {
-                        formPayload.append('entry.1452731326', formData.special.examType || '');
-                        formPayload.append('entry.1578507020', formData.special.rank?.toString() || '');
-                        formPayload.append('entry.1523644182', formData.special.scores?.math?.toString() || '');
-                        formPayload.append('entry.853575279', formData.special.scores?.science?.toString() || '');
-                        formPayload.append('entry.782860501', formData.special.scores?.english?.toString() || '');
-                    } else {
-                        formPayload.append('entry.1452731326', '');
-                        formPayload.append('entry.1578507020', '');
-                        formPayload.append('entry.1523644182', '');
-                        formPayload.append('entry.853575279', '');
-                        formPayload.append('entry.782860501', '');
-                    }
-                    
-                    // ข้อมูลห้องเรียนปกติ
-                    if (formData.normal) {
-                        formPayload.append('entry.1009160481', formData.normal.examType || '');
-                        formPayload.append('entry.1481331552', formData.normal.rank?.toString() || '');
-                        formPayload.append('entry.1314262077', formData.normal.scores?.math?.toString() || '');
-                        formPayload.append('entry.316123712', formData.normal.scores?.science?.toString() || '');
-                        formPayload.append('entry.1246530942', formData.normal.scores?.english?.toString() || '');
-                        formPayload.append('entry.841857535', formData.normal.scores?.thai?.toString() || '');
-                        formPayload.append('entry.669330841', formData.normal.scores?.social?.toString() || '');
-                    } else {
-                        formPayload.append('entry.1009160481', '');
-                        formPayload.append('entry.1481331552', '');
-                        formPayload.append('entry.1314262077', '');
-                        formPayload.append('entry.316123712', '');
-                        formPayload.append('entry.1246530942', '');
-                        formPayload.append('entry.841857535', '');
-                        formPayload.append('entry.669330841', '');
-                    }
-                    
-                    // เป้าหมาย
-                    formPayload.append('entry.242217903', formData.targetSpecial || '');
-                    
-                    let targetNormalText = '';
-                    if (formData.targetNormal === 'Normal_In') targetNormalText = 'ในเขตพื้นที่บริการ';
-                    else if (formData.targetNormal === 'Normal_Out') targetNormalText = 'นอกเขตพื้นที่บริการ';
-                    formPayload.append('entry.1839336743', targetNormalText);
-
-                    await fetch(GOOGLE_FORM_URL, {
-                        method: 'POST',
-                        mode: 'no-cors',
-                        body: formPayload
-                    });
-
-                    return true;
-                } catch (fallbackError) {
-                    console.error('Fallback submission also failed:', fallbackError);
-                    return false;
-                }
+                return false;
             }
-        }
-
-        // ฟังก์ชันตรวจสอบสถานะการเชื่อมต่อ
-        async function checkConnectionStatus() {
-            const isConnected = await testGoogleAppsScriptConnection();
-            
-            if (isConnected) {
-                showMessage('เชื่อมต่อกับ Google Sheet สำเร็จ', 'success');
-            } else {
-                showMessage('ไม่สามารถเชื่อมต่อกับ Google Sheet ได้ กำลังใช้ข้อมูลในเครื่อง', 'warning');
-                loadLocalScores();
-            }
-            
-            return isConnected;
         }
 
         // ฟังก์ชันจัดการการส่งฟอร์ม
@@ -1254,7 +1081,6 @@
                 allScores.push(formData);
                 localStorage.setItem('pretestScores', JSON.stringify(allScores));
                 
-                // แสดงผลสำเร็จ
                 document.getElementById('form-section').classList.add('hidden');
                 document.getElementById('success-message').classList.remove('hidden');
                 
@@ -1391,11 +1217,9 @@
                 return;
             }
             
-            // ใช้ข้อมูลล่าสุดสำหรับการวิเคราะห์
             const latestScore = allScores[allScores.length - 1];
             let html = '';
             
-            // วิเคราะห์สำหรับเป้าหมายห้องเรียนพิเศษ
             if (latestScore.targetSpecial && (latestScore.pretestCurriculum === 'special' || latestScore.pretestCurriculum === 'both') && latestScore.special) {
                 const target = latestScore.targetSpecial;
                 const preTestScores = latestScore.special.scores || {};
@@ -1407,7 +1231,6 @@
                 }
             }
             
-            // วิเคราะห์สำหรับเป้าหมายห้องเรียนปกติ
             if (latestScore.targetNormal && (latestScore.pretestCurriculum === 'normal' || latestScore.pretestCurriculum === 'both') && latestScore.normal) {
                 const target = latestScore.targetNormal;
                 const preTestScores = latestScore.normal.scores || {};
@@ -1592,7 +1415,7 @@
             
             // ตรวจสอบการเชื่อมต่อเมื่อโหลดหน้า
             setTimeout(() => {
-                checkConnectionStatus();
+                testGoogleAppsScriptConnection();
             }, 1000);
             
             // Event Listeners
