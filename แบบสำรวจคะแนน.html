@@ -516,6 +516,7 @@
                 <button id="tab-form" class="tab-button active" onclick="switchView('form')"><i class="fas fa-edit mr-2"></i>กรอกข้อมูล</button>
                 <button id="tab-results" class="tab-button" onclick="switchView('results')"><i class="fas fa-chart-bar mr-2"></i>ดูผลสำรวจรวม</button>
                 <button id="tab-analysis" class="tab-button" onclick="switchView('analysis')"><i class="fas fa-calculator mr-2"></i>วิเคราะห์คะแนน</button>
+                <button id="tab-admin" class="tab-button hidden" onclick="switchView('admin')"><i class="fas fa-cog mr-2"></i>จัดการระบบ (Admin)</button>
             </div>
 
             <!-- Success Message -->
@@ -899,6 +900,58 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Admin Section -->
+            <div id="admin-section" class="hidden">
+                <div class="text-center max-w-4xl mx-auto">
+                    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6 text-red-800 rounded-r-lg">
+                        <h3 class="font-bold">จัดการระบบ (Admin Only)</h3>
+                        <p>ส่วนนี้สำหรับการจัดการข้อมูลในระบบ</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div class="border rounded-lg p-6 bg-white shadow-md">
+                            <h4 class="text-lg font-bold mb-4">จัดการข้อมูล</h4>
+                            <div class="space-y-4">
+                                <button onclick="showDeleteDataModal()" class="btn btn-danger w-full">
+                                    <i class="fas fa-trash mr-2"></i> ลบข้อมูลทั้งหมด
+                                </button>
+                                <button onclick="exportToCSV()" class="btn btn-success w-full">
+                                    <i class="fas fa-download mr-2"></i> ดาวน์โหลดข้อมูล Excel
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="border rounded-lg p-6 bg-white shadow-md">
+                            <h4 class="text-lg font-bold mb-4">สถิติระบบ</h4>
+                            <div class="space-y-2 text-left">
+                                <div class="flex justify-between">
+                                    <span>จำนวนข้อมูลทั้งหมด:</span>
+                                    <span id="total-records" class="font-bold">0 รายการ</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>ห้องเรียนพิเศษ:</span>
+                                    <span id="special-count" class="font-bold">0 รายการ</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>ห้องเรียนปกติ:</span>
+                                    <span id="normal-count" class="font-bold">0 รายการ</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>สอบทั้งสองหลักสูตร:</span>
+                                    <span id="both-count" class="font-bold">0 รายการ</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button onclick="fetchScoresFromFirebase()" class="btn btn-secondary">
+                            <i class="fas fa-sync-alt mr-2"></i> อัพเดทสถิติ
+                        </button>
+                    </div>
+                </div>
+            </div>
         </main>
         
         <!-- Line OPC Section -->
@@ -934,6 +987,21 @@
                 <div class="flex justify-center space-x-4">
                     <button onclick="adminLogin()" class="btn btn-primary">เข้าสู่ระบบ</button>
                     <button onclick="hideAdminLogin()" class="btn btn-secondary">ยกเลิก</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Data Modal -->
+    <div id="delete-data-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <h3 class="text-xl font-bold mb-4 text-center text-red-600">ยืนยันการลบข้อมูล</h3>
+            <div class="space-y-4">
+                <p class="text-gray-700 text-center">คุณต้องการลบข้อมูลทั้งหมดในระบบใช่หรือไม่?</p>
+                <p class="text-sm text-red-600 text-center">⚠️ การกระทำนี้ไม่สามารถย้อนกลับได้!</p>
+                <div class="flex justify-center space-x-4">
+                    <button onclick="deleteAllData()" class="btn btn-danger">ลบข้อมูลทั้งหมด</button>
+                    <button onclick="hideDeleteDataModal()" class="btn btn-secondary">ยกเลิก</button>
                 </div>
             </div>
         </div>
@@ -1040,20 +1108,24 @@
             document.getElementById('form-section').classList.add('hidden');
             document.getElementById('results-section').classList.add('hidden');
             document.getElementById('analysis-section').classList.add('hidden');
+            document.getElementById('admin-section').classList.add('hidden');
             document.getElementById('tab-form').classList.remove('active');
             document.getElementById('tab-results').classList.remove('active');
             document.getElementById('tab-analysis').classList.remove('active');
+            document.getElementById('tab-admin').classList.remove('active');
             
             document.getElementById(`${view}-section`).classList.remove('hidden');
             document.getElementById(`tab-${view}`).classList.add('active');
             
             const backBtn = document.getElementById('back-to-form-btn');
-            if (view === 'results' || view === 'analysis') {
+            if (view === 'results' || view === 'analysis' || view === 'admin') {
                 backBtn.classList.remove('hidden');
                 if (view === 'results') {
                     fetchScoresFromFirebase();
                 } else if (view === 'analysis') {
                     displayAnalysisResults();
+                } else if (view === 'admin') {
+                    updateAdminStats();
                 }
             } else {
                 backBtn.classList.add('hidden');
@@ -1215,6 +1287,11 @@
                 showMessage('โหลดข้อมูลจาก Firebase สำเร็จ! (' + allScores.length + ' รายการ)', 'success');
                 applyFilters();
                 
+                // อัพเดทสถิติในหน้า Admin
+                if (currentView === 'admin') {
+                    updateAdminStats();
+                }
+                
             } catch (error) {
                 console.error('Error fetching from Firebase:', error);
                 showMessage('ไม่สามารถโหลดข้อมูลจาก Firebase ได้: ' + error.message, 'error');
@@ -1269,7 +1346,7 @@
                 timestamp: new Date().toISOString()
             };
 
-            // เพิ่มข้อมูลคะแนน
+            // เพิ่มข้อมูลคะแนน - แก้ไขให้บันทึกทั้งสองหลักสูตรแยกกัน
             if (formData.pretestCurriculum === 'special' || formData.pretestCurriculum === 'both') {
                 const specialExamType = document.querySelector('input[name="specialExamType"]:checked');
                 if (!specialExamType) {
@@ -1324,6 +1401,11 @@
                 document.getElementById('form-section').classList.add('hidden');
                 document.getElementById('success-message').classList.remove('hidden');
                 showMessage("ส่งข้อมูลสำเร็จ! ข้อมูลถูกบันทึกใน Firebase แล้ว 🎉", "success");
+                
+                // อัพเดทข้อมูลล่าสุด
+                setTimeout(() => {
+                    fetchScoresFromFirebase();
+                }, 2000);
             } else {
                 showMessage("เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองอีกครั้ง", "error");
             }
@@ -1387,46 +1469,60 @@
             });
             
             sortedScores.forEach((score) => {
-                if (currentResultTab === 'special' && score.special) {
-                    const displayRank = score.special.rank || '-';
+                if (currentResultTab === 'special' && (score.special || (score.pretestCurriculum === 'both' && score.special))) {
+                    const displayRank = score.special?.rank || '-';
                     const gradeText = getGradeText(score.currentGrade);
+                    const examType = score.special?.examType || 'ไม่ระบุ';
+                    const totalScore = score.special?.totalScore || 0;
+                    const mathScore = score.special?.scores?.math || 0;
+                    const scienceScore = score.special?.scores?.science || 0;
+                    const englishScore = score.special?.scores?.english || 0;
+                    
                     rows += `
                         <tr class="bg-white border-b hover:bg-gray-50">
                             <td class="py-3 px-4 font-bold text-gray-900">${displayRank}</td>
                             <td class="py-3 px-4">${score.nickname || 'ไม่ระบุชื่อ'}</td>
                             <td class="py-3 px-4">${gradeText}</td>
                             <td class="py-3 px-4">
-                                <span class="px-2 py-1 text-xs font-medium rounded-full ${score.special.examType === 'On-site' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'}">
-                                    ${score.special.examType || 'ไม่ระบุ'}
+                                <span class="px-2 py-1 text-xs font-medium rounded-full ${examType === 'On-site' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'}">
+                                    ${examType}
                                 </span>
                             </td>
-                            <td class="py-3 px-4 text-right font-bold text-blue-600">${(score.special.totalScore || 0).toFixed(2)}</td>
-                            <td class="py-3 px-4">${(score.special.scores?.math || 0).toFixed(2)}</td>
-                            <td class="py-3 px-4">${(score.special.scores?.science || 0).toFixed(2)}</td>
-                            <td class="py-3 px-4">${(score.special.scores?.english || 0).toFixed(2)}</td>
+                            <td class="py-3 px-4 text-right font-bold text-blue-600">${totalScore.toFixed(2)}</td>
+                            <td class="py-3 px-4">${mathScore.toFixed(2)}</td>
+                            <td class="py-3 px-4">${scienceScore.toFixed(2)}</td>
+                            <td class="py-3 px-4">${englishScore.toFixed(2)}</td>
                             <td class="py-3 px-4">-</td>
                             <td class="py-3 px-4">-</td>
                         </tr>
                     `;
-                } else if (currentResultTab === 'normal' && score.normal) {
-                    const displayRank = score.normal.rank || '-';
+                } else if (currentResultTab === 'normal' && (score.normal || (score.pretestCurriculum === 'both' && score.normal))) {
+                    const displayRank = score.normal?.rank || '-';
                     const gradeText = getGradeText(score.currentGrade);
+                    const examType = score.normal?.examType || 'ไม่ระบุ';
+                    const totalScore = score.normal?.totalScore || 0;
+                    const mathScore = score.normal?.scores?.math || 0;
+                    const scienceScore = score.normal?.scores?.science || 0;
+                    const englishScore = score.normal?.scores?.english || 0;
+                    const thaiScore = score.normal?.scores?.thai || 0;
+                    const socialScore = score.normal?.scores?.social || 0;
+                    
                     rows += `
                         <tr class="bg-white border-b hover:bg-gray-50">
                             <td class="py-3 px-4 font-bold text-gray-900">${displayRank}</td>
                             <td class="py-3 px-4">${score.nickname || 'ไม่ระบุชื่อ'}</td>
                             <td class="py-3 px-4">${gradeText}</td>
                             <td class="py-3 px-4">
-                                <span class="px-2 py-1 text-xs font-medium rounded-full ${score.normal.examType === 'On-site' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'}">
-                                    ${score.normal.examType || 'ไม่ระบุ'}
+                                <span class="px-2 py-1 text-xs font-medium rounded-full ${examType === 'On-site' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'}">
+                                    ${examType}
                                 </span>
                             </td>
-                            <td class="py-3 px-4 text-right font-bold text-blue-600">${(score.normal.totalScore || 0).toFixed(2)}</td>
-                            <td class="py-3 px-4">${(score.normal.scores?.math || 0).toFixed(2)}</td>
-                            <td class="py-3 px-4">${(score.normal.scores?.science || 0).toFixed(2)}</td>
-                            <td class="py-3 px-4">${(score.normal.scores?.english || 0).toFixed(2)}</td>
-                            <td class="py-3 px-4">${(score.normal.scores?.thai || 0).toFixed(2)}</td>
-                            <td class="py-3 px-4">${(score.normal.scores?.social || 0).toFixed(2)}</td>
+                            <td class="py-3 px-4 text-right font-bold text-blue-600">${totalScore.toFixed(2)}</td>
+                            <td class="py-3 px-4">${mathScore.toFixed(2)}</td>
+                            <td class="py-3 px-4">${scienceScore.toFixed(2)}</td>
+                            <td class="py-3 px-4">${englishScore.toFixed(2)}</td>
+                            <td class="py-3 px-4">${thaiScore.toFixed(2)}</td>
+                            <td class="py-3 px-4">${socialScore.toFixed(2)}</td>
                         </tr>
                     `;
                 }
@@ -1730,30 +1826,56 @@
 
             let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
             
-            // Header
-            csvContent += "ชื่อ,ระดับชั้น,หลักสูตร,ประเภทสอบ,อันดับ,คะแนนรวม,คณิต,วิทย์,อังกฤษ,ไทย,สังคม,เป้าหมายพิเศษ,เป้าหมายปกติ,วันที่ส่ง\n";
+            // Header - แก้ไขให้แยกคะแนนห้องเรียนพิเศษและปกติ
+            csvContent += "ชื่อ,ระดับชั้น,หลักสูตร,ประเภทสอบ,อันดับ,คะแนนรวม,คณิต,วิทย์,อังกฤษ,ไทย,สังคม,เป้าหมายพิเศษ,เป้าหมายปกติ,วันที่ส่ง,หมายเหตุ\n";
             
-            // Data
+            // Data - แก้ไขให้แสดงข้อมูลทั้งสองหลักสูตรแยกกัน
             allScores.forEach(score => {
                 const date = new Date(score.timestamp).toLocaleDateString('th-TH');
-                const row = [
-                    score.nickname || '',
-                    getGradeText(score.currentGrade) || '',
-                    score.pretestCurriculum || '',
-                    score.special?.examType || score.normal?.examType || '',
-                    score.special?.rank || score.normal?.rank || '',
-                    score.special?.totalScore || score.normal?.totalScore || '',
-                    score.special?.scores?.math || score.normal?.scores?.math || '',
-                    score.special?.scores?.science || score.normal?.scores?.science || '',
-                    score.special?.scores?.english || score.normal?.scores?.english || '',
-                    score.normal?.scores?.thai || '',
-                    score.normal?.scores?.social || '',
-                    score.targetSpecial || '',
-                    score.targetNormal || '',
-                    date
-                ];
                 
-                csvContent += row.map(field => `"${field}"`).join(',') + '\n';
+                // สำหรับห้องเรียนพิเศษ
+                if (score.special) {
+                    const row = [
+                        score.nickname || '',
+                        getGradeText(score.currentGrade) || '',
+                        'ห้องเรียนพิเศษ',
+                        score.special.examType || '',
+                        score.special.rank || '',
+                        score.special.totalScore || '',
+                        score.special.scores?.math || '',
+                        score.special.scores?.science || '',
+                        score.special.scores?.english || '',
+                        '', // ไทย (ไม่มีในห้องเรียนพิเศษ)
+                        '', // สังคม (ไม่มีในห้องเรียนพิเศษ)
+                        score.targetSpecial || '',
+                        score.targetNormal || '',
+                        date,
+                        score.pretestCurriculum === 'both' ? 'สอบทั้งสองหลักสูตร' : ''
+                    ];
+                    csvContent += row.map(field => `"${field}"`).join(',') + '\n';
+                }
+                
+                // สำหรับห้องเรียนปกติ
+                if (score.normal) {
+                    const row = [
+                        score.nickname || '',
+                        getGradeText(score.currentGrade) || '',
+                        'ห้องเรียนปกติ',
+                        score.normal.examType || '',
+                        score.normal.rank || '',
+                        score.normal.totalScore || '',
+                        score.normal.scores?.math || '',
+                        score.normal.scores?.science || '',
+                        score.normal.scores?.english || '',
+                        score.normal.scores?.thai || '',
+                        score.normal.scores?.social || '',
+                        score.targetSpecial || '',
+                        score.targetNormal || '',
+                        date,
+                        score.pretestCurriculum === 'both' ? 'สอบทั้งสองหลักสูตร' : ''
+                    ];
+                    csvContent += row.map(field => `"${field}"`).join(',') + '\n';
+                }
             });
             
             const encodedUri = encodeURI(csvContent);
@@ -1782,11 +1904,63 @@
             if (password === ADMIN_PASSWORD) {
                 isAdmin = true;
                 document.getElementById('admin-export-btn').classList.remove('hidden');
+                document.getElementById('tab-admin').classList.remove('hidden');
                 hideAdminLogin();
                 showMessage('เข้าสู่ระบบ Admin สำเร็จ', 'success');
             } else {
                 showMessage('รหัสผ่านไม่ถูกต้อง', 'error');
             }
+        }
+
+        // ฟังก์ชันจัดการลบข้อมูล
+        function showDeleteDataModal() {
+            if (!isAdmin) {
+                showMessage('กรุณาเข้าสู่ระบบ Admin ก่อน', 'error');
+                return;
+            }
+            document.getElementById('delete-data-modal').classList.remove('hidden');
+        }
+
+        function hideDeleteDataModal() {
+            document.getElementById('delete-data-modal').classList.add('hidden');
+        }
+
+        async function deleteAllData() {
+            try {
+                const querySnapshot = await db.collection('pretestScores').get();
+                const deletePromises = [];
+                
+                querySnapshot.forEach((doc) => {
+                    deletePromises.push(db.collection('pretestScores').doc(doc.id).delete());
+                });
+                
+                await Promise.all(deletePromises);
+                
+                hideDeleteDataModal();
+                showMessage('ลบข้อมูลทั้งหมดสำเร็จ', 'success');
+                allScores = [];
+                applyFilters();
+                updateAdminStats();
+                
+            } catch (error) {
+                console.error('Error deleting data:', error);
+                showMessage('เกิดข้อผิดพลาดในการลบข้อมูล', 'error');
+            }
+        }
+
+        // ฟังก์ชันอัพเดทสถิติ Admin
+        function updateAdminStats() {
+            if (!isAdmin) return;
+            
+            const total = allScores.length;
+            const specialCount = allScores.filter(score => score.pretestCurriculum === 'special').length;
+            const normalCount = allScores.filter(score => score.pretestCurriculum === 'normal').length;
+            const bothCount = allScores.filter(score => score.pretestCurriculum === 'both').length;
+            
+            document.getElementById('total-records').textContent = `${total} รายการ`;
+            document.getElementById('special-count').textContent = `${specialCount} รายการ`;
+            document.getElementById('normal-count').textContent = `${normalCount} รายการ`;
+            document.getElementById('both-count').textContent = `${bothCount} รายการ`;
         }
 
         // ตั้งค่าเมื่อโหลดหน้าเว็บ
