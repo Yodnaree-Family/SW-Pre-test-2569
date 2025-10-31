@@ -17,6 +17,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- เพิ่ม Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    
     <style>
         /* Reset และ Base Styles */
         * {
@@ -450,7 +455,7 @@
                 <div class="flex justify-between items-center">
                     <div>
                         <i class="fas fa-exclamation-triangle mr-2"></i>
-                        <span id="connection-status-text">กำลังตรวจสอบการเชื่อมต่อกับ Google Sheet...</span>
+                        <span id="connection-status-text">กำลังตรวจสอบการเชื่อมต่อกับ Firebase...</span>
                     </div>
                     <button onclick="testConnection()" class="btn btn-secondary text-sm">
                         <i class="fas fa-sync-alt mr-1"></i> ทดสอบการเชื่อมต่อ
@@ -765,7 +770,7 @@
             <div id="results-section" class="hidden">
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-blue-800">
                     <i class="fas fa-info-circle mr-2"></i>
-                    <span id="data-source-info">กำลังโหลดข้อมูลจาก Google Sheet...</span>
+                    <span id="data-source-info">กำลังโหลดข้อมูลจาก Firebase...</span>
                 </div>
                 
                 <div class="flex flex-wrap justify-center mb-6 space-x-2">
@@ -781,7 +786,7 @@
                 
                 <div id="loading-indicator" class="text-center py-8">
                     <div class="loading-spinner mb-4"></div>
-                    <p class="text-gray-600">กำลังโหลดข้อมูลจาก Google Sheet...</p>
+                    <p class="text-gray-600">กำลังโหลดข้อมูลจาก Firebase...</p>
                 </div>
                 
                 <div class="table-container border rounded-lg shadow-md">
@@ -807,7 +812,7 @@
                 </div>
 
                 <div class="text-center mt-6">
-                    <button onclick="fetchScoresFromGoogleSheet()" class="btn btn-secondary mr-2">
+                    <button onclick="fetchScoresFromFirebase()" class="btn btn-secondary mr-2">
                         <i class="fas fa-sync-alt mr-2"></i> โหลดข้อมูลใหม่
                     </button>
                     <button onclick="exportToCSV()" class="btn btn-success">
@@ -853,18 +858,29 @@
     </div>
     
     <footer class="text-center py-6 text-gray-500 text-sm">
-        <p>Developed for Satriwitthaya Pre-test Takers | ข้อมูลจะถูกบันทึกใน Google Sheet เท่านั้น</p>
+        <p>Developed for Satriwitthaya Pre-test Takers | ข้อมูลจะถูกบันทึกใน Firebase เท่านั้น</p>
     </footer>
 
     <script>
+        // 🔥 Firebase Configuration - ใช้ค่าจาก Firebase Console ของคุณ
+        const firebaseConfig = {
+            apiKey: "AIzaSyAFgpikjnnG-WX0cF_SYt3okVLZ3RJLcwQ",
+            authDomain: "satriwit-project.firebaseapp.com",
+            projectId: "satriwit-project",
+            storageBucket: "satriwit-project.firebasestorage.app",
+            messagingSenderId: "867567936913",
+            appId: "1:867567936913:web:585829ad8ea23ece60e630"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         // ตัวแปรเก็บข้อมูล
         let allScores = [];
         let currentResultTab = 'special';
         let currentExamTypeTab = 'all';
         let currentView = 'form';
-
-        // URL ของ Google Apps Script Web App ของคุณ
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw1Ao3BAt-OD7pBDgLn05lDagyszkmMRX1L3px9q4-F5KLxmGZ7TXvci8eaKf1HNE53Xw/exec';
         
         // ข้อมูลสำหรับการวิเคราะห์
         const historicalData2568 = {
@@ -905,38 +921,28 @@
             }
         };
 
-        // ฟังก์ชันทดสอบการเชื่อมต่อกับ Google Apps Script
+        // 🔥 ฟังก์ชันทดสอบการเชื่อมต่อกับ Firebase
         async function testConnection() {
             try {
-                document.getElementById('connection-status-text').textContent = 'กำลังทดสอบการเชื่อมต่อ...';
+                document.getElementById('connection-status-text').textContent = 'กำลังทดสอบการเชื่อมต่อ Firebase...';
                 document.getElementById('connection-status').classList.remove('hidden');
                 
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'GET',
-                    mode: 'cors'
-                });
+                // ทดสอบโดยการดึงข้อมูล 1 ครั้ง
+                const testQuery = await db.collection('pretestScores').limit(1).get();
                 
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                
-                const result = await response.json();
-                
-                if (result.status === 'success') {
-                    document.getElementById('connection-status').classList.remove('bg-yellow-50', 'border-yellow-400', 'text-yellow-800');
-                    document.getElementById('connection-status').classList.add('bg-green-50', 'border-green-400', 'text-green-800');
-                    document.getElementById('connection-status-text').innerHTML = '<i class="fas fa-check-circle mr-2"></i>การเชื่อมต่อกับ Google Sheet ทำงานปกติ';
-                    showMessage('การเชื่อมต่อกับ Google Sheet ทำงานปกติ', 'success');
-                } else {
-                    throw new Error(result.message);
-                }
+                document.getElementById('connection-status').classList.remove('bg-yellow-50', 'border-yellow-400', 'text-yellow-800');
+                document.getElementById('connection-status').classList.add('bg-green-50', 'border-green-400', 'text-green-800');
+                document.getElementById('connection-status-text').innerHTML = 
+                    '<i class="fas fa-check-circle mr-2"></i>การเชื่อมต่อกับ Firebase ทำงานปกติ';
+                showMessage('การเชื่อมต่อกับ Firebase ทำงานปกติ', 'success');
                 
             } catch (error) {
-                console.error('Connection test failed:', error);
+                console.error('Firebase connection test failed:', error);
                 document.getElementById('connection-status').classList.remove('bg-yellow-50', 'border-yellow-400', 'text-yellow-800');
                 document.getElementById('connection-status').classList.add('bg-red-50', 'border-red-400', 'text-red-800');
-                document.getElementById('connection-status-text').innerHTML = '<i class="fas fa-times-circle mr-2"></i>ไม่สามารถเชื่อมต่อกับ Google Sheet ได้: ' + error.message;
-                showMessage('ไม่สามารถเชื่อมต่อกับ Google Sheet ได้', 'error');
+                document.getElementById('connection-status-text').innerHTML = 
+                    '<i class="fas fa-times-circle mr-2"></i>ไม่สามารถเชื่อมต่อกับ Firebase ได้: ' + error.message;
+                showMessage('ไม่สามารถเชื่อมต่อกับ Firebase ได้', 'error');
             }
         }
 
@@ -957,7 +963,7 @@
             if (view === 'results' || view === 'analysis') {
                 backBtn.classList.remove('hidden');
                 if (view === 'results') {
-                    fetchScoresFromGoogleSheet();
+                    fetchScoresFromFirebase();
                 } else if (view === 'analysis') {
                     displayAnalysisResults();
                 }
@@ -1083,171 +1089,57 @@
             }, 5000);
         }
 
-        // ฟังก์ชันดึงข้อมูลจาก Google Sheet
-        async function fetchScoresFromGoogleSheet() {
+        // 🔥 ฟังก์ชันดึงข้อมูลจาก Firebase
+        async function fetchScoresFromFirebase() {
             try {
                 document.getElementById('loading-indicator').classList.remove('hidden');
                 document.getElementById('results-table-body').innerHTML = '';
                 
-                showMessage('กำลังโหลดข้อมูลจาก Google Sheet...', 'info');
+                showMessage('กำลังโหลดข้อมูลจาก Firebase...', 'info');
                 
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'GET',
-                    mode: 'cors'
+                const querySnapshot = await db.collection('pretestScores')
+                    .orderBy('timestamp', 'desc')
+                    .get();
+                
+                const scores = [];
+                querySnapshot.forEach((doc) => {
+                    scores.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
                 });
                 
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
+                allScores = scores;
                 
-                const result = await response.json();
+                document.getElementById('data-source-info').innerHTML = 
+                    '<i class="fas fa-cloud mr-2"></i>แสดงข้อมูลจาก Firebase (' + allScores.length + ' รายการ) - อัปเดตล่าสุด: ' + new Date().toLocaleTimeString('th-TH');
                 
-                if (result.status === 'success') {
-                    const convertedData = convertGoogleSheetData(result.data);
-                    allScores = convertedData;
-                    
-                    document.getElementById('data-source-info').innerHTML = '<i class="fas fa-cloud mr-2"></i>แสดงข้อมูลจาก Google Sheet (' + allScores.length + ' รายการ) - อัปเดตล่าสุด: ' + new Date().toLocaleTimeString('th-TH');
-                    
-                    showMessage('โหลดข้อมูลจาก Google Sheet สำเร็จ! (' + allScores.length + ' รายการ)', 'success');
-                    applyFilters();
-                } else {
-                    throw new Error(result.message);
-                }
+                showMessage('โหลดข้อมูลจาก Firebase สำเร็จ! (' + allScores.length + ' รายการ)', 'success');
+                applyFilters();
                 
             } catch (error) {
-                console.error('Error fetching from Google Sheet:', error);
-                showMessage('ไม่สามารถโหลดข้อมูลจาก Google Sheet ได้: ' + error.message, 'error');
-                document.getElementById('data-source-info').innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>ไม่สามารถโหลดข้อมูลจาก Google Sheet ได้';
+                console.error('Error fetching from Firebase:', error);
+                showMessage('ไม่สามารถโหลดข้อมูลจาก Firebase ได้: ' + error.message, 'error');
+                document.getElementById('data-source-info').innerHTML = 
+                    '<i class="fas fa-exclamation-triangle mr-2"></i>ไม่สามารถโหลดข้อมูลจาก Firebase ได้';
             } finally {
                 document.getElementById('loading-indicator').classList.add('hidden');
             }
         }
 
-        // ฟังก์ชันแปลงข้อมูลจาก Google Sheet
-        function convertGoogleSheetData(sheetData) {
-            return sheetData.map(row => {
-                // ตรวจสอบว่ามีข้อมูลห้องเรียนพิเศษแบบไหน
-                let specialData = null;
-                if (row['ห้องเรียนพิเศษ'] === 'Online' && row['คะแนนคณิตศาสตร์ห้องเรียนพิเศษ   (Online)']) {
-                    specialData = {
-                        examType: 'Online',
-                        rank: parseInt(row['อันดับห้องเรียนพิเศษ   (Online)']) || 0,
-                        scores: {
-                            math: parseFloat(row['คะแนนคณิตศาสตร์ห้องเรียนพิเศษ   (Online)']) || 0,
-                            science: parseFloat(row['คะแนนวิทยาศาสตร์ห้องเรียนพิเศษ   (Online)']) || 0,
-                            english: parseFloat(row['คะแนนภาษาอังกฤษห้องเรียนพิเศษ   (Online)']) || 0
-                        },
-                        totalScore: (parseFloat(row['คะแนนคณิตศาสตร์ห้องเรียนพิเศษ   (Online)']) || 0) +
-                                   (parseFloat(row['คะแนนวิทยาศาสตร์ห้องเรียนพิเศษ   (Online)']) || 0) +
-                                   (parseFloat(row['คะแนนภาษาอังกฤษห้องเรียนพิเศษ   (Online)']) || 0)
-                    };
-                } else if (row['ห้องเรียนพิเศษ'] === 'On-site' && row['คะแนนคณิตศาสตร์ห้องเรียนพิเศษ   (On-site)']) {
-                    specialData = {
-                        examType: 'On-site',
-                        rank: parseInt(row['อันดับห้องเรียนพิเศษ  (On-site)']) || 0,
-                        scores: {
-                            math: parseFloat(row['คะแนนคณิตศาสตร์ห้องเรียนพิเศษ   (On-site)']) || 0,
-                            science: parseFloat(row['คะแนนวิทยาศาสตร์ห้องเรียนพิเศษ   (On-site)']) || 0,
-                            english: parseFloat(row['คะแนนภาษาอังกฤษห้องเรียนพิเศษ   (On-site)']) || 0
-                        },
-                        totalScore: (parseFloat(row['คะแนนคณิตศาสตร์ห้องเรียนพิเศษ   (On-site)']) || 0) +
-                                   (parseFloat(row['คะแนนวิทยาศาสตร์ห้องเรียนพิเศษ   (On-site)']) || 0) +
-                                   (parseFloat(row['คะแนนภาษาอังกฤษห้องเรียนพิเศษ   (On-site)']) || 0)
-                    };
-                }
-                
-                // ตรวจสอบว่ามีข้อมูลห้องเรียนปกติแบบไหน
-                let normalData = null;
-                if (row['ห้องเรียนปกติ'] === 'Online' && row['คะแนนคณิตศาสตร์ห้องเรียนปกติ  (Online)']) {
-                    normalData = {
-                        examType: 'Online',
-                        rank: parseInt(row['อันดับห้องเรียนปกติ  (Online)']) || 0,
-                        scores: {
-                            math: parseFloat(row['คะแนนคณิตศาสตร์ห้องเรียนปกติ  (Online)']) || 0,
-                            science: parseFloat(row['คะแนนวิทยาศาสตร์ห้องเรียนปกติ  (Online)']) || 0,
-                            english: parseFloat(row['คะแนนภาษาอังกฤษห้องเรียนปกติ  (Online)']) || 0,
-                            thai: parseFloat(row['คะแนนภาษาไทยห้องเรียนปกติ  (Online)']) || 0,
-                            social: parseFloat(row['คะแนนสังคมศึกษาห้องเรียนปกติ  (Online)']) || 0
-                        },
-                        totalScore: (parseFloat(row['คะแนนคณิตศาสตร์ห้องเรียนปกติ  (Online)']) || 0) +
-                                   (parseFloat(row['คะแนนวิทยาศาสตร์ห้องเรียนปกติ  (Online)']) || 0) +
-                                   (parseFloat(row['คะแนนภาษาอังกฤษห้องเรียนปกติ  (Online)']) || 0) +
-                                   (parseFloat(row['คะแนนภาษาไทยห้องเรียนปกติ  (Online)']) || 0) +
-                                   (parseFloat(row['คะแนนสังคมศึกษาห้องเรียนปกติ  (Online)']) || 0)
-                    };
-                } else if (row['ห้องเรียนปกติ'] === 'On-site' && row['คะแนนคณิตศาสตร์ห้องเรียนปกติ  (On-site)']) {
-                    normalData = {
-                        examType: 'On-site',
-                        rank: parseInt(row['อันดับห้องเรียนปกติ  (On-site)']) || 0,
-                        scores: {
-                            math: parseFloat(row['คะแนนคณิตศาสตร์ห้องเรียนปกติ  (On-site)']) || 0,
-                            science: parseFloat(row['คะแนนวิทยาศาสตร์ห้องเรียนปกติ  (On-site)']) || 0,
-                            english: parseFloat(row['คะแนนภาษาอังกฤษห้องเรียนปกติ  (On-site)']) || 0,
-                            thai: parseFloat(row['คะแนนภาษาไทยห้องเรียนปกติ  (On-site)']) || 0,
-                            social: parseFloat(row['คะแนนสังคมศึกษาห้องเรียนปกติ  (On-site)']) || 0
-                        },
-                        totalScore: (parseFloat(row['คะแนนคณิตศาสตร์ห้องเรียนปกติ  (On-site)']) || 0) +
-                                   (parseFloat(row['คะแนนวิทยาศาสตร์ห้องเรียนปกติ  (On-site)']) || 0) +
-                                   (parseFloat(row['คะแนนภาษาอังกฤษห้องเรียนปกติ  (On-site)']) || 0) +
-                                   (parseFloat(row['คะแนนภาษาไทยห้องเรียนปกติ  (On-site)']) || 0) +
-                                   (parseFloat(row['คะแนนสังคมศึกษาห้องเรียนปกติ  (On-site)']) || 0)
-                    };
-                }
-                
-                // กำหนดหลักสูตรจากข้อมูลที่มี
-                let pretestCurriculum = '';
-                if (specialData && normalData) pretestCurriculum = 'both';
-                else if (specialData) pretestCurriculum = 'special';
-                else if (normalData) pretestCurriculum = 'normal';
-                
-                // แยกเป้าหมาย
-                const targetText = row['เป้าหมายหลักสูตรในการสอบเข้า'] || '';
-                let targetSpecial = '';
-                let targetNormal = '';
-                
-                if (targetText.includes('EP')) targetSpecial = 'EP';
-                else if (targetText.includes('SMTE')) targetSpecial = 'SMTE';
-                else if (targetText.includes('GM')) targetSpecial = 'GM';
-                
-                if (targetText.includes('ในเขตพื้นที่บริการ')) targetNormal = 'Normal_In';
-                else if (targetText.includes('นอกเขตพื้นที่บริการ')) targetNormal = 'Normal_Out';
-                
-                const converted = {
-                    nickname: row['ชื่อเล่น'] || 'ไม่ระบุชื่อ',
-                    currentGrade: row['กำลังศึกษาอยู่ในระดับชั้น'] || '',
-                    timestamp: row['Timestamp'] || new Date().toISOString(),
-                    pretestCurriculum: pretestCurriculum,
-                    targetSpecial: targetSpecial,
-                    targetNormal: targetNormal,
-                    special: specialData,
-                    normal: normalData
-                };
-                
-                return converted;
-            }).filter(score => score.pretestCurriculum !== '');
-        }
-
-        // ฟังก์ชันส่งข้อมูลไปยัง Google Apps Script
-        async function submitToAppScript(formData) {
+        // 🔥 ฟังก์ชันส่งข้อมูลไปยัง Firebase
+        async function submitToFirebase(formData) {
             try {
-                // แปลงข้อมูลเป็นรูปแบบที่ Google Apps Script ต้องการ
-                const scriptData = {
-                    action: 'submit',
-                    data: formData
-                };
-                
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(scriptData)
+                const docRef = await db.collection('pretestScores').add({
+                    ...formData,
+                    createdAt: new Date().toISOString(),
+                    timestamp: new Date().getTime()
                 });
                 
-                const result = await response.json();
-                return result.status === 'success';
+                console.log('Document written with ID: ', docRef.id);
+                return true;
             } catch (error) {
-                console.error('Error submitting to App Script:', error);
+                console.error('Error adding document: ', error);
                 return false;
             }
         }
@@ -1326,14 +1218,14 @@
                 };
             }
 
-            // ส่งข้อมูลไปยัง Google Apps Script
-            const appScriptSuccess = await submitToAppScript(formData);
+            // ส่งข้อมูลไปยัง Firebase
+            const firebaseSuccess = await submitToFirebase(formData);
             
-            if (appScriptSuccess) {
+            if (firebaseSuccess) {
                 // แสดงผลสำเร็จ
                 document.getElementById('form-section').classList.add('hidden');
                 document.getElementById('success-message').classList.remove('hidden');
-                showMessage("ส่งข้อมูลสำเร็จ! ข้อมูลถูกบันทึกใน Google Sheet แล้ว 🎉", "success");
+                showMessage("ส่งข้อมูลสำเร็จ! ข้อมูลถูกบันทึกใน Firebase แล้ว 🎉", "success");
             } else {
                 showMessage("เกิดข้อผิดพลาดในการส่งข้อมูล กรุณาลองอีกครั้ง", "error");
             }
