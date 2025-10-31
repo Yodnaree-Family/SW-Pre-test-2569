@@ -110,56 +110,28 @@
             box-shadow: 0 7px 20px rgba(220, 38, 38, 0.2);
         }
         
-        .curriculum-option {
+        .exam-type-card {
             border: 2px solid #e5e7eb;
             border-radius: 0.75rem;
-            padding: 1rem;
+            padding: 1.5rem;
             cursor: pointer;
             transition: all 0.2s;
             background: white;
+            margin-bottom: 1rem;
         }
         
-        .curriculum-option:hover {
+        .exam-type-card:hover {
             border-color: #9ca3af;
         }
         
-        .curriculum-option.selected {
+        .exam-type-card.selected {
             border-color: #3b82f6;
             background-color: #eff6ff;
         }
         
-        .line-opc-section {
-            background: linear-gradient(135deg, #06c755 0%, #00b34c 100%);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            margin-top: 2rem;
-            color: white;
-            text-align: center;
-            box-shadow: 0 10px 25px rgba(6, 199, 85, 0.2);
-        }
-        
-        .line-opc-button {
-            display: inline-flex;
-            align-items: center;
-            background: white;
-            color: #06c755;
-            padding: 0.75rem 1.5rem;
-            border-radius: 2rem;
-            font-weight: 600;
-            text-decoration: none;
-            margin-top: 1rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        .line-opc-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 7px 20px rgba(0, 0, 0, 0.15);
-            color: #06c755;
-        }
-        
-        .hidden {
-            display: none !important;
+        .exam-type-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
         }
         
         .score-input-section {
@@ -169,22 +141,8 @@
             margin-top: 1rem;
         }
         
-        .exam-type-option {
-            border: 2px solid #e5e7eb;
-            border-radius: 0.75rem;
-            padding: 1rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: white;
-        }
-        
-        .exam-type-option:hover {
-            border-color: #9ca3af;
-        }
-        
-        .exam-type-option.selected {
-            border-color: #3b82f6;
-            background-color: #eff6ff;
+        .hidden {
+            display: none !important;
         }
         
         .success-message {
@@ -215,23 +173,6 @@
             border-color: #a5b4fc;
         }
         
-        .result-tab {
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 2px solid transparent;
-            background: #f9fafb;
-            color: #4b5563;
-        }
-        
-        .result-tab.active {
-            background-color: #e0e7ff;
-            color: #4338ca;
-            border-color: #a5b4fc;
-        }
-        
         .exam-type-tab {
             padding: 0.5rem 1rem;
             border-radius: 0.5rem;
@@ -244,23 +185,6 @@
         }
         
         .exam-type-tab.active {
-            background-color: #e0e7ff;
-            color: #4338ca;
-            border-color: #a5b4fc;
-        }
-        
-        .grade-tab {
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 2px solid transparent;
-            background: #f9fafb;
-            color: #4b5563;
-        }
-        
-        .grade-tab.active {
             background-color: #e0e7ff;
             color: #4338ca;
             border-color: #a5b4fc;
@@ -459,6 +383,7 @@
         
         .grid { display: grid; }
         .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+        .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
         
         .flex { display: flex; }
@@ -570,7 +495,102 @@
             
             <!-- Form Section -->
             <div id="form-section">
-                <!-- ... (โค้ดส่วนฟอร์มเดิม) ... -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-blue-800">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    <span>กรุณากรอกข้อมูลตามความเป็นจริงเพื่อประโยชน์ในการวิเคราะห์คะแนน</span>
+                </div>
+                
+                <!-- ข้อมูลพื้นฐาน -->
+                <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">ข้อมูลพื้นฐาน</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">ชื่อเล่น</label>
+                            <input type="text" id="nickname" class="input-field" placeholder="กรอกชื่อเล่น" maxlength="20">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">ระดับชั้นปัจจุบัน</label>
+                            <select id="current-grade" class="input-field">
+                                <option value="">เลือกระดับชั้น</option>
+                                <option value="grade4">ประถมศึกษาปีที่ 4</option>
+                                <option value="grade5">ประถมศึกษาปีที่ 5</option>
+                                <option value="grade6">ประถมศึกษาปีที่ 6</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- เลือกประเภทการสอบ -->
+                <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">เลือกประเภทการสอบที่ต้องการบันทึกคะแนน</h2>
+                    <p class="text-gray-600 mb-4">สามารถเลือกได้มากกว่า 1 ประเภท (เลือกประเภทที่คุณได้สอบจริง)</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- ห้องเรียนพิเศษ (On-site) -->
+                        <div class="exam-type-card" onclick="toggleExamType('specialOnsite')">
+                            <div class="exam-type-icon text-blue-600">
+                                <i class="fas fa-school"></i>
+                            </div>
+                            <h3 class="font-bold text-lg">ห้องเรียนพิเศษ (On-site)</h3>
+                            <p class="text-sm text-gray-600 mt-1">สอบวันเสาร์ที่ 20 ธันวาคม 2568</p>
+                            <div class="mt-2 flex items-center">
+                                <input type="checkbox" id="specialOnsite-checkbox" class="mr-2" onchange="toggleExamType('specialOnsite')">
+                                <span>เลือกประเภทนี้</span>
+                            </div>
+                        </div>
+                        
+                        <!-- ห้องเรียนปกติ (On-site) -->
+                        <div class="exam-type-card" onclick="toggleExamType('normalOnsite')">
+                            <div class="exam-type-icon text-green-600">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <h3 class="font-bold text-lg">ห้องเรียนปกติ (On-site)</h3>
+                            <p class="text-sm text-gray-600 mt-1">สอบวันเสาร์ที่ 20 ธันวาคม 2568</p>
+                            <div class="mt-2 flex items-center">
+                                <input type="checkbox" id="normalOnsite-checkbox" class="mr-2" onchange="toggleExamType('normalOnsite')">
+                                <span>เลือกประเภทนี้</span>
+                            </div>
+                        </div>
+                        
+                        <!-- ห้องเรียนพิเศษ (Online) -->
+                        <div class="exam-type-card" onclick="toggleExamType('specialOnline')">
+                            <div class="exam-type-icon text-purple-600">
+                                <i class="fas fa-laptop"></i>
+                            </div>
+                            <h3 class="font-bold text-lg">ห้องเรียนพิเศษ (Online)</h3>
+                            <p class="text-sm text-gray-600 mt-1">สอบวันอาทิตย์ที่ 21 ธันวาคม 2568</p>
+                            <div class="mt-2 flex items-center">
+                                <input type="checkbox" id="specialOnline-checkbox" class="mr-2" onchange="toggleExamType('specialOnline')">
+                                <span>เลือกประเภทนี้</span>
+                            </div>
+                        </div>
+                        
+                        <!-- ห้องเรียนปกติ (Online) -->
+                        <div class="exam-type-card" onclick="toggleExamType('normalOnline')">
+                            <div class="exam-type-icon text-orange-600">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <h3 class="font-bold text-lg">ห้องเรียนปกติ (Online)</h3>
+                            <p class="text-sm text-gray-600 mt-1">สอบวันอาทิตย์ที่ 21 ธันวาคม 2568</p>
+                            <div class="mt-2 flex items-center">
+                                <input type="checkbox" id="normalOnline-checkbox" class="mr-2" onchange="toggleExamType('normalOnline')">
+                                <span>เลือกประเภทนี้</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- กรอกคะแนนตามประเภทที่เลือก -->
+                <div id="score-inputs-container">
+                    <!-- คะแนนจะถูกเพิ่มที่นี่โดย JavaScript -->
+                </div>
+                
+                <!-- ปุ่มส่งข้อมูล -->
+                <div class="text-center mt-8">
+                    <button id="submit-btn" class="btn btn-success" onclick="submitForm()">
+                        <i class="fas fa-paper-plane mr-2"></i> ส่งข้อมูลคะแนน
+                    </button>
+                </div>
             </div>
             
             <!-- Results Section -->
@@ -578,107 +598,9 @@
                 <!-- ... (โค้ดส่วนผลลัพธ์เดิม) ... -->
             </div>
             
-            <!-- Charts Section (ใหม่) -->
+            <!-- Charts Section -->
             <div id="charts-section" class="hidden">
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-blue-800">
-                    <i class="fas fa-info-circle mr-2"></i>
-                    <span id="charts-data-source-info">กำลังโหลดข้อมูลจาก Firebase...</span>
-                </div>
-                
-                <!-- Tabs สำหรับเลือกหลักสูตร -->
-                <div class="flex flex-wrap justify-center mb-6 space-x-2">
-                    <button id="chart-tab-special" class="chart-tab active" onclick="switchChartTab('special')">
-                        <i class="fas fa-star mr-2"></i>ห้องเรียนพิเศษ
-                    </button>
-                    <button id="chart-tab-normal" class="chart-tab" onclick="switchChartTab('normal')">
-                        <i class="fas fa-users mr-2"></i>ห้องเรียนปกติ
-                    </button>
-                </div>
-                
-                <!-- Dropdown และตัวเลือกกรอง -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <!-- Dropdown เลือกประเภทการสอบ -->
-                    <div>
-                        <label class="block text-gray-700 font-semibold mb-2">เลือกประเภทการสอบ</label>
-                        <select id="chart-exam-type" class="input-field w-full" onchange="updateCharts()">
-                            <option value="all">ทั้งหมด</option>
-                            <option value="Online">Online</option>
-                            <option value="On-site">On-site</option>
-                        </select>
-                    </div>
-                    
-                    <!-- ตัวเลือกระดับชั้น -->
-                    <div>
-                        <label class="block text-gray-700 font-semibold mb-2">เลือกระดับชั้น</label>
-                        <div class="space-y-2">
-                            <label class="flex items-center">
-                                <input type="checkbox" id="chart-grade-all" class="mr-2" checked onchange="toggleAllGrades()">
-                                <span>ทั้งหมด</span>
-                            </label>
-                            <div class="grid grid-cols-3 gap-2">
-                                <label class="flex items-center">
-                                    <input type="checkbox" id="chart-grade-4" class="mr-1" checked onchange="updateGradeSelection()">
-                                    <span class="text-sm">ป.4</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" id="chart-grade-5" class="mr-1" checked onchange="updateGradeSelection()">
-                                    <span class="text-sm">ป.5</span>
-                                </label>
-                                <label class="flex items-center">
-                                    <input type="checkbox" id="chart-grade-6" class="mr-1" checked onchange="updateGradeSelection()">
-                                    <span class="text-sm">ป.6</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- ปุ่มรีเฟรช -->
-                    <div class="flex items-end">
-                        <button onclick="updateCharts()" class="btn btn-primary w-full">
-                            <i class="fas fa-sync-alt mr-2"></i> อัพเดทกราฟ
-                        </button>
-                    </div>
-                </div>
-                
-                <div id="charts-loading-indicator" class="text-center py-8">
-                    <div class="loading-spinner mb-4"></div>
-                    <p class="text-gray-600">กำลังโหลดข้อมูลและสร้างกราฟ...</p>
-                </div>
-                
-                <!-- กราฟต่างๆ -->
-                <div id="charts-container" class="space-y-6">
-                    <!-- กราฟคะแนนรวม -->
-                    <div class="chart-container">
-                        <h3 class="chart-title">การกระจายคะแนนรวม</h3>
-                        <canvas id="totalScoreChart" height="300"></canvas>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- กราฟคะแนนรายวิชา -->
-                        <div class="chart-container">
-                            <h3 class="chart-title">คะแนนเฉลี่ยรายวิชา</h3>
-                            <canvas id="subjectScoreChart" height="300"></canvas>
-                        </div>
-                        
-                        <!-- กราฟจำนวนผู้สอบตามระดับชั้น -->
-                        <div class="chart-container">
-                            <h3 class="chart-title">จำนวนผู้สอบตามระดับชั้น</h3>
-                            <canvas id="gradeDistributionChart" height="300"></canvas>
-                        </div>
-                    </div>
-                    
-                    <!-- กราฟเปรียบเทียบประเภทการสอบ -->
-                    <div class="chart-container">
-                        <h3 class="chart-title">เปรียบเทียบคะแนนตามประเภทการสอบ</h3>
-                        <canvas id="examTypeComparisonChart" height="300"></canvas>
-                    </div>
-                    
-                    <!-- กราฟอันดับคะแนน -->
-                    <div class="chart-container">
-                        <h3 class="chart-title">อันดับคะแนน (Top 20)</h3>
-                        <canvas id="rankingChart" height="400"></canvas>
-                    </div>
-                </div>
+                <!-- ... (โค้ดส่วนกราฟเดิม) ... -->
             </div>
             
             <!-- Analysis Section -->
@@ -782,460 +704,295 @@
             }
         };
 
-        // ฟังก์ชันสำหรับสลับแท็บกราฟ
-        window.switchChartTab = (tab) => {
-            currentChartTab = tab;
-            document.getElementById('chart-tab-special').classList.toggle('active', tab === 'special');
-            document.getElementById('chart-tab-normal').classList.toggle('active', tab === 'normal');
-            updateCharts();
+        // ฟังก์ชันเลือก/ยกเลิกเลือกประเภทการสอบ
+        window.toggleExamType = (examType) => {
+            const checkbox = document.getElementById(`${examType}-checkbox`);
+            const card = checkbox.closest('.exam-type-card');
+            
+            checkbox.checked = !checkbox.checked;
+            
+            if (checkbox.checked) {
+                card.classList.add('selected');
+                createScoreInputs(examType);
+            } else {
+                card.classList.remove('selected');
+                removeScoreInputs(examType);
+            }
         };
 
-        // ฟังก์ชันจัดการการเลือกระดับชั้นทั้งหมด
-        window.toggleAllGrades = () => {
-            const allChecked = document.getElementById('chart-grade-all').checked;
-            document.getElementById('chart-grade-4').checked = allChecked;
-            document.getElementById('chart-grade-5').checked = allChecked;
-            document.getElementById('chart-grade-6').checked = allChecked;
-            updateCharts();
-        };
+        // ฟังก์ชันสร้างฟอร์มกรอกคะแนนตามประเภทที่เลือก
+        function createScoreInputs(examType) {
+            const container = document.getElementById('score-inputs-container');
+            const examTypeData = getExamTypeData(examType);
+            
+            const scoreSection = document.createElement('div');
+            scoreSection.id = `${examType}-score-section`;
+            scoreSection.className = 'score-input-section';
+            
+            scoreSection.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-gray-800">${examTypeData.title}</h3>
+                    <button class="btn btn-danger text-sm" onclick="toggleExamType('${examType}')">
+                        <i class="fas fa-times mr-1"></i> ลบ
+                    </button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    ${examTypeData.subjects.map(subject => `
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">${subject.name}</label>
+                            <input type="number" id="${examType}-${subject.id}" class="input-field" 
+                                   placeholder="คะแนน${subject.name}" min="0" max="${subject.maxScore}">
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            container.appendChild(scoreSection);
+        }
 
-        // ฟังก์ชันอัพเดทการเลือกระดับชั้น
-        window.updateGradeSelection = () => {
-            const grade4 = document.getElementById('chart-grade-4').checked;
-            const grade5 = document.getElementById('chart-grade-5').checked;
-            const grade6 = document.getElementById('chart-grade-6').checked;
-            const allChecked = grade4 && grade5 && grade6;
-            document.getElementById('chart-grade-all').checked = allChecked;
-            updateCharts();
-        };
+        // ฟังก์ชันลบฟอร์มกรอกคะแนน
+        function removeScoreInputs(examType) {
+            const scoreSection = document.getElementById(`${examType}-score-section`);
+            if (scoreSection) {
+                scoreSection.remove();
+            }
+        }
 
-        // ฟังก์ชันดึงข้อมูลสำหรับกราฟ
-        async function fetchScoresForCharts() {
-            try {
-                document.getElementById('charts-loading-indicator').classList.remove('hidden');
-                document.getElementById('charts-container').classList.add('hidden');
+        // ฟังก์ชันดึงข้อมูลประเภทการสอบ
+        function getExamTypeData(examType) {
+            const examTypes = {
+                'specialOnsite': {
+                    title: 'คะแนนห้องเรียนพิเศษ (On-site)',
+                    examType: 'On-site',
+                    curriculum: 'special',
+                    subjects: [
+                        { id: 'math', name: 'คณิตศาสตร์', maxScore: 50 },
+                        { id: 'science', name: 'วิทยาศาสตร์', maxScore: 30 },
+                        { id: 'english', name: 'ภาษาอังกฤษ', maxScore: 30 }
+                    ],
+                    totalScore: 110
+                },
+                'normalOnsite': {
+                    title: 'คะแนนห้องเรียนปกติ (On-site)',
+                    examType: 'On-site',
+                    curriculum: 'normal',
+                    subjects: [
+                        { id: 'math', name: 'คณิตศาสตร์', maxScore: 30 },
+                        { id: 'science', name: 'วิทยาศาสตร์', maxScore: 30 },
+                        { id: 'english', name: 'ภาษาอังกฤษ', maxScore: 30 },
+                        { id: 'thai', name: 'ภาษาไทย', maxScore: 30 },
+                        { id: 'social', name: 'สังคมศึกษา', maxScore: 30 }
+                    ],
+                    totalScore: 150
+                },
+                'specialOnline': {
+                    title: 'คะแนนห้องเรียนพิเศษ (Online)',
+                    examType: 'Online',
+                    curriculum: 'special',
+                    subjects: [
+                        { id: 'math', name: 'คณิตศาสตร์', maxScore: 50 },
+                        { id: 'science', name: 'วิทยาศาสตร์', maxScore: 30 },
+                        { id: 'english', name: 'ภาษาอังกฤษ', maxScore: 30 }
+                    ],
+                    totalScore: 110
+                },
+                'normalOnline': {
+                    title: 'คะแนนห้องเรียนปกติ (Online)',
+                    examType: 'Online',
+                    curriculum: 'normal',
+                    subjects: [
+                        { id: 'math', name: 'คณิตศาสตร์', maxScore: 30 },
+                        { id: 'science', name: 'วิทยาศาสตร์', maxScore: 30 },
+                        { id: 'english', name: 'ภาษาอังกฤษ', maxScore: 30 },
+                        { id: 'thai', name: 'ภาษาไทย', maxScore: 30 },
+                        { id: 'social', name: 'สังคมศึกษา', maxScore: 30 }
+                    ],
+                    totalScore: 150
+                }
+            };
+            
+            return examTypes[examType];
+        }
+
+        // ฟังก์ชันส่งข้อมูลแบบฟอร์ม
+        async function submitForm() {
+            const nickname = document.getElementById('nickname').value.trim();
+            const currentGrade = document.getElementById('current-grade').value;
+            
+            if (!nickname) {
+                showMessage('กรุณากรอกชื่อเล่น', 'error');
+                return;
+            }
+            
+            if (!currentGrade) {
+                showMessage('กรุณาเลือกระดับชั้น', 'error');
+                return;
+            }
+            
+            // ตรวจสอบว่ามีการเลือกประเภทการสอบอย่างน้อย 1 ประเภท
+            const selectedExamTypes = [
+                'specialOnsite', 'normalOnsite', 'specialOnline', 'normalOnline'
+            ].filter(type => document.getElementById(`${type}-checkbox`).checked);
+            
+            if (selectedExamTypes.length === 0) {
+                showMessage('กรุณาเลือกประเภทการสอบอย่างน้อย 1 ประเภท', 'error');
+                return;
+            }
+            
+            // รวบรวมข้อมูลคะแนน
+            const scoresData = {};
+            
+            selectedExamTypes.forEach(examType => {
+                const examTypeData = getExamTypeData(examType);
+                const scores = {};
+                let totalScore = 0;
+                let hasScore = false;
                 
-                const querySnapshot = await db.collection('pretestScores')
-                    .orderBy('timestamp', 'desc')
-                    .get();
-                
-                const scores = [];
-                querySnapshot.forEach((doc) => {
-                    scores.push({
-                        id: doc.id,
-                        ...doc.data()
-                    });
+                examTypeData.subjects.forEach(subject => {
+                    const scoreInput = document.getElementById(`${examType}-${subject.id}`);
+                    const scoreValue = parseInt(scoreInput.value) || 0;
+                    
+                    if (scoreValue > 0) {
+                        hasScore = true;
+                        totalScore += scoreValue;
+                    }
+                    
+                    scores[subject.id] = scoreValue;
                 });
                 
-                allScores = scores;
+                if (hasScore) {
+                    scoresData[examType] = {
+                        examType: examTypeData.examType,
+                        curriculum: examTypeData.curriculum,
+                        scores: scores,
+                        totalScore: totalScore,
+                        maxScore: examTypeData.totalScore
+                    };
+                }
+            });
+            
+            if (Object.keys(scoresData).length === 0) {
+                showMessage('กรุณากรอกคะแนนอย่างน้อย 1 วิชา', 'error');
+                return;
+            }
+            
+            try {
+                // แสดง loading
+                document.getElementById('submit-btn').innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> กำลังส่งข้อมูล...';
+                document.getElementById('submit-btn').disabled = true;
                 
-                document.getElementById('charts-data-source-info').innerHTML = 
-                    '<i class="fas fa-cloud mr-2"></i>แสดงข้อมูลจาก Firebase (' + allScores.length + ' รายการ) - อัปเดตล่าสุด: ' + new Date().toLocaleTimeString('th-TH');
+                // บันทึกข้อมูลลง Firebase
+                await db.collection('pretestScores').add({
+                    nickname: nickname,
+                    currentGrade: currentGrade,
+                    scores: scoresData,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
                 
-                updateCharts();
+                // แสดงข้อความสำเร็จ
+                document.getElementById('form-section').classList.add('hidden');
+                document.getElementById('success-message').classList.remove('hidden');
+                
+                showMessage('บันทึกข้อมูลสำเร็จ!', 'success');
                 
             } catch (error) {
-                console.error('Error fetching from Firebase:', error);
-                document.getElementById('charts-data-source-info').innerHTML = 
-                    '<i class="fas fa-exclamation-triangle mr-2"></i>ไม่สามารถโหลดข้อมูลจาก Firebase ได้';
-            } finally {
-                document.getElementById('charts-loading-indicator').classList.add('hidden');
+                console.error('Error saving to Firebase:', error);
+                showMessage('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + error.message, 'error');
+                
+                // รีเซ็ตปุ่ม
+                document.getElementById('submit-btn').innerHTML = '<i class="fas fa-paper-plane mr-2"></i> ส่งข้อมูลคะแนน';
+                document.getElementById('submit-btn').disabled = false;
             }
         }
 
-        // ฟังก์ชันอัพเดทกราฟทั้งหมด
-        window.updateCharts = () => {
-            if (allScores.length === 0) {
-                document.getElementById('charts-container').innerHTML = `
-                    <div class="text-center py-8 text-gray-500">
-                        <i class="fas fa-info-circle text-4xl mb-4 text-gray-400"></i>
-                        <p class="text-lg">ยังไม่มีข้อมูลสำหรับสร้างกราฟ</p>
-                        <p class="text-sm mt-2">กรุณากรอกข้อมูลในหน้า "กรอกข้อมูล" ก่อน</p>
-                    </div>
-                `;
-                return;
-            }
-
-            document.getElementById('charts-container').classList.remove('hidden');
+        // ฟังก์ชันรีเซ็ตฟอร์ม
+        window.resetForm = () => {
+            document.getElementById('success-message').classList.add('hidden');
+            document.getElementById('form-section').classList.remove('hidden');
             
-            // กรองข้อมูลตามที่เลือก
-            const filteredScores = filterScoresForCharts();
+            // รีเซ็ตฟอร์ม
+            document.getElementById('nickname').value = '';
+            document.getElementById('current-grade').value = '';
             
-            // สร้างกราฟทั้งหมด
-            createTotalScoreChart(filteredScores);
-            createSubjectScoreChart(filteredScores);
-            createGradeDistributionChart(filteredScores);
-            createExamTypeComparisonChart(filteredScores);
-            createRankingChart(filteredScores);
+            // รีเซ็ตการเลือกประเภทการสอบ
+            ['specialOnsite', 'normalOnsite', 'specialOnline', 'normalOnline'].forEach(type => {
+                document.getElementById(`${type}-checkbox`).checked = false;
+                document.getElementById(`${type}-checkbox`).closest('.exam-type-card').classList.remove('selected');
+                removeScoreInputs(type);
+            });
+            
+            // รีเซ็ตปุ่ม
+            document.getElementById('submit-btn').innerHTML = '<i class="fas fa-paper-plane mr-2"></i> ส่งข้อมูลคะแนน';
+            document.getElementById('submit-btn').disabled = false;
         };
 
-        // ฟังก์ชันกรองข้อมูลสำหรับกราฟ
-        function filterScoresForCharts() {
-            const examType = document.getElementById('chart-exam-type').value;
-            const selectedGrades = [
-                document.getElementById('chart-grade-4').checked ? 'grade4' : null,
-                document.getElementById('chart-grade-5').checked ? 'grade5' : null,
-                document.getElementById('chart-grade-6').checked ? 'grade6' : null
-            ].filter(grade => grade !== null);
+        // ฟังก์ชันแสดงข้อความ
+        function showMessage(message, type) {
+            const messageBox = document.getElementById('message-box');
+            const messageDiv = document.createElement('div');
+            
+            const bgColor = type === 'success' ? 'bg-green-100 border-green-400 text-green-700' : 
+                          type === 'error' ? 'bg-red-100 border-red-400 text-red-700' : 
+                          'bg-blue-100 border-blue-400 text-blue-700';
+            
+            messageDiv.className = `p-4 mb-4 rounded-lg border ${bgColor} shadow-lg transition-all duration-300`;
+            messageDiv.innerHTML = `
+                <div class="flex justify-between items-center">
+                    <div>
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'} mr-2"></i>
+                        ${message}
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            
+            messageBox.appendChild(messageDiv);
+            
+            // ลบข้อความอัตโนมัติหลังจาก 5 วินาที
+            setTimeout(() => {
+                if (messageDiv.parentElement) {
+                    messageDiv.remove();
+                }
+            }, 5000);
+        }
 
-            return allScores.filter(score => {
-                // กรองตามหลักสูตร
-                if (currentChartTab === 'special' && !score.special) return false;
-                if (currentChartTab === 'normal' && !score.normal) return false;
+        // ฟังก์ชันทดสอบการเชื่อมต่อ
+        window.testConnection = async () => {
+            const statusElement = document.getElementById('connection-status-text');
+            statusElement.innerHTML = '<i class="fas fa-sync-alt fa-spin mr-2"></i> กำลังทดสอบการเชื่อมต่อ...';
+            
+            try {
+                // ทดสอบการอ่านข้อมูลจาก Firebase
+                const snapshot = await db.collection('pretestScores').limit(1).get();
+                statusElement.innerHTML = '<i class="fas fa-check-circle mr-2"></i> การเชื่อมต่อ Firebase ใช้งานได้ปกติ';
+                document.getElementById('connection-status').classList.remove('bg-yellow-50', 'border-yellow-400', 'text-yellow-800');
+                document.getElementById('connection-status').classList.add('bg-green-50', 'border-green-400', 'text-green-800');
                 
-                // กรองตามประเภทการสอบ
-                if (examType !== 'all') {
-                    const scoreExamType = currentChartTab === 'special' ? score.special?.examType : score.normal?.examType;
-                    if (scoreExamType !== examType) return false;
-                }
+                // ซ่อนสถานะหลังจาก 3 วินาที
+                setTimeout(() => {
+                    document.getElementById('connection-status').classList.add('hidden');
+                }, 3000);
                 
-                // กรองตามระดับชั้น
-                if (selectedGrades.length > 0 && !selectedGrades.includes(score.currentGrade)) {
-                    return false;
-                }
-                
-                return true;
-            });
-        }
-
-        // ฟังก์ชันสร้างกราฟการกระจายคะแนนรวม
-        function createTotalScoreChart(scores) {
-            const ctx = document.getElementById('totalScoreChart').getContext('2d');
-            
-            // ทำลายกราฟเก่าถ้ามี
-            if (chartInstances.totalScoreChart) {
-                chartInstances.totalScoreChart.destroy();
+            } catch (error) {
+                console.error('Connection test failed:', error);
+                statusElement.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i> ไม่สามารถเชื่อมต่อกับ Firebase ได้';
+                document.getElementById('connection-status').classList.remove('bg-yellow-50', 'border-yellow-400', 'text-yellow-800');
+                document.getElementById('connection-status').classList.add('bg-red-50', 'border-red-400', 'text-red-800');
             }
-            
-            // คำนวณช่วงคะแนน
-            const totalScores = scores.map(score => {
-                return currentChartTab === 'special' ? score.special?.totalScore : score.normal?.totalScore;
-            }).filter(score => score > 0);
-            
-            if (totalScores.length === 0) {
-                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                ctx.font = '16px Arial';
-                ctx.fillStyle = '#6b7280';
-                ctx.textAlign = 'center';
-                ctx.fillText('ไม่มีข้อมูล', ctx.canvas.width / 2, ctx.canvas.height / 2);
-                return;
-            }
-            
-            const maxScore = currentChartTab === 'special' ? 110 : 150;
-            const ranges = Array.from({length: 10}, (_, i) => {
-                const start = (i * maxScore) / 10;
-                const end = ((i + 1) * maxScore) / 10;
-                return { start, end, count: 0 };
-            });
-            
-            totalScores.forEach(score => {
-                const rangeIndex = Math.floor((score / maxScore) * 10);
-                if (rangeIndex >= 0 && rangeIndex < 10) {
-                    ranges[rangeIndex].count++;
-                }
-            });
-            
-            chartInstances.totalScoreChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ranges.map((range, i) => `${(i * 10)}-${(i + 1) * 10}%`),
-                    datasets: [{
-                        label: 'จำนวนผู้สอบ',
-                        data: ranges.map(range => range.count),
-                        backgroundColor: 'rgba(59, 130, 246, 0.7)',
-                        borderColor: 'rgba(59, 130, 246, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: `การกระจายคะแนนรวม (${currentChartTab === 'special' ? 'ห้องเรียนพิเศษ' : 'ห้องเรียนปกติ'})`
-                        },
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'จำนวนผู้สอบ'
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'ช่วงคะแนน (%)'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // ฟังก์ชันสร้างกราฟคะแนนรายวิชา
-        function createSubjectScoreChart(scores) {
-            const ctx = document.getElementById('subjectScoreChart').getContext('2d');
-            
-            if (chartInstances.subjectScoreChart) {
-                chartInstances.subjectScoreChart.destroy();
-            }
-            
-            const subjects = currentChartTab === 'special' 
-                ? ['คณิตศาสตร์', 'วิทยาศาสตร์', 'ภาษาอังกฤษ']
-                : ['คณิตศาสตร์', 'วิทยาศาสตร์', 'ภาษาอังกฤษ', 'ภาษาไทย', 'สังคมศึกษา'];
-            
-            const subjectData = subjects.map(subject => {
-                const subjectScores = scores.map(score => {
-                    const scoreData = currentChartTab === 'special' ? score.special?.scores : score.normal?.scores;
-                    if (!scoreData) return 0;
-                    
-                    switch(subject) {
-                        case 'คณิตศาสตร์': return scoreData.math || 0;
-                        case 'วิทยาศาสตร์': return scoreData.science || 0;
-                        case 'ภาษาอังกฤษ': return scoreData.english || 0;
-                        case 'ภาษาไทย': return scoreData.thai || 0;
-                        case 'สังคมศึกษา': return scoreData.social || 0;
-                        default: return 0;
-                    }
-                }).filter(score => score > 0);
-                
-                return subjectScores.length > 0 
-                    ? subjectScores.reduce((a, b) => a + b, 0) / subjectScores.length 
-                    : 0;
-            });
-            
-            chartInstances.subjectScoreChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: subjects,
-                    datasets: [{
-                        label: 'คะแนนเฉลี่ย',
-                        data: subjectData,
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.7)',
-                            'rgba(54, 162, 235, 0.7)',
-                            'rgba(255, 206, 86, 0.7)',
-                            'rgba(75, 192, 192, 0.7)',
-                            'rgba(153, 102, 255, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(153, 102, 255, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: `คะแนนเฉลี่ยรายวิชา (${currentChartTab === 'special' ? 'ห้องเรียนพิเศษ' : 'ห้องเรียนปกติ'})`
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: currentChartTab === 'special' ? 50 : 30,
-                            title: {
-                                display: true,
-                                text: 'คะแนนเฉลี่ย'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // ฟังก์ชันสร้างกราฟจำนวนผู้สอบตามระดับชั้น
-        function createGradeDistributionChart(scores) {
-            const ctx = document.getElementById('gradeDistributionChart').getContext('2d');
-            
-            if (chartInstances.gradeDistributionChart) {
-                chartInstances.gradeDistributionChart.destroy();
-            }
-            
-            const gradeCounts = {
-                'ป.4': scores.filter(score => score.currentGrade === 'grade4').length,
-                'ป.5': scores.filter(score => score.currentGrade === 'grade5').length,
-                'ป.6': scores.filter(score => score.currentGrade === 'grade6').length
-            };
-            
-            chartInstances.gradeDistributionChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(gradeCounts),
-                    datasets: [{
-                        data: Object.values(gradeCounts),
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.7)',
-                            'rgba(54, 162, 235, 0.7)',
-                            'rgba(255, 206, 86, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: `จำนวนผู้สอบตามระดับชั้น (${currentChartTab === 'special' ? 'ห้องเรียนพิเศษ' : 'ห้องเรียนปกติ'})`
-                        },
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
-                }
-            });
-        }
-
-        // ฟังก์ชันสร้างกราฟเปรียบเทียบประเภทการสอบ
-        function createExamTypeComparisonChart(scores) {
-            const ctx = document.getElementById('examTypeComparisonChart').getContext('2d');
-            
-            if (chartInstances.examTypeComparisonChart) {
-                chartInstances.examTypeComparisonChart.destroy();
-            }
-            
-            const onlineScores = scores.filter(score => {
-                const examType = currentChartTab === 'special' ? score.special?.examType : score.normal?.examType;
-                return examType === 'Online';
-            }).map(score => currentChartTab === 'special' ? score.special?.totalScore : score.normal?.totalScore)
-            .filter(score => score > 0);
-            
-            const onsiteScores = scores.filter(score => {
-                const examType = currentChartTab === 'special' ? score.special?.examType : score.normal?.examType;
-                return examType === 'On-site';
-            }).map(score => currentChartTab === 'special' ? score.special?.totalScore : score.normal?.totalScore)
-            .filter(score => score > 0);
-            
-            const onlineAvg = onlineScores.length > 0 ? onlineScores.reduce((a, b) => a + b, 0) / onlineScores.length : 0;
-            const onsiteAvg = onsiteScores.length > 0 ? onsiteScores.reduce((a, b) => a + b, 0) / onsiteScores.length : 0;
-            
-            chartInstances.examTypeComparisonChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Online', 'On-site'],
-                    datasets: [{
-                        label: 'คะแนนเฉลี่ย',
-                        data: [onlineAvg, onsiteAvg],
-                        backgroundColor: [
-                            'rgba(54, 162, 235, 0.7)',
-                            'rgba(255, 99, 132, 0.7)'
-                        ],
-                        borderColor: [
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 99, 132, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: `เปรียบเทียบคะแนนตามประเภทการสอบ (${currentChartTab === 'special' ? 'ห้องเรียนพิเศษ' : 'ห้องเรียนปกติ'})`
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'คะแนนเฉลี่ย'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // ฟังก์ชันสร้างกราฟอันดับคะแนน
-        function createRankingChart(scores) {
-            const ctx = document.getElementById('rankingChart').getContext('2d');
-            
-            if (chartInstances.rankingChart) {
-                chartInstances.rankingChart.destroy();
-            }
-            
-            // เรียงลำดับคะแนน
-            const rankedScores = scores
-                .map(score => ({
-                    nickname: score.nickname || 'ไม่ระบุชื่อ',
-                    totalScore: currentChartTab === 'special' ? score.special?.totalScore : score.normal?.totalScore,
-                    grade: getGradeText(score.currentGrade)
-                }))
-                .filter(score => score.totalScore > 0)
-                .sort((a, b) => b.totalScore - a.totalScore)
-                .slice(0, 20); // Top 20
-            
-            chartInstances.rankingChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: rankedScores.map(score => `${score.nickname} (${score.grade})`),
-                    datasets: [{
-                        label: 'คะแนนรวม',
-                        data: rankedScores.map(score => score.totalScore),
-                        backgroundColor: 'rgba(75, 192, 192, 0.7)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: `อันดับคะแนนสูงสุด (${currentChartTab === 'special' ? 'ห้องเรียนพิเศษ' : 'ห้องเรียนปกติ'})`
-                        },
-                        legend: {
-                            display: false
-                        }
-                    },
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'คะแนนรวม'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // ฟังก์ชันแปลงรหัสระดับชั้นเป็นข้อความ
-        function getGradeText(gradeCode) {
-            const gradeMap = {
-                'grade4': 'ป.4',
-                'grade5': 'ป.5', 
-                'grade6': 'ป.6'
-            };
-            return gradeMap[gradeCode] || gradeCode;
-        }
-
-        // ... (โค้ดอื่นๆ ที่เหลือเหมือนเดิม) ...
+        };
 
         // ตั้งค่าเมื่อโหลดหน้าเว็บ
         document.addEventListener('DOMContentLoaded', function() {
-            // ... (โค้ดตั้งค่าเดิม) ...
+            // ทดสอบการเชื่อมต่อ Firebase
+            testConnection();
+            
+            // ตรวจสอบสถานะ Admin จาก localStorage
+            if (localStorage.getItem('isAdmin') === 'true') {
+                isAdmin = true;
+                document.getElementById('tab-admin').classList.remove('hidden');
+            }
         });
     </script>
 </body>
