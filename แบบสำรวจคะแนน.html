@@ -921,6 +921,12 @@
                         </div>
                     </div>
                     
+                    <!-- ข้อมูลคะแนนปัจจุบัน -->
+                    <div id="current-scores-info" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-blue-800 hidden">
+                        <h4 class="font-bold mb-2">คะแนนปัจจุบันของคุณ</h4>
+                        <div id="current-scores-details"></div>
+                    </div>
+                    
                     <div id="analysis-results-container" class="text-left space-y-8">
                         <div class="text-center py-8 text-gray-500">
                             <i class="fas fa-info-circle text-4xl mb-4 text-gray-400"></i>
@@ -2129,7 +2135,66 @@
                 return;
             }
             
+            // แสดงข้อมูลคะแนนปัจจุบัน
+            displayCurrentScores();
+            
             updateAnalysis();
+        }
+
+        // ฟังก์ชันแสดงข้อมูลคะแนนปัจจุบัน
+        function displayCurrentScores() {
+            const currentScoresInfo = document.getElementById('current-scores-info');
+            const currentScoresDetails = document.getElementById('current-scores-details');
+            
+            if (allScores.length === 0) {
+                currentScoresInfo.classList.add('hidden');
+                return;
+            }
+            
+            const latestScore = allScores[0]; // ใช้ข้อมูลล่าสุด (อันดับแรก)
+            
+            let html = '';
+            
+            // แสดงคะแนนห้องเรียนพิเศษ
+            const specialScores = Object.values(latestScore.scores || {}).find(s => s.curriculum === 'special');
+            if (specialScores) {
+                html += `
+                    <div class="mb-3">
+                        <h5 class="font-semibold text-blue-700">ห้องเรียนพิเศษ</h5>
+                        <div class="grid grid-cols-3 gap-2 text-sm mt-1">
+                            <span>คณิต: ${specialScores.scores?.math || 0}</span>
+                            <span>วิทย์: ${specialScores.scores?.science || 0}</span>
+                            <span>อังกฤษ: ${specialScores.scores?.english || 0}</span>
+                        </div>
+                        <div class="text-sm mt-1 font-semibold">รวม: ${specialScores.totalScore || 0} คะแนน</div>
+                    </div>
+                `;
+            }
+            
+            // แสดงคะแนนห้องเรียนปกติ
+            const normalScores = Object.values(latestScore.scores || {}).find(s => s.curriculum === 'normal');
+            if (normalScores) {
+                html += `
+                    <div>
+                        <h5 class="font-semibold text-green-700">ห้องเรียนปกติ</h5>
+                        <div class="grid grid-cols-3 gap-2 text-sm mt-1">
+                            <span>คณิต: ${normalScores.scores?.math || 0}</span>
+                            <span>วิทย์: ${normalScores.scores?.science || 0}</span>
+                            <span>อังกฤษ: ${normalScores.scores?.english || 0}</span>
+                            <span>ไทย: ${normalScores.scores?.thai || 0}</span>
+                            <span>สังคม: ${normalScores.scores?.social || 0}</span>
+                        </div>
+                        <div class="text-sm mt-1 font-semibold">รวม: ${normalScores.totalScore || 0} คะแนน</div>
+                    </div>
+                `;
+            }
+            
+            if (html) {
+                currentScoresDetails.innerHTML = html;
+                currentScoresInfo.classList.remove('hidden');
+            } else {
+                currentScoresInfo.classList.add('hidden');
+            }
         }
 
         // ฟังก์ชันอัพเดทการวิเคราะห์
@@ -2137,7 +2202,18 @@
             const container = document.getElementById('analysis-results-container');
             if (!container) return;
             
-            const latestScore = allScores[allScores.length - 1];
+            if (allScores.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-info-circle text-4xl mb-4 text-gray-400"></i>
+                        <p class="text-lg">ยังไม่มีข้อมูลสำหรับการวิเคราะห์</p>
+                        <p class="text-sm mt-2">กรุณากรอกข้อมูลในหน้า "กรอกข้อมูล" ก่อน</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const latestScore = allScores[0]; // ใช้ข้อมูลล่าสุด (อันดับแรก)
             let html = '';
             
             // วิเคราะห์สำหรับเป้าหมายห้องเรียนพิเศษ
@@ -2169,8 +2245,8 @@
                             const stats = historicalData2568[target];
                             if (stats) {
                                 const projectedScore = calculateRealExamScore(specialScores, target);
-                                html += createAnalysisCard(stats, projectedScore, target, 
-                                    Object.values(specialScores).reduce((a, b) => a + b, 0), specialScores);
+                                const totalScore = Object.values(specialScores).reduce((a, b) => a + b, 0);
+                                html += createAnalysisCard(stats, projectedScore, target, totalScore, specialScores);
                             }
                         });
                     } else {
@@ -2211,8 +2287,8 @@
                             const stats = historicalData2568[target];
                             if (stats) {
                                 const projectedScore = calculateRealExamScore(normalScores, target);
-                                html += createAnalysisCard(stats, projectedScore, target, 
-                                    Object.values(normalScores).reduce((a, b) => a + b, 0), normalScores);
+                                const totalScore = Object.values(normalScores).reduce((a, b) => a + b, 0);
+                                html += createAnalysisCard(stats, projectedScore, target, totalScore, normalScores);
                             }
                         });
                     } else {
