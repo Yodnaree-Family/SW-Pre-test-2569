@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569</title>
-    <!-- ใช้ Tailwind CSS ผ่าน CDN -->
+    <!-- ใช้ Tailwind CSS ผ่าน CDN ที่แนะนำ -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -26,6 +26,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
+        /* Reset และ Base Styles */
         * {
             margin: 0;
             padding: 0;
@@ -38,6 +39,7 @@
             line-height: 1.6;
         }
         
+        /* Custom Styles */
         .header-gradient {
             background: linear-gradient(135deg, #2a2a72 0%, #009ffd 100%);
         }
@@ -178,6 +180,57 @@
             border-color: #a5b4fc;
         }
         
+        .result-tab {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            background: #f9fafb;
+            color: #4b5563;
+        }
+        
+        .result-tab.active {
+            background-color: #e0e7ff;
+            color: #4338ca;
+            border-color: #a5b4fc;
+        }
+        
+        .exam-type-tab {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            background: #f9fafb;
+            color: #4b5563;
+        }
+        
+        .exam-type-tab.active {
+            background-color: #e0e7ff;
+            color: #4338ca;
+            border-color: #a5b4fc;
+        }
+        
+        .grade-tab {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            background: #f9fafb;
+            color: #4b5563;
+        }
+        
+        .grade-tab.active {
+            background-color: #e0e7ff;
+            color: #4338ca;
+            border-color: #a5b4fc;
+        }
+        
         .chart-tab {
             padding: 0.75rem 1.5rem;
             border-radius: 0.5rem;
@@ -232,6 +285,7 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Analysis Styles */
         .chance-high {
             background: linear-gradient(135deg, #10b981, #34d399);
             color: white;
@@ -262,6 +316,7 @@
             border-left: 4px solid #f59e0b;
         }
 
+        /* Chart Styles */
         .chart-container {
             background: white;
             border-radius: 1rem;
@@ -278,6 +333,7 @@
             text-align: center;
         }
         
+        /* Pagination Styles */
         .pagination {
             display: flex;
             justify-content: center;
@@ -310,6 +366,7 @@
             cursor: not-allowed;
         }
         
+        /* Utility Classes */
         .max-w-7xl { max-width: 80rem; }
         .max-w-4xl { max-width: 56rem; }
         .max-w-sm { max-width: 24rem; }
@@ -454,6 +511,7 @@
         
         .tracking-wider { letter-spacing: 0.05em; }
         
+        /* Responsive */
         @media (max-width: 768px) {
             .exam-type-card {
                 padding: 1rem;
@@ -745,34 +803,24 @@
                     <span id="data-source-info">กำลังโหลดข้อมูลจาก Firebase...</span>
                 </div>
                 
-                <!-- Dropdown สำหรับกรองข้อมูล -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div>
-                        <label for="result-curriculum" class="block text-gray-700 font-semibold mb-2">ประเภทห้องเรียน</label>
-                        <select id="result-curriculum" class="input-field" onchange="switchResultTab(this.value)">
-                            <option value="special">ห้องเรียนพิเศษ</option>
-                            <option value="normal">ห้องเรียนปกติ</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label for="result-exam-type" class="block text-gray-700 font-semibold mb-2">ประเภทการสอบ</label>
-                        <select id="result-exam-type" class="input-field" onchange="switchExamTypeTab(this.value)">
-                            <option value="all">ทั้งหมด</option>
-                            <option value="On-site">On-site</option>
-                            <option value="Online">Online</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label for="result-grade" class="block text-gray-700 font-semibold mb-2">ระดับชั้น</label>
-                        <select id="result-grade" class="input-field" onchange="switchGradeTab(this.value)">
-                            <option value="all">ทุกระดับชั้น</option>
-                            <option value="grade4">ป.4</option>
-                            <option value="grade5">ป.5</option>
-                            <option value="grade6">ป.6</option>
-                        </select>
-                    </div>
+                <!-- Tabs สำหรับกรองข้อมูล -->
+                <div class="flex flex-wrap justify-center mb-6 space-x-2">
+                    <button id="result-tab-special" class="result-tab active" onclick="switchResultTab('special')">ห้องเรียนพิเศษ</button>
+                    <button id="result-tab-normal" class="result-tab" onclick="switchResultTab('normal')">ห้องเรียนปกติ</button>
+                </div>
+                
+                <div class="flex flex-wrap justify-center mb-6 space-x-2">
+                    <button id="exam-type-all" class="exam-type-tab active" onclick="switchExamTypeTab('all')">ทั้งหมด</button>
+                    <button id="exam-type-onsite" class="exam-type-tab" onclick="switchExamTypeTab('On-site')">On-site</button>
+                    <button id="exam-type-online" class="exam-type-tab" onclick="switchExamTypeTab('Online')">Online</button>
+                </div>
+                
+                <!-- แท็บกรองระดับชั้น -->
+                <div class="flex flex-wrap justify-center mb-6 space-x-2">
+                    <button id="grade-all" class="grade-tab active" onclick="switchGradeTab('all')">ทุกระดับชั้น</button>
+                    <button id="grade-4" class="grade-tab" onclick="switchGradeTab('grade4')">ป.4</button>
+                    <button id="grade-5" class="grade-tab" onclick="switchGradeTab('grade5')">ป.5</button>
+                    <button id="grade-6" class="grade-tab" onclick="switchGradeTab('grade6')">ป.6</button>
                 </div>
                 
                 <div id="loading-indicator" class="text-center py-8">
@@ -784,7 +832,7 @@
                     <table class="w-full text-sm text-left text-gray-600">
                         <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                             <tr>
-                                <th scope="col" class="py-3 px-4">อันดับที่ได้</th>
+                                <th scope="col" class="py-3 px-4">อันดับ</th>
                                 <th scope="col" class="py-3 px-4">ชื่อ</th>
                                 <th scope="col" class="py-3 px-4">ระดับชั้น</th>
                                 <th scope="col" class="py-3 px-4">ประเภทสอบ</th>
@@ -1123,7 +1171,8 @@
         // ฟังก์ชันสำหรับสลับแท็บผลลัพธ์
         window.switchResultTab = (tab) => {
             currentResultTab = tab;
-            document.getElementById('result-curriculum').value = tab;
+            document.getElementById('result-tab-special').classList.toggle('active', tab === 'special');
+            document.getElementById('result-tab-normal').classList.toggle('active', tab === 'normal');
             currentPage = 1;
             applyFilters();
         };
@@ -1131,7 +1180,9 @@
         // ฟังก์ชันสำหรับสลับแท็บประเภทการสอบ
         window.switchExamTypeTab = (tab) => {
             currentExamTypeTab = tab;
-            document.getElementById('result-exam-type').value = tab;
+            document.getElementById('exam-type-all').classList.toggle('active', tab === 'all');
+            document.getElementById('exam-type-onsite').classList.toggle('active', tab === 'On-site');
+            document.getElementById('exam-type-online').classList.toggle('active', tab === 'Online');
             currentPage = 1;
             applyFilters();
         };
@@ -1139,7 +1190,10 @@
         // ฟังก์ชันสำหรับสลับแท็บระดับชั้น
         window.switchGradeTab = (tab) => {
             currentGradeTab = tab;
-            document.getElementById('result-grade').value = tab;
+            document.getElementById('grade-all').classList.toggle('active', tab === 'all');
+            document.getElementById('grade-4').classList.toggle('active', tab === 'grade4');
+            document.getElementById('grade-5').classList.toggle('active', tab === 'grade5');
+            document.getElementById('grade-6').classList.toggle('active', tab === 'grade6');
             currentPage = 1;
             applyFilters();
         };
