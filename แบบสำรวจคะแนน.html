@@ -889,6 +889,14 @@
                                 <option value="Online">Online</option>
                             </select>
                         </div>
+                        <div class="relative">
+                            <select id="chart-stat-type-filter" class="input-field w-full md:w-48" onchange="applyChartFilters()">
+                                <option value="all">แสดงผลทั้งหมด</option>
+                                <option value="min">คะแนนต่ำสุด</option>
+                                <option value="max">คะแนนสูงสุด</option>
+                                <option value="avg">คะแนนเฉลี่ย</option>
+                            </select>
+                        </div>
                     </div>
                     
                     <div id="charts-loading-indicator" class="text-center py-6 sm:py-8">
@@ -1090,6 +1098,7 @@
         // ตัวแปรสำหรับกรองข้อมูลในกราฟ
         let chartGradeFilter = 'all';
         let chartExamTypeFilter = 'all';
+        let chartStatTypeFilter = 'all';
         
         // รหัสผ่าน Admin
         const ADMIN_PASSWORD = "satriwit2024";
@@ -1207,13 +1216,6 @@
             currentChartTab = tab;
             document.getElementById('chart-tab-special').classList.toggle('active', tab === 'special');
             document.getElementById('chart-tab-normal').classList.toggle('active', tab === 'normal');
-            
-            // รีเซ็ตตัวกรองเมื่อเปลี่ยนแท็บ
-            document.getElementById('chart-grade-filter').value = 'all';
-            document.getElementById('chart-exam-type-filter').value = 'all';
-            chartGradeFilter = 'all';
-            chartExamTypeFilter = 'all';
-            
             fetchScoresForCharts();
         };
 
@@ -1225,11 +1227,12 @@
             updateAnalysis();
         };
 
-        // ฟังก์ชันเลือก/ยกเลิกเลือกประเภทการสอบ
+        // ฟังก์ชันเลือก/ยกเลิกเลือกประเภทการสอบ - แก้ไขแล้ว
         window.toggleExamType = (examType) => {
             const checkbox = document.getElementById(`${examType}-checkbox`);
             const card = checkbox.closest('.exam-type-card');
             
+            // สลับสถานะการเลือก
             checkbox.checked = !checkbox.checked;
             
             if (checkbox.checked) {
@@ -1915,20 +1918,26 @@
             }
         }
 
-        // ฟังก์ชันสำหรับกรองข้อมูลในกราฟ
+        // ฟังก์ชันสำหรับกรองข้อมูลในกราฟ - แก้ไขแล้ว
         window.applyChartFilters = function() {
             const gradeFilter = document.getElementById('chart-grade-filter').value;
             const examTypeFilter = document.getElementById('chart-exam-type-filter').value;
+            const statTypeFilter = document.getElementById('chart-stat-type-filter').value;
             
             // บันทึกค่ากรอง
             chartGradeFilter = gradeFilter;
             chartExamTypeFilter = examTypeFilter;
+            chartStatTypeFilter = statTypeFilter;
+            
+            // อัพเดทข้อความแสดงผล
+            document.getElementById('charts-data-source-info').innerHTML = 
+                '<i class="fas fa-filter mr-2"></i>กำลังแสดงข้อมูลตามตัวกรองที่เลือก...';
             
             // วาดกราฟใหม่
             renderCharts();
         };
 
-        // ฟังก์ชันแสดงกราฟ
+        // ฟังก์ชันแสดงกราฟ - แก้ไขแล้ว
         function renderCharts() {
             const container = document.getElementById('charts-container');
             container.innerHTML = '';
@@ -1974,7 +1983,183 @@
             }
             
             // สร้างกราฟทั้งหมด
+            createSurveyResponseCharts(filteredScores); // เพิ่มกราฟวงกลม
             createStatsCharts(filteredScores);
+        }
+
+        // ฟังก์ชันสร้างกราฟวงกลมแสดงจำนวนผู้ตอบแบบสอบถาม - ใหม่ทั้งหมด
+        function createSurveyResponseCharts(scores) {
+            const container = document.getElementById('charts-container');
+            
+            // สร้างกราฟวงกลมสำหรับระดับชั้น
+            const gradeChartDiv = document.createElement('div');
+            gradeChartDiv.className = 'chart-container';
+            gradeChartDiv.innerHTML = `
+                <h3 class="chart-title">จำนวนผู้ตอบแบบสอบถามแยกตามระดับชั้น</h3>
+                <canvas id="grade-pie-chart"></canvas>
+            `;
+            container.appendChild(gradeChartDiv);
+            
+            // สร้างกราฟวงกลมสำหรับประเภทการสอบ
+            const examTypeChartDiv = document.createElement('div');
+            examTypeChartDiv.className = 'chart-container';
+            examTypeChartDiv.innerHTML = `
+                <h3 class="chart-title">จำนวนผู้ตอบแบบสอบถามแยกตามประเภทการสอบ</h3>
+                <canvas id="exam-type-pie-chart"></canvas>
+            `;
+            container.appendChild(examTypeChartDiv);
+            
+            // คำนวณข้อมูลสำหรับกราฟระดับชั้น
+            const gradeData = calculateGradeDistribution(scores);
+            
+            // คำนวณข้อมูลสำหรับกราฟประเภทการสอบ
+            const examTypeData = calculateExamTypeDistribution(scores);
+            
+            // สร้างกราฟวงกลมระดับชั้น
+            const gradeCtx = document.getElementById('grade-pie-chart').getContext('2d');
+            if (chartInstances['grade-pie-chart']) {
+                chartInstances['grade-pie-chart'].destroy();
+            }
+            
+            chartInstances['grade-pie-chart'] = new Chart(gradeCtx, {
+                type: 'pie',
+                data: {
+                    labels: gradeData.labels,
+                    datasets: [{
+                        data: gradeData.values,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 206, 86, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} คน (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // สร้างกราฟวงกลมประเภทการสอบ
+            const examTypeCtx = document.getElementById('exam-type-pie-chart').getContext('2d');
+            if (chartInstances['exam-type-pie-chart']) {
+                chartInstances['exam-type-pie-chart'].destroy();
+            }
+            
+            chartInstances['exam-type-pie-chart'] = new Chart(examTypeCtx, {
+                type: 'pie',
+                data: {
+                    labels: examTypeData.labels,
+                    datasets: [{
+                        data: examTypeData.values,
+                        backgroundColor: [
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(153, 102, 255, 0.7)',
+                            'rgba(255, 159, 64, 0.7)',
+                            'rgba(199, 199, 199, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(199, 199, 199, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.raw || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = Math.round((value / total) * 100);
+                                    return `${label}: ${value} คน (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ฟังก์ชันคำนวณการกระจายตามระดับชั้น - ใหม่
+        function calculateGradeDistribution(scores) {
+            const gradeCount = {
+                grade4: 0,
+                grade5: 0,
+                grade6: 0
+            };
+            
+            const uniqueUsers = new Set();
+            
+            scores.forEach(score => {
+                // นับเฉพาะผู้ใช้ที่ไม่ซ้ำ
+                if (!uniqueUsers.has(score.id)) {
+                    uniqueUsers.add(score.id);
+                    gradeCount[score.currentGrade]++;
+                }
+            });
+            
+            return {
+                labels: ['ประถมศึกษาปีที่ 4', 'ประถมศึกษาปีที่ 5', 'ประถมศึกษาปีที่ 6'],
+                values: [gradeCount.grade4, gradeCount.grade5, gradeCount.grade6]
+            };
+        }
+
+        // ฟังก์ชันคำนวณการกระจายตามประเภทการสอบ - ใหม่
+        function calculateExamTypeDistribution(scores) {
+            const examTypeCount = {
+                specialOnsite: 0,
+                specialOnline: 0,
+                normalOnsite: 0,
+                normalOnline: 0
+            };
+            
+            scores.forEach(score => {
+                Object.keys(score.scores || {}).forEach(examType => {
+                    if (examTypeCount.hasOwnProperty(examType)) {
+                        examTypeCount[examType]++;
+                    }
+                });
+            });
+            
+            return {
+                labels: ['พิเศษ On-site', 'พิเศษ Online', 'ปกติ On-site', 'ปกติ Online'],
+                values: [
+                    examTypeCount.specialOnsite,
+                    examTypeCount.specialOnline,
+                    examTypeCount.normalOnsite,
+                    examTypeCount.normalOnline
+                ]
+            };
         }
 
         // ฟังก์ชันสร้างกราฟสถิติ
@@ -2115,10 +2300,27 @@
             
             if (totalScores.length === 0) return;
             
-            // คำนวณสถิติ
-            const minScore = Math.min(...totalScores);
-            const maxScore = Math.max(...totalScores);
-            const avgScore = totalScores.reduce((a, b) => a + b, 0) / totalScores.length;
+            // คำนวณสถิติตามตัวกรอง
+            let displayData = [];
+            let labels = [];
+            
+            if (chartStatTypeFilter === 'all' || chartStatTypeFilter === 'min') {
+                const minScore = Math.min(...totalScores);
+                displayData.push(minScore);
+                labels.push('ต่ำสุด');
+            }
+            
+            if (chartStatTypeFilter === 'all' || chartStatTypeFilter === 'max') {
+                const maxScore = Math.max(...totalScores);
+                displayData.push(maxScore);
+                labels.push('สูงสุด');
+            }
+            
+            if (chartStatTypeFilter === 'all' || chartStatTypeFilter === 'avg') {
+                const avgScore = totalScores.reduce((a, b) => a + b, 0) / totalScores.length;
+                displayData.push(avgScore);
+                labels.push('เฉลี่ย');
+            }
             
             const chartDiv = document.createElement('div');
             chartDiv.className = 'chart-container';
@@ -2138,20 +2340,20 @@
             chartInstances['basic-stats-chart'] = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['ต่ำสุด', 'สูงสุด', 'เฉลี่ย'],
+                    labels: labels,
                     datasets: [{
                         label: 'คะแนน',
-                        data: [minScore, maxScore, avgScore],
+                        data: displayData,
                         backgroundColor: [
                             'rgba(255, 99, 132, 0.7)',
                             'rgba(54, 162, 235, 0.7)',
                             'rgba(255, 206, 86, 0.7)'
-                        ],
+                        ].slice(0, displayData.length),
                         borderColor: [
                             'rgba(255, 99, 132, 1)',
                             'rgba(54, 162, 235, 1)',
                             'rgba(255, 206, 86, 1)'
-                        ],
+                        ].slice(0, displayData.length),
                         borderWidth: 1
                     }]
                 },
