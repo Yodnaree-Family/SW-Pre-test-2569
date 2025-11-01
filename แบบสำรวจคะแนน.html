@@ -37,6 +37,7 @@
             font-family: 'Noto Sans Thai', sans-serif;
             background-color: #f7f8fc;
             line-height: 1.6;
+            font-size: 16px; /* เพิ่มขนาดฟอนต์พื้นฐานสำหรับมือถือ */
         }
         
         /* Custom Styles */
@@ -51,6 +52,7 @@
             transition: border-color 0.2s, box-shadow 0.2s;
             background-color: #f9fafb;
             width: 100%;
+            font-size: 16px; /* ป้องกัน zoom บน iOS */
         }
         
         .input-field:focus {
@@ -77,6 +79,7 @@
             align-items: center;
             justify-content: center;
             text-decoration: none;
+            font-size: 0.9rem; /* ขนาดปุ่มที่เหมาะสมกับมือถือ */
         }
         
         .btn-primary {
@@ -169,7 +172,7 @@
         }
         
         .tab-button {
-            padding: 0.75rem 1.5rem;
+            padding: 0.75rem 1rem; /* ลด padding สำหรับมือถือ */
             border-radius: 0.5rem;
             font-weight: 600;
             cursor: pointer;
@@ -177,6 +180,8 @@
             border: 2px solid transparent;
             background: #f9fafb;
             color: #4b5563;
+            font-size: 0.85rem; /* ขนาดฟอนต์ที่เล็กลงสำหรับแท็บ */
+            margin-bottom: 0.5rem; /* เพิ่มระยะห่างสำหรับมือถือ */
         }
         
         .tab-button.active {
@@ -194,6 +199,8 @@
             border: 2px solid transparent;
             background: #f9fafb;
             color: #4b5563;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
         }
         
         .result-tab.active {
@@ -211,6 +218,8 @@
             border: 2px solid transparent;
             background: #f9fafb;
             color: #4b5563;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
         }
         
         .exam-type-tab.active {
@@ -228,6 +237,8 @@
             border: 2px solid transparent;
             background: #f9fafb;
             color: #4b5563;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
         }
         
         .grade-tab.active {
@@ -237,7 +248,7 @@
         }
         
         .chart-tab {
-            padding: 0.75rem 1.5rem;
+            padding: 0.75rem 1rem;
             border-radius: 0.5rem;
             font-weight: 600;
             cursor: pointer;
@@ -245,6 +256,8 @@
             border: 2px solid transparent;
             background: #f9fafb;
             color: #4b5563;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
         }
         
         .chart-tab.active {
@@ -254,7 +267,7 @@
         }
         
         .analysis-tab {
-            padding: 0.75rem 1.5rem;
+            padding: 0.75rem 1rem;
             border-radius: 0.5rem;
             font-weight: 600;
             cursor: pointer;
@@ -262,6 +275,8 @@
             border: 2px solid transparent;
             background: #f9fafb;
             color: #4b5563;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
         }
         
         .analysis-tab.active {
@@ -354,6 +369,7 @@
             border-radius: 0.375rem;
             cursor: pointer;
             transition: all 0.2s;
+            font-size: 0.85rem;
         }
         
         .page-btn:hover {
@@ -404,6 +420,7 @@
         .text-right { text-align: right; }
         
         .text-sm { font-size: 0.875rem; }
+        .text-base { font-size: 1rem; }
         .text-lg { font-size: 1.125rem; }
         .text-xl { font-size: 1.25rem; }
         .text-2xl { font-size: 1.5rem; }
@@ -518,17 +535,39 @@
         
         /* Responsive */
         @media (min-width: 640px) {
+            body {
+                font-size: 16px; /* ฟอนต์ขนาดปกติสำหรับแท็บเล็ตและ PC */
+            }
+            
             .sm\:p-6 { padding: 1.5rem; }
             .sm\:p-8 { padding: 2rem; }
             .sm\:p-10 { padding: 2.5rem; }
             .sm\:text-4xl { font-size: 2.25rem; }
             .sm\:space-x-4 > * + * { margin-left: 1rem; }
+            
+            .tab-button {
+                padding: 0.75rem 1.5rem; /* กลับไปใช้ padding เดิมสำหรับแท็บเล็ตและ PC */
+                font-size: 1rem;
+                margin-bottom: 0;
+            }
+            
+            .btn {
+                font-size: 1rem; /* ขนาดปุ่มปกติสำหรับแท็บเล็ตและ PC */
+            }
         }
         
         @media (min-width: 768px) {
             .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
             .md\:w-48 { width: 12rem; }
+        }
+        
+        /* สำหรับหน้าจอขนาดใหญ่มาก */
+        @media (min-width: 1200px) {
+            .text-xl { font-size: 1.4rem; }
+            .text-2xl { font-size: 1.7rem; }
+            .text-3xl { font-size: 2.1rem; }
+            .text-4xl { font-size: 2.5rem; }
         }
     </style>
 </head>
@@ -538,24 +577,24 @@
     
     <!-- Header -->
     <div class="max-w-7xl mx-auto text-center py-3 mb-4 bg-pink-100 rounded-xl shadow-md border-2 border-pink-300">
-        <h2 class="text-2xl font-extrabold text-pink-700 tracking-wider">
+        <h2 class="text-lg sm:text-2xl font-extrabold text-pink-700 tracking-wider">
             ครอบครัวยอดนารี ❤️ สตรีวิทยา
         </h2>
     </div>
     
      <!-- Main Content -->
     <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-        <header class="text-center p-8 sm:p-10 header-gradient relative">
+        <header class="text-center p-6 sm:p-10 header-gradient relative">
             <button id="back-to-form-btn" class="absolute top-4 left-4 btn btn-secondary text-sm hidden" onclick="switchView('form')">
                 <i class="fas fa-arrow-left mr-1"></i> กลับหน้ากรอกข้อมูล
             </button>
-            <h1 class="text-3xl sm:text-4xl font-extrabold text-white leading-tight">
+            <h1 class="text-xl sm:text-3xl md:text-4xl font-extrabold text-white leading-tight">
                 ระบบสำรวจและวิเคราะห์คะแนน Pre-test สตรีวิทยา
             </h1>
-            <p class="text-lg text-blue-200 mt-2">ปีการศึกษา 2569</p>
+            <p class="text-base sm:text-lg text-blue-200 mt-2">ปีการศึกษา 2569</p>
         </header>
         
-        <main class="p-6 sm:p-8">
+        <main class="p-4 sm:p-6 md:p-8">
             <!-- Connection Status -->
             <div id="connection-status" class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 text-yellow-800 rounded-r-lg hidden">
                 <div class="flex justify-between items-center">
@@ -570,7 +609,7 @@
             </div>
             
             <!-- Tabs -->
-            <div class="flex flex-wrap justify-center border-b mb-8 space-x-2 sm:space-x-4">
+            <div class="flex flex-wrap justify-center border-b mb-6 space-x-2 sm:space-x-4">
                 <button id="tab-form" class="tab-button active" onclick="switchView('form')"><i class="fas fa-edit mr-2"></i>กรอกข้อมูล</button>
                 <button id="tab-results" class="tab-button" onclick="switchView('results')"><i class="fas fa-chart-bar mr-2"></i>ดูผลสำรวจรวม</button>
                 <button id="tab-charts" class="tab-button" onclick="switchView('charts')"><i class="fas fa-chart-pie mr-2"></i>กราฟสรุปผล</button>
@@ -580,9 +619,9 @@
 
             <!-- Success Message -->
             <div id="success-message" class="success-message hidden">
-                <i class="fas fa-check-circle text-4xl mb-4 text-green-600"></i>
-                <h3 class="text-2xl font-bold mb-4">ส่งข้อมูลสำเร็จ! 🎉</h3>
-                <p class="mb-4 text-lg">ขอบคุณที่ร่วมแบ่งปันข้อมูลคะแนน 🙏</p>
+                <i class="fas fa-check-circle text-3xl sm:text-4xl mb-4 text-green-600"></i>
+                <h3 class="text-xl sm:text-2xl font-bold mb-4">ส่งข้อมูลสำเร็จ! 🎉</h3>
+                <p class="mb-4 text-base sm:text-lg">ขอบคุณที่ร่วมแบ่งปันข้อมูลคะแนน 🙏</p>
                 <p class="mb-6">ข้อมูลของคุณจะถูกบันทึกในระบบและช่วยให้น้องๆ ทุกคนได้เห็นภาพรวมคะแนน</p>
                 <button onclick="resetForm()" class="btn btn-primary">
                     <i class="fas fa-plus mr-2"></i> ส่งข้อมูลเพิ่มเติม
@@ -591,14 +630,14 @@
             
             <!-- Form Section -->
             <div id="form-section">
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-blue-800">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-blue-800 text-sm sm:text-base">
                     <i class="fas fa-info-circle mr-2"></i>
                     <span>กรุณากรอกข้อมูลตามความเป็นจริงเพื่อประโยชน์ในการวิเคราะห์คะแนน</span>
                 </div>
                 
                 <!-- ข้อมูลพื้นฐาน -->
-                <div class="bg-white rounded-xl shadow-md p-6 mb-6">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4">ข้อมูลพื้นฐาน</h2>
+                <div class="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6">
+                    <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">ข้อมูลพื้นฐาน</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-gray-700 font-semibold mb-2">ชื่อเล่น (ไม่บังคับ)</label>
@@ -620,9 +659,9 @@
                 </div>
                 
                 <!-- เลือกประเภทการสอบ -->
-                <div class="bg-white rounded-xl shadow-md p-6 mb-6">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4">เลือกประเภทการสอบที่ต้องการบันทึกคะแนน</h2>
-                    <p class="text-gray-600 mb-4">สามารถเลือกได้มากกว่า 1 ประเภท (เลือกประเภทที่คุณได้สอบจริง)</p>
+                <div class="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6">
+                    <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">เลือกประเภทการสอบที่ต้องการบันทึกคะแนน</h2>
+                    <p class="text-gray-600 mb-4 text-sm sm:text-base">สามารถเลือกได้มากกว่า 1 ประเภท (เลือกประเภทที่คุณได้สอบจริง)</p>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <!-- ห้องเรียนพิเศษ (On-site) -->
@@ -630,11 +669,11 @@
                             <div class="exam-type-icon text-blue-600">
                                 <i class="fas fa-school"></i>
                             </div>
-                            <h3 class="font-bold text-lg">ห้องเรียนพิเศษ (On-site)</h3>
+                            <h3 class="font-bold text-base sm:text-lg">ห้องเรียนพิเศษ (On-site)</h3>
                             <p class="exam-date">สอบวันเสาร์ที่ 20 ธันวาคม 2568</p>
                             <div class="mt-2 flex items-center">
                                 <input type="checkbox" id="specialOnsite-checkbox" class="mr-2" onchange="toggleExamType('specialOnsite')">
-                                <span>เลือกประเภทนี้</span>
+                                <span class="text-sm sm:text-base">เลือกประเภทนี้</span>
                             </div>
                         </div>
                         
@@ -643,11 +682,11 @@
                             <div class="exam-type-icon text-green-600">
                                 <i class="fas fa-user-graduate"></i>
                             </div>
-                            <h3 class="font-bold text-lg">ห้องเรียนปกติ (On-site)</h3>
+                            <h3 class="font-bold text-base sm:text-lg">ห้องเรียนปกติ (On-site)</h3>
                             <p class="exam-date">สอบวันเสาร์ที่ 20 ธันวาคม 2568</p>
                             <div class="mt-2 flex items-center">
                                 <input type="checkbox" id="normalOnsite-checkbox" class="mr-2" onchange="toggleExamType('normalOnsite')">
-                                <span>เลือกประเภทนี้</span>
+                                <span class="text-sm sm:text-base">เลือกประเภทนี้</span>
                             </div>
                         </div>
                         
@@ -656,11 +695,11 @@
                             <div class="exam-type-icon text-purple-600">
                                 <i class="fas fa-laptop"></i>
                             </div>
-                            <h3 class="font-bold text-lg">ห้องเรียนพิเศษ (Online)</h3>
+                            <h3 class="font-bold text-base sm:text-lg">ห้องเรียนพิเศษ (Online)</h3>
                             <p class="exam-date">สอบวันอาทิตย์ที่ 21 ธันวาคม 2568</p>
                             <div class="mt-2 flex items-center">
                                 <input type="checkbox" id="specialOnline-checkbox" class="mr-2" onchange="toggleExamType('specialOnline')">
-                                <span>เลือกประเภทนี้</span>
+                                <span class="text-sm sm:text-base">เลือกประเภทนี้</span>
                             </div>
                         </div>
                         
@@ -669,11 +708,11 @@
                             <div class="exam-type-icon text-orange-600">
                                 <i class="fas fa-globe"></i>
                             </div>
-                            <h3 class="font-bold text-lg">ห้องเรียนปกติ (Online)</h3>
+                            <h3 class="font-bold text-base sm:text-lg">ห้องเรียนปกติ (Online)</h3>
                             <p class="exam-date">สอบวันอาทิตย์ที่ 21 ธันวาคม 2568</p>
                             <div class="mt-2 flex items-center">
                                 <input type="checkbox" id="normalOnline-checkbox" class="mr-2" onchange="toggleExamType('normalOnline')">
-                                <span>เลือกประเภทนี้</span>
+                                <span class="text-sm sm:text-base">เลือกประเภทนี้</span>
                             </div>
                         </div>
                     </div>
@@ -688,41 +727,41 @@
                 </div>
                 
                 <!-- ส่วนเป้าหมายการสอบเข้า -->
-                <div class="bg-white rounded-xl shadow-md p-6 mb-6">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4">เป้าหมายการสอบเข้า</h2>
-                    <p class="text-gray-600 mb-4">เลือกหลักสูตรที่ต้องการวิเคราะห์เปรียบเทียบกับคะแนนปี 2568</p>
+                <div class="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6">
+                    <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">เป้าหมายการสอบเข้า</h2>
+                    <p class="text-gray-600 mb-4 text-sm sm:text-base">เลือกหลักสูตรที่ต้องการวิเคราะห์เปรียบเทียบกับคะแนนปี 2568</p>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                         <!-- เป้าหมายห้องเรียนพิเศษ -->
                         <div>
-                            <h3 class="font-semibold text-lg text-gray-800 mb-3">หลักสูตรห้องเรียนพิเศษ</h3>
+                            <h3 class="font-semibold text-base sm:text-lg text-gray-800 mb-3">หลักสูตรห้องเรียนพิเศษ</h3>
                             <div class="space-y-3">
                                 <label class="flex items-center">
                                     <input type="checkbox" id="target-special-ep" class="mr-3" onchange="validateTargetSelection()">
-                                    <span class="font-medium">EP (English Program)</span>
+                                    <span class="font-medium text-sm sm:text-base">EP (English Program)</span>
                                 </label>
                                 <label class="flex items-center">
                                     <input type="checkbox" id="target-special-smte" class="mr-3" onchange="validateTargetSelection()">
-                                    <span class="font-medium">SMTE (Science Math Technology and Environment)</span>
+                                    <span class="font-medium text-sm sm:text-base">SMTE (Science Math Technology and Environment)</span>
                                 </label>
                                 <label class="flex items-center">
                                     <input type="checkbox" id="target-special-gm" class="mr-3" onchange="validateTargetSelection()">
-                                    <span class="font-medium">Gifted Math</span>
+                                    <span class="font-medium text-sm sm:text-base">Gifted Math</span>
                                 </label>
                             </div>
                         </div>
                         
                         <!-- เป้าหมายห้องเรียนปกติ -->
                         <div>
-                            <h3 class="font-semibold text-lg text-gray-800 mb-3">หลักสูตรห้องเรียนปกติ</h3>
+                            <h3 class="font-semibold text-base sm:text-lg text-gray-800 mb-3">หลักสูตรห้องเรียนปกติ</h3>
                             <div class="space-y-3">
                                 <label class="flex items-center">
                                     <input type="checkbox" id="target-normal-in" class="mr-3" onchange="validateTargetSelection()">
-                                    <span class="font-medium">ในเขตพื้นที่บริการ</span>
+                                    <span class="font-medium text-sm sm:text-base">ในเขตพื้นที่บริการ</span>
                                 </label>
                                 <label class="flex items-center">
                                     <input type="checkbox" id="target-normal-out" class="mr-3" onchange="validateTargetSelection()">
-                                    <span class="font-medium">นอกเขตพื้นที่บริการ</span>
+                                    <span class="font-medium text-sm sm:text-base">นอกเขตพื้นที่บริการ</span>
                                 </label>
                             </div>
                         </div>
@@ -734,7 +773,7 @@
                 </div>
                 
                 <!-- ปุ่มส่งข้อมูล -->
-                <div class="text-center mt-8">
+                <div class="text-center mt-6 sm:mt-8">
                     <button id="submit-btn" class="btn btn-success" onclick="validateAndSubmitForm()">
                         <i class="fas fa-paper-plane mr-2"></i> ส่งข้อมูลคะแนน
                     </button>
@@ -743,51 +782,51 @@
             
             <!-- Results Section -->
             <div id="results-section" class="hidden">
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-blue-800">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-blue-800 text-sm sm:text-base">
                     <i class="fas fa-info-circle mr-2"></i>
                     <span id="data-source-info">กำลังโหลดข้อมูลจาก Firebase...</span>
                 </div>
                 
                 <!-- Tabs สำหรับกรองข้อมูล -->
-                <div class="flex flex-wrap justify-center mb-6 space-x-2">
+                <div class="flex flex-wrap justify-center mb-4 sm:mb-6 space-x-2">
                     <button id="result-tab-special" class="result-tab active" onclick="switchResultTab('special')">ห้องเรียนพิเศษ</button>
                     <button id="result-tab-normal" class="result-tab" onclick="switchResultTab('normal')">ห้องเรียนปกติ</button>
                 </div>
                 
-                <div class="flex flex-wrap justify-center mb-6 space-x-2">
+                <div class="flex flex-wrap justify-center mb-4 sm:mb-6 space-x-2">
                     <button id="exam-type-all" class="exam-type-tab active" onclick="switchExamTypeTab('all')">ทั้งหมด</button>
                     <button id="exam-type-onsite" class="exam-type-tab" onclick="switchExamTypeTab('On-site')">On-site</button>
                     <button id="exam-type-online" class="exam-type-tab" onclick="switchExamTypeTab('Online')">Online</button>
                 </div>
                 
                 <!-- แท็บกรองระดับชั้น -->
-                <div class="flex flex-wrap justify-center mb-6 space-x-2">
+                <div class="flex flex-wrap justify-center mb-4 sm:mb-6 space-x-2">
                     <button id="grade-all" class="grade-tab active" onclick="switchGradeTab('all')">ทุกระดับชั้น</button>
                     <button id="grade-4" class="grade-tab" onclick="switchGradeTab('grade4')">ป.4</button>
                     <button id="grade-5" class="grade-tab" onclick="switchGradeTab('grade5')">ป.5</button>
                     <button id="grade-6" class="grade-tab" onclick="switchGradeTab('grade6')">ป.6</button>
                 </div>
                 
-                <div id="loading-indicator" class="text-center py-8">
+                <div id="loading-indicator" class="text-center py-6 sm:py-8">
                     <div class="loading-spinner mb-4"></div>
                     <p class="text-gray-600">กำลังโหลดข้อมูลจาก Firebase...</p>
                 </div>
                 
                 <div class="table-container border rounded-lg shadow-md">
-                    <table class="w-full text-sm text-left text-gray-600">
+                    <table class="w-full text-xs sm:text-sm text-left text-gray-600">
                         <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                             <tr>
-                                <th scope="col" class="py-3 px-4">อันดับ</th>
-                                <th scope="col" class="py-3 px-4">ชื่อ</th>
-                                <th scope="col" class="py-3 px-4">ระดับชั้น</th>
-                                <th scope="col" class="py-3 px-4">ประเภทสอบ</th>
-                                <th scope="col" class="py-3 px-4 text-right">คะแนนรวม</th>
-                                <th scope="col" class="py-3 px-4">คณิต</th>
-                                <th scope="col" class="py-3 px-4">วิทย์</th>
-                                <th scope="col" class="py-3 px-4">อังกฤษ</th>
-                                <th scope="col" class="py-3 px-4">ไทย</th>
-                                <th scope="col" class="py-3 px-4">สังคม</th>
-                                <th scope="col" class="py-3 px-4" id="admin-action-header" style="display: none;">จัดการ</th>
+                                <th scope="col" class="py-2 px-2 sm:py-3 sm:px-4">อันดับ</th>
+                                <th scope="col" class="py-2 px-2 sm:py-3 sm:px-4">ชื่อ</th>
+                                <th scope="col" class="py-2 px-2 sm:py-3 sm:px-4">ระดับชั้น</th>
+                                <th scope="col" class="py-2 px-2 sm:py-3 sm:px-4">ประเภทสอบ</th>
+                                <th scope="col" class="py-2 px-2 sm:py-3 sm:px-4 text-right">คะแนนรวม</th>
+                                <th scope="col" class="py-2 px-2 sm:py-3 sm:px-4">คณิต</th>
+                                <th scope="col" class="py-2 px-2 sm:py-3 sm:px-4">วิทย์</th>
+                                <th scope="col" class="py-2 px-2 sm:py-3 sm:px-4">อังกฤษ</th>
+                                <th scope="col" class="py-2 px-2 sm:py-3 sm:px-4">ไทย</th>
+                                <th scope="col" class="py-2 px-2 sm:py-3 sm:px-4">สังคม</th>
+                                <th scope="col" class="py-2 px-2 sm:py-3 sm:px-4" id="admin-action-header" style="display: none;">จัดการ</th>
                             </tr>
                         </thead>
                         <tbody id="results-table-body">
@@ -801,15 +840,15 @@
                     <!-- ปุ่มหน้าและเลขหน้าจะถูกเพิ่มโดย JavaScript -->
                 </div>
 
-                <div class="text-center mt-6">
-                    <button onclick="fetchScoresFromFirebase()" class="btn btn-secondary mr-2">
+                <div class="text-center mt-4 sm:mt-6">
+                    <button onclick="fetchScoresFromFirebase()" class="btn btn-secondary mr-2 mb-2">
                         <i class="fas fa-sync-alt mr-2"></i> โหลดข้อมูลใหม่
                     </button>
                     <!-- ปุ่มสำหรับ Admin เท่านั้น -->
-                    <button id="admin-export-btn" class="btn btn-success hidden" onclick="exportToCSV()">
+                    <button id="admin-export-btn" class="btn btn-success hidden mb-2" onclick="exportToCSV()">
                         <i class="fas fa-download mr-2"></i> ดาวน์โหลดข้อมูล (Admin)
                     </button>
-                    <button onclick="showAdminLogin()" class="btn btn-primary">
+                    <button onclick="showAdminLogin()" class="btn btn-primary mb-2">
                         <i class="fas fa-lock mr-2"></i> เข้าสู่ระบบ Admin
                     </button>
                 </div>
@@ -818,13 +857,13 @@
             <!-- Charts Section -->
             <div id="charts-section" class="hidden">
                 <div class="text-center max-w-4xl mx-auto">
-                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-blue-800">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-blue-800 text-sm sm:text-base">
                         <i class="fas fa-info-circle mr-2"></i>
                         <span id="charts-data-source-info">กำลังโหลดข้อมูลสำหรับกราฟ...</span>
                     </div>
                     
                     <!-- Tabs สำหรับเลือกหลักสูตร -->
-                    <div class="flex flex-wrap justify-center mb-6 space-x-2">
+                    <div class="flex flex-wrap justify-center mb-4 sm:mb-6 space-x-2">
                         <button id="chart-tab-special" class="chart-tab active" onclick="switchChartTab('special')">
                             <i class="fas fa-star mr-2"></i>กราฟห้องเรียนพิเศษ
                         </button>
@@ -833,12 +872,12 @@
                         </button>
                     </div>
                     
-                    <div id="charts-loading-indicator" class="text-center py-8">
+                    <div id="charts-loading-indicator" class="text-center py-6 sm:py-8">
                         <div class="loading-spinner mb-4"></div>
                         <p class="text-gray-600">กำลังโหลดข้อมูลสำหรับกราฟ...</p>
                     </div>
                     
-                    <div id="charts-container" class="space-y-8">
+                    <div id="charts-container" class="space-y-6 sm:space-y-8">
                         <!-- กราฟจะถูกเพิ่มที่นี่โดย JavaScript -->
                     </div>
                 </div>
@@ -847,13 +886,13 @@
             <!-- Analysis Section -->
             <div id="analysis-section" class="hidden">
                 <div class="text-center max-w-4xl mx-auto">
-                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 text-yellow-800 rounded-r-lg">
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 text-yellow-800 rounded-r-lg text-sm sm:text-base">
                         <h3 class="font-bold">วิเคราะห์คะแนนเปรียบเทียบคะแนนสอบ Pre-test กับคะแนนสอบเข้าจริง</h3>
                         <p>ระบบจะประมวลผลคะแนน Pre-test ของคุณเปรียบเทียบกับคะแนนสอบเข้าจริงปี 2568</p>
                     </div>
                     
                     <!-- Tabs สำหรับเลือกหลักสูตรวิเคราะห์ -->
-                    <div class="flex flex-wrap justify-center mb-6 space-x-2">
+                    <div class="flex flex-wrap justify-center mb-4 sm:mb-6 space-x-2">
                         <button id="analysis-tab-special" class="analysis-tab active" onclick="switchAnalysisTab('special')">
                             <i class="fas fa-star mr-2"></i>วิเคราะห์ห้องเรียนพิเศษ
                         </button>
@@ -863,15 +902,15 @@
                     </div>
                     
                     <!-- ข้อมูลคะแนนปัจจุบัน -->
-                    <div id="current-scores-info" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-blue-800">
+                    <div id="current-scores-info" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-blue-800 text-sm sm:text-base">
                         <h4 class="font-bold mb-2">คะแนนปัจจุบันของคุณ</h4>
                         <div id="current-scores-details"></div>
                     </div>
                     
-                    <div id="analysis-results-container" class="text-left space-y-8">
-                        <div class="text-center py-8 text-gray-500">
-                            <i class="fas fa-info-circle text-4xl mb-4 text-gray-400"></i>
-                            <p class="text-lg">ยังไม่มีข้อมูลสำหรับการวิเคราะห์</p>
+                    <div id="analysis-results-container" class="text-left space-y-6 sm:space-y-8">
+                        <div class="text-center py-6 sm:py-8 text-gray-500">
+                            <i class="fas fa-info-circle text-3xl sm:text-4xl mb-4 text-gray-400"></i>
+                            <p class="text-base sm:text-lg">ยังไม่มีข้อมูลสำหรับการวิเคราะห์</p>
                             <p class="text-sm mt-2">กรุณากรอกข้อมูลในหน้า "กรอกข้อมูล" ก่อน</p>
                         </div>
                     </div>
@@ -881,14 +920,14 @@
             <!-- Admin Section -->
             <div id="admin-section" class="hidden">
                 <div class="text-center max-w-4xl mx-auto">
-                    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6 text-red-800 rounded-r-lg">
+                    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6 text-red-800 rounded-r-lg text-sm sm:text-base">
                         <h3 class="font-bold">จัดการระบบ (Admin Only)</h3>
                         <p>ส่วนนี้สำหรับการจัดการข้อมูลในระบบ</p>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                        <div class="border rounded-lg p-6 bg-white shadow-md">
-                            <h4 class="text-lg font-bold mb-4">จัดการข้อมูล</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
+                        <div class="border rounded-lg p-4 sm:p-6 bg-white shadow-md">
+                            <h4 class="text-base sm:text-lg font-bold mb-4">จัดการข้อมูล</h4>
                             <div class="space-y-4">
                                 <button onclick="showDeleteDataModal()" class="btn btn-danger w-full">
                                     <i class="fas fa-trash mr-2"></i> ลบข้อมูลทั้งหมด
@@ -899,9 +938,9 @@
                             </div>
                         </div>
 
-                        <div class="border rounded-lg p-6 bg-white shadow-md">
-                            <h4 class="text-lg font-bold mb-4">สถิติระบบ</h4>
-                            <div class="space-y-2 text-left">
+                        <div class="border rounded-lg p-4 sm:p-6 bg-white shadow-md">
+                            <h4 class="text-base sm:text-lg font-bold mb-4">สถิติระบบ</h4>
+                            <div class="space-y-2 text-left text-sm sm:text-base">
                                 <div class="flex justify-between">
                                     <span>จำนวนข้อมูลทั้งหมด:</span>
                                     <span id="total-records" class="font-bold">0 รายการ</span>
@@ -932,33 +971,33 @@
         </main>
         
         <!-- Line OPC Section -->
-        <div class="line-opc-section mx-6 mb-6">
+        <div class="line-opc-section mx-4 sm:mx-6 mb-4 sm:mb-6">
             <div class="flex flex-col items-center">
                 <div class="text-center mb-4">
-                    <p class="text-lg font-semibold mb-2">🌟 รวบรวมข้อมูลและจัดทำโดย ... ลุ้นสอวอไปด้วยกันนะ 🌟</p>
-                    <p class="text-xl font-bold">ครอบครัวยอดนารี❤️สตรีวิทยา</p>
+                    <p class="text-base sm:text-lg font-semibold mb-2">🌟 รวบรวมข้อมูลและจัดทำโดย ... ลุ้นสอวอไปด้วยกันนะ 🌟</p>
+                    <p class="text-lg sm:text-xl font-bold">ครอบครัวยอดนารี❤️สตรีวิทยา</p>
                 </div>
                 <a href="https://line.me/ti/g2/ZRIN-ofnybH08hXhS6OYTfIMeKqvupT0Qzd44Q?utm_source=invitation&utm_medium=link_copy&utm_campaign=default" 
                    target="_blank" class="btn btn-primary">
                     <i class="fab fa-line mr-2 text-xl"></i>
                     Line OPC
                 </a>
-                <p class="text-sm mt-3 opacity-90">คลิกเพื่อเข้าร่วมกลุ่มไลน์ครอบครัวยอดนารี</p>
+                <p class="text-xs sm:text-sm mt-3 opacity-90">คลิกเพื่อเข้าร่วมกลุ่มไลน์ครอบครัวยอดนารี</p>
             </div>
         </div>
     </div>
     
-    <footer class="text-center py-6 text-gray-500 text-sm">
+    <footer class="text-center py-4 sm:py-6 text-gray-500 text-xs sm:text-sm">
         <p>Developed for Satriwitthaya Pre-test Takers | ข้อมูลจะถูกบันทึกใน Firebase เท่านั้น</p>
     </footer>
 
     <!-- Admin Login Modal -->
     <div id="admin-login-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
-            <h3 class="text-xl font-bold mb-4 text-center">เข้าสู่ระบบ Admin</h3>
+        <div class="bg-white rounded-lg p-6 sm:p-8 max-w-md w-full mx-4">
+            <h3 class="text-lg sm:text-xl font-bold mb-4 text-center">เข้าสู่ระบบ Admin</h3>
             <div class="space-y-4">
                 <div>
-                    <label class="block text-gray-700 mb-2">รหัสผ่าน Admin</label>
+                    <label class="block text-gray-700 mb-2 text-sm sm:text-base">รหัสผ่าน Admin</label>
                     <input type="password" id="admin-password" class="input-field w-full" placeholder="กรอกรหัสผ่าน">
                 </div>
                 <div class="flex justify-center space-x-4">
@@ -971,11 +1010,11 @@
 
     <!-- Delete Data Modal -->
     <div id="delete-data-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
-            <h3 class="text-xl font-bold mb-4 text-center text-red-600">ยืนยันการลบข้อมูล</h3>
+        <div class="bg-white rounded-lg p-6 sm:p-8 max-w-md w-full mx-4">
+            <h3 class="text-lg sm:text-xl font-bold mb-4 text-center text-red-600">ยืนยันการลบข้อมูล</h3>
             <div class="space-y-4">
-                <p class="text-gray-700 text-center">คุณต้องการลบข้อมูลทั้งหมดในระบบใช่หรือไม่?</p>
-                <p class="text-sm text-red-600 text-center">⚠️ การกระทำนี้ไม่สามารถย้อนกลับได้!</p>
+                <p class="text-gray-700 text-center text-sm sm:text-base">คุณต้องการลบข้อมูลทั้งหมดในระบบใช่หรือไม่?</p>
+                <p class="text-xs sm:text-sm text-red-600 text-center">⚠️ การกระทำนี้ไม่สามารถย้อนกลับได้!</p>
                 <div class="flex justify-center space-x-4">
                     <button onclick="deleteAllData()" class="btn btn-danger">ลบข้อมูลทั้งหมด</button>
                     <button onclick="hideDeleteDataModal()" class="btn btn-secondary">ยกเลิก</button>
@@ -986,12 +1025,12 @@
 
     <!-- Delete Single Data Modal -->
     <div id="delete-single-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
-            <h3 class="text-xl font-bold mb-4 text-center text-red-600">ยืนยันการลบข้อมูล</h3>
+        <div class="bg-white rounded-lg p-6 sm:p-8 max-w-md w-full mx-4">
+            <h3 class="text-lg sm:text-xl font-bold mb-4 text-center text-red-600">ยืนยันการลบข้อมูล</h3>
             <div class="space-y-4">
-                <p class="text-gray-700 text-center">คุณต้องการลบข้อมูลนี้ใช่หรือไม่?</p>
-                <p id="delete-single-details" class="text-sm text-gray-600 text-center"></p>
-                <p class="text-sm text-red-600 text-center">⚠️ การกระทำนี้ไม่สามารถย้อนกลับได้!</p>
+                <p class="text-gray-700 text-center text-sm sm:text-base">คุณต้องการลบข้อมูลนี้ใช่หรือไม่?</p>
+                <p id="delete-single-details" class="text-xs sm:text-sm text-gray-600 text-center"></p>
+                <p class="text-xs sm:text-sm text-red-600 text-center">⚠️ การกระทำนี้ไม่สามารถย้อนกลับได้!</p>
                 <div class="flex justify-center space-x-4">
                     <button onclick="deleteSingleData()" class="btn btn-danger">ลบข้อมูล</button>
                     <button onclick="hideDeleteSingleModal()" class="btn btn-secondary">ยกเลิก</button>
@@ -1232,8 +1271,8 @@
             
             scoreSection.innerHTML = `
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-bold text-gray-800">${examTypeData.title}</h3>
-                    <button class="btn btn-danger text-sm" onclick="toggleExamType('${examType}')">
+                    <h3 class="text-base sm:text-lg font-bold text-gray-800">${examTypeData.title}</h3>
+                    <button class="btn btn-danger text-xs sm:text-sm" onclick="toggleExamType('${examType}')">
                         <i class="fas fa-times mr-1"></i> ลบ
                     </button>
                 </div>
@@ -1262,7 +1301,7 @@
                 <div class="bg-blue-50 p-4 rounded-lg">
                     <div class="flex justify-between items-center">
                         <span class="font-semibold text-gray-700">คะแนนรวม:</span>
-                        <span id="${examType}-total-score" class="text-2xl font-bold text-blue-600">0.00</span>
+                        <span id="${examType}-total-score" class="text-xl sm:text-2xl font-bold text-blue-600">0.00</span>
                     </div>
                 </div>
             `;
@@ -1663,31 +1702,46 @@
                 return;
             }
             
-            // เรียงลำดับตามอันดับที่ผู้ใช้กรอก (ต่ำไปสูง)
-            const sortedScores = [...scores].sort((a, b) => {
-                // หาอันดับที่ดีที่สุดของแต่ละคนในหลักสูตรที่เลือก
-                let aRank = Infinity, bRank = Infinity;
-                
-                Object.values(a.scores || {}).forEach(score => {
-                    if ((currentResultTab === 'special' && score.curriculum === 'special') ||
-                        (currentResultTab === 'normal' && score.curriculum === 'normal')) {
-                        if (score.rank && score.rank > 0) {
-                            aRank = Math.min(aRank, score.rank);
+            // สร้าง array สำหรับจัดอันดับ
+            let rankingData = [];
+            
+            scores.forEach(score => {
+                Object.values(score.scores || {}).forEach(examScore => {
+                    if ((currentResultTab === 'special' && examScore.curriculum === 'special') ||
+                        (currentResultTab === 'normal' && examScore.curriculum === 'normal')) {
+                        
+                        // ตรวจสอบการกรองประเภทการสอบ
+                        if (currentExamTypeTab !== 'all' && examScore.examType !== currentExamTypeTab) {
+                            return;
                         }
+                        
+                        rankingData.push({
+                            id: score.id,
+                            nickname: score.nickname || 'ไม่ระบุชื่อ',
+                            currentGrade: score.currentGrade,
+                            examType: examScore.examType,
+                            curriculum: examScore.curriculum,
+                            rank: examScore.rank || 9999, // ใช้ 9999 สำหรับผู้ที่ไม่ได้กรอกอันดับ
+                            totalScore: examScore.totalScore || 0,
+                            math: examScore.scores?.math || 0,
+                            science: examScore.scores?.science || 0,
+                            english: examScore.scores?.english || 0,
+                            thai: examScore.scores?.thai || 0,
+                            social: examScore.scores?.social || 0,
+                            timestamp: score.timestamp
+                        });
                     }
                 });
-                
-                Object.values(b.scores || {}).forEach(score => {
-                    if ((currentResultTab === 'special' && score.curriculum === 'special') ||
-                        (currentResultTab === 'normal' && score.curriculum === 'normal')) {
-                        if (score.rank && score.rank > 0) {
-                            bRank = Math.min(bRank, score.rank);
-                        }
-                    }
-                });
-                
-                // เรียงตามอันดับที่กรอก (ต่ำกว่า = ดีกว่า)
-                return aRank - bRank;
+            });
+            
+            // เรียงลำดับตามอันดับที่ได้ (ต่ำกว่า = ดีกว่า) และถ้าอันดับเท่ากันให้ดูคะแนนรวม (มากกว่า = ดีกว่า)
+            rankingData.sort((a, b) => {
+                // ถ้าอันดับเท่ากัน ให้ดูคะแนนรวม
+                if (a.rank === b.rank) {
+                    return b.totalScore - a.totalScore; // คะแนนรวมมากกว่ามาก่อน
+                }
+                // เรียงตามอันดับ (ต่ำกว่าคือดีกว่า)
+                return a.rank - b.rank;
             });
             
             // แสดง/ซ่อนคอลัมน์จัดการสำหรับ Admin
@@ -1699,65 +1753,45 @@
             }
             
             // คำนวณจำนวนหน้า
-            const totalPages = Math.ceil(sortedScores.length / itemsPerPage);
+            const totalPages = Math.ceil(rankingData.length / itemsPerPage);
             
             // แสดงข้อมูลเฉพาะหน้าที่เลือก
             const startIndex = (currentPage - 1) * itemsPerPage;
             const endIndex = startIndex + itemsPerPage;
-            const currentPageScores = sortedScores.slice(startIndex, endIndex);
+            const currentPageData = rankingData.slice(startIndex, endIndex);
             
             let rows = '';
             let globalRank = startIndex + 1;
             
-            currentPageScores.forEach((score) => {
-                Object.values(score.scores || {}).forEach(examScore => {
-                    if ((currentResultTab === 'special' && examScore.curriculum === 'special') ||
-                        (currentResultTab === 'normal' && examScore.curriculum === 'normal')) {
-                        
-                        // ตรวจสอบการกรองประเภทการสอบ
-                        if (currentExamTypeTab !== 'all' && examScore.examType !== currentExamTypeTab) {
-                            return;
-                        }
-                        
-                        const gradeText = getGradeText(score.currentGrade);
-                        const totalScore = examScore.totalScore || 0;
-                        const mathScore = examScore.scores?.math || 0;
-                        const scienceScore = examScore.scores?.science || 0;
-                        const englishScore = examScore.scores?.english || 0;
-                        const thaiScore = examScore.scores?.thai || 0;
-                        const socialScore = examScore.scores?.social || 0;
-                        
-                        // ใช้อันดับที่ผู้ใช้กรอกเป็นอันดับที่แสดง
-                        const displayRank = examScore.rank || globalRank;
-                        
-                        rows += `
-                            <tr class="bg-white border-b hover:bg-gray-50">
-                                <td class="py-3 px-4 font-bold text-gray-900">${displayRank}</td>
-                                <td class="py-3 px-4">${score.nickname || 'ไม่ระบุชื่อ'}</td>
-                                <td class="py-3 px-4">${gradeText}</td>
-                                <td class="py-3 px-4">
-                                    <span class="px-2 py-1 text-xs font-medium rounded-full ${examScore.examType === 'On-site' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'}">
-                                        ${examScore.examType}
-                                    </span>
-                                </td>
-                                <td class="py-3 px-4 text-right font-bold text-blue-600">${totalScore.toFixed(2)}</td>
-                                <td class="py-3 px-4">${mathScore.toFixed(2)}</td>
-                                <td class="py-3 px-4">${scienceScore.toFixed(2)}</td>
-                                <td class="py-3 px-4">${englishScore.toFixed(2)}</td>
-                                <td class="py-3 px-4">${currentResultTab === 'normal' ? thaiScore.toFixed(2) : '-'}</td>
-                                <td class="py-3 px-4">${currentResultTab === 'normal' ? socialScore.toFixed(2) : '-'}</td>
-                                ${isAdmin ? `
-                                <td class="py-3 px-4">
-                                    <button onclick="showDeleteSingleModal('${score.id}', '${score.nickname || 'ไม่ระบุชื่อ'}', ${totalScore})" class="btn btn-danger text-xs">
-                                        <i class="fas fa-trash mr-1"></i> ลบ
-                                    </button>
-                                </td>
-                                ` : ''}
-                            </tr>
-                        `;
-                        globalRank++;
-                    }
-                });
+            currentPageData.forEach((data) => {
+                const gradeText = getGradeText(data.currentGrade);
+                
+                rows += `
+                    <tr class="bg-white border-b hover:bg-gray-50">
+                        <td class="py-2 px-2 sm:py-3 sm:px-4 font-bold text-gray-900">${globalRank}</td>
+                        <td class="py-2 px-2 sm:py-3 sm:px-4">${data.nickname}</td>
+                        <td class="py-2 px-2 sm:py-3 sm:px-4">${gradeText}</td>
+                        <td class="py-2 px-2 sm:py-3 sm:px-4">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full ${data.examType === 'On-site' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'}">
+                                ${data.examType}
+                            </span>
+                        </td>
+                        <td class="py-2 px-2 sm:py-3 sm:px-4 text-right font-bold text-blue-600">${data.totalScore.toFixed(2)}</td>
+                        <td class="py-2 px-2 sm:py-3 sm:px-4">${data.math.toFixed(2)}</td>
+                        <td class="py-2 px-2 sm:py-3 sm:px-4">${data.science.toFixed(2)}</td>
+                        <td class="py-2 px-2 sm:py-3 sm:px-4">${data.english.toFixed(2)}</td>
+                        <td class="py-2 px-2 sm:py-3 sm:px-4">${currentResultTab === 'normal' ? data.thai.toFixed(2) : '-'}</td>
+                        <td class="py-2 px-2 sm:py-3 sm:px-4">${currentResultTab === 'normal' ? data.social.toFixed(2) : '-'}</td>
+                        ${isAdmin ? `
+                        <td class="py-2 px-2 sm:py-3 sm:px-4">
+                            <button onclick="showDeleteSingleModal('${data.id}', '${data.nickname}', ${data.totalScore})" class="btn btn-danger text-xs">
+                                <i class="fas fa-trash mr-1"></i> ลบ
+                            </button>
+                        </td>
+                        ` : ''}
+                    </tr>
+                `;
+                globalRank++;
             });
             
             tableBody.innerHTML = rows;
@@ -1859,9 +1893,9 @@
             
             if (allScores.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center py-8 text-gray-500">
-                        <i class="fas fa-info-circle text-4xl mb-4 text-gray-400"></i>
-                        <p class="text-lg">ยังไม่มีข้อมูลสำหรับแสดงกราฟ</p>
+                    <div class="text-center py-6 sm:py-8 text-gray-500">
+                        <i class="fas fa-info-circle text-3xl sm:text-4xl mb-4 text-gray-400"></i>
+                        <p class="text-base sm:text-lg">ยังไม่มีข้อมูลสำหรับแสดงกราฟ</p>
                         <p class="text-sm mt-2">กรุณากรอกข้อมูลในหน้า "กรอกข้อมูล" ก่อน</p>
                     </div>
                 `;
@@ -1878,9 +1912,9 @@
             
             if (filteredScores.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center py-8 text-gray-500">
-                        <i class="fas fa-info-circle text-4xl mb-4 text-gray-400"></i>
-                        <p class="text-lg">ไม่มีข้อมูลสำหรับ ${currentChartTab === 'special' ? 'ห้องเรียนพิเศษ' : 'ห้องเรียนปกติ'}</p>
+                    <div class="text-center py-6 sm:py-8 text-gray-500">
+                        <i class="fas fa-info-circle text-3xl sm:text-4xl mb-4 text-gray-400"></i>
+                        <p class="text-base sm:text-lg">ไม่มีข้อมูลสำหรับ ${currentChartTab === 'special' ? 'ห้องเรียนพิเศษ' : 'ห้องเรียนปกติ'}</p>
                     </div>
                 `;
                 return;
@@ -2185,9 +2219,9 @@
             
             if (allScores.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center py-8 text-gray-500">
-                        <i class="fas fa-info-circle text-4xl mb-4 text-gray-400"></i>
-                        <p class="text-lg">ยังไม่มีข้อมูลสำหรับการวิเคราะห์</p>
+                    <div class="text-center py-6 sm:py-8 text-gray-500">
+                        <i class="fas fa-info-circle text-3xl sm:text-4xl mb-4 text-gray-400"></i>
+                        <p class="text-base sm:text-lg">ยังไม่มีข้อมูลสำหรับการวิเคราะห์</p>
                         <p class="text-sm mt-2">กรุณากรอกข้อมูลในหน้า "กรอกข้อมูล" ก่อน</p>
                     </div>
                 `;
@@ -2215,35 +2249,45 @@
             let html = '';
             
             // แสดงคะแนนห้องเรียนพิเศษ
-            const specialScores = Object.values(score.scores || {}).find(s => s.curriculum === 'special');
-            if (specialScores) {
+            const specialScores = Object.values(score.scores || {}).filter(s => s.curriculum === 'special');
+            if (specialScores.length > 0) {
                 html += `
                     <div class="mb-3">
                         <h5 class="font-semibold text-blue-700">ห้องเรียนพิเศษ</h5>
-                        <div class="grid grid-cols-3 gap-2 text-sm mt-1">
-                            <span>คณิต: ${specialScores.scores?.math || 0}</span>
-                            <span>วิทย์: ${specialScores.scores?.science || 0}</span>
-                            <span>อังกฤษ: ${specialScores.scores?.english || 0}</span>
-                        </div>
-                        <div class="text-sm mt-1 font-semibold">รวม: ${specialScores.totalScore || 0} คะแนน</div>
+                        ${specialScores.map(examScore => `
+                            <div class="mb-2">
+                                <div class="text-xs sm:text-sm font-medium">${examScore.examType === 'On-site' ? 'On-site' : 'Online'}:</div>
+                                <div class="grid grid-cols-3 gap-2 text-xs sm:text-sm mt-1">
+                                    <span>คณิต: ${examScore.scores?.math || 0}</span>
+                                    <span>วิทย์: ${examScore.scores?.science || 0}</span>
+                                    <span>อังกฤษ: ${examScore.scores?.english || 0}</span>
+                                </div>
+                                <div class="text-xs sm:text-sm mt-1 font-semibold">รวม: ${examScore.totalScore || 0} คะแนน</div>
+                            </div>
+                        `).join('')}
                     </div>
                 `;
             }
             
             // แสดงคะแนนห้องเรียนปกติ
-            const normalScores = Object.values(score.scores || {}).find(s => s.curriculum === 'normal');
-            if (normalScores) {
+            const normalScores = Object.values(score.scores || {}).filter(s => s.curriculum === 'normal');
+            if (normalScores.length > 0) {
                 html += `
                     <div>
                         <h5 class="font-semibold text-green-700">ห้องเรียนปกติ</h5>
-                        <div class="grid grid-cols-3 gap-2 text-sm mt-1">
-                            <span>คณิต: ${normalScores.scores?.math || 0}</span>
-                            <span>วิทย์: ${normalScores.scores?.science || 0}</span>
-                            <span>อังกฤษ: ${normalScores.scores?.english || 0}</span>
-                            <span>ไทย: ${normalScores.scores?.thai || 0}</span>
-                            <span>สังคม: ${normalScores.scores?.social || 0}</span>
-                        </div>
-                        <div class="text-sm mt-1 font-semibold">รวม: ${normalScores.totalScore || 0} คะแนน</div>
+                        ${normalScores.map(examScore => `
+                            <div class="mb-2">
+                                <div class="text-xs sm:text-sm font-medium">${examScore.examType === 'On-site' ? 'On-site' : 'Online'}:</div>
+                                <div class="grid grid-cols-3 gap-2 text-xs sm:text-sm mt-1">
+                                    <span>คณิต: ${examScore.scores?.math || 0}</span>
+                                    <span>วิทย์: ${examScore.scores?.science || 0}</span>
+                                    <span>อังกฤษ: ${examScore.scores?.english || 0}</span>
+                                    <span>ไทย: ${examScore.scores?.thai || 0}</span>
+                                    <span>สังคม: ${examScore.scores?.social || 0}</span>
+                                </div>
+                                <div class="text-xs sm:text-sm mt-1 font-semibold">รวม: ${examScore.totalScore || 0} คะแนน</div>
+                            </div>
+                        `).join('')}
                     </div>
                 `;
             }
@@ -2263,9 +2307,9 @@
             
             if (!score) {
                 container.innerHTML = `
-                    <div class="text-center py-8 text-gray-500">
-                        <i class="fas fa-info-circle text-4xl mb-4 text-gray-400"></i>
-                        <p class="text-lg">ยังไม่มีข้อมูลสำหรับการวิเคราะห์</p>
+                    <div class="text-center py-6 sm:py-8 text-gray-500">
+                        <i class="fas fa-info-circle text-3xl sm:text-4xl mb-4 text-gray-400"></i>
+                        <p class="text-base sm:text-lg">ยังไม่มีข้อมูลสำหรับการวิเคราะห์</p>
                         <p class="text-sm mt-2">กรุณากรอกข้อมูลในหน้า "กรอกข้อมูล" ก่อน</p>
                     </div>
                 `;
@@ -2276,62 +2320,66 @@
             
             // วิเคราะห์สำหรับเป้าหมายห้องเรียนพิเศษ
             if (currentAnalysisTab === 'special') {
-                // หาคะแนนห้องเรียนพิเศษล่าสุด
-                let specialScores = null;
-                Object.values(score.scores || {}).forEach(examScore => {
-                    if (examScore.curriculum === 'special') {
-                        specialScores = examScore.scores;
-                    }
-                });
+                // หาคะแนนห้องเรียนพิเศษทั้งหมด (ทั้ง On-site และ Online)
+                const specialScoresList = Object.values(score.scores || {}).filter(examScore => 
+                    examScore.curriculum === 'special'
+                );
                 
-                if (specialScores) {
+                if (specialScoresList.length > 0) {
                     // วิเคราะห์เฉพาะเป้าหมายที่ผู้ใช้เลือก
                     const targetsToAnalyze = score.targetSpecial || ['EP', 'SMTE', 'GM'];
                     
-                    targetsToAnalyze.forEach(target => {
-                        const stats = historicalData2568[target];
-                        if (stats) {
-                            const projectedScore = calculateRealExamScore(specialScores, target);
-                            const totalScore = Object.values(specialScores).reduce((a, b) => a + b, 0);
-                            html += createAnalysisCard(stats, projectedScore, target, totalScore, specialScores);
-                        }
+                    // สร้างการวิเคราะห์สำหรับแต่ละประเภทการสอบ (On-site และ Online)
+                    specialScoresList.forEach(examScore => {
+                        const examTypeText = examScore.examType === 'On-site' ? 'On-site' : 'Online';
+                        
+                        targetsToAnalyze.forEach(target => {
+                            const stats = historicalData2568[target];
+                            if (stats) {
+                                const projectedScore = calculateRealExamScore(examScore.scores, target);
+                                const totalScore = Object.values(examScore.scores).reduce((a, b) => a + b, 0);
+                                html += createAnalysisCard(stats, projectedScore, target, totalScore, examScore.scores, examTypeText);
+                            }
+                        });
                     });
                 } else {
                     html = `
-                        <div class="text-center py-8 text-gray-500">
-                            <i class="fas fa-info-circle text-4xl mb-4 text-gray-400"></i>
-                            <p class="text-lg">ไม่มีข้อมูลคะแนนห้องเรียนพิเศษ</p>
+                        <div class="text-center py-6 sm:py-8 text-gray-500">
+                            <i class="fas fa-info-circle text-3xl sm:text-4xl mb-4 text-gray-400"></i>
+                            <p class="text-base sm:text-lg">ไม่มีข้อมูลคะแนนห้องเรียนพิเศษ</p>
                             <p class="text-sm mt-2">กรุณากรอกข้อมูลคะแนนห้องเรียนพิเศษในหน้า "กรอกข้อมูล"</p>
                         </div>
                     `;
                 }
             } else {
                 // วิเคราะห์สำหรับเป้าหมายห้องเรียนปกติ
-                // หาคะแนนห้องเรียนปกติล่าสุด
-                let normalScores = null;
-                Object.values(score.scores || {}).forEach(examScore => {
-                    if (examScore.curriculum === 'normal') {
-                        normalScores = examScore.scores;
-                    }
-                });
+                // หาคะแนนห้องเรียนปกติทั้งหมด (ทั้ง On-site และ Online)
+                const normalScoresList = Object.values(score.scores || {}).filter(examScore => 
+                    examScore.curriculum === 'normal'
+                );
                 
-                if (normalScores) {
+                if (normalScoresList.length > 0) {
                     // วิเคราะห์เฉพาะเป้าหมายที่ผู้ใช้เลือก
                     const targetsToAnalyze = score.targetNormal || ['Normal_In', 'Normal_Out'];
                     
-                    targetsToAnalyze.forEach(target => {
-                        const stats = historicalData2568[target];
-                        if (stats) {
-                            const projectedScore = calculateRealExamScore(normalScores, target);
-                            const totalScore = Object.values(normalScores).reduce((a, b) => a + b, 0);
-                            html += createAnalysisCard(stats, projectedScore, target, totalScore, normalScores);
-                        }
+                    // สร้างการวิเคราะห์สำหรับแต่ละประเภทการสอบ (On-site และ Online)
+                    normalScoresList.forEach(examScore => {
+                        const examTypeText = examScore.examType === 'On-site' ? 'On-site' : 'Online';
+                        
+                        targetsToAnalyze.forEach(target => {
+                            const stats = historicalData2568[target];
+                            if (stats) {
+                                const projectedScore = calculateRealExamScore(examScore.scores, target);
+                                const totalScore = Object.values(examScore.scores).reduce((a, b) => a + b, 0);
+                                html += createAnalysisCard(stats, projectedScore, target, totalScore, examScore.scores, examTypeText);
+                            }
+                        });
                     });
                 } else {
                     html = `
-                        <div class="text-center py-8 text-gray-500">
-                            <i class="fas fa-info-circle text-4xl mb-4 text-gray-400"></i>
-                            <p class="text-lg">ไม่มีข้อมูลคะแนนห้องเรียนปกติ</p>
+                        <div class="text-center py-6 sm:py-8 text-gray-500">
+                            <i class="fas fa-info-circle text-3xl sm:text-4xl mb-4 text-gray-400"></i>
+                            <p class="text-base sm:text-lg">ไม่มีข้อมูลคะแนนห้องเรียนปกติ</p>
                             <p class="text-sm mt-2">กรุณากรอกข้อมูลคะแนนห้องเรียนปกติในหน้า "กรอกข้อมูล"</p>
                         </div>
                     `;
@@ -2339,9 +2387,9 @@
             }
             
             container.innerHTML = html || `
-                <div class="text-center py-8 text-gray-500">
-                    <i class="fas fa-info-circle text-4xl mb-4 text-gray-400"></i>
-                    <p class="text-lg">ไม่พบข้อมูลสำหรับการวิเคราะห์</p>
+                <div class="text-center py-6 sm:py-8 text-gray-500">
+                    <i class="fas fa-info-circle text-3xl sm:text-4xl mb-4 text-gray-400"></i>
+                    <p class="text-base sm:text-lg">ไม่พบข้อมูลสำหรับการวิเคราะห์</p>
                     <p class="text-sm mt-2">กรุณาตรวจสอบการเลือกเป้าหมายและข้อมูลคะแนน</p>
                 </div>
             `;
@@ -2444,7 +2492,7 @@
         }
 
         // ฟังก์ชันสร้างการ์ดแสดงผลการวิเคราะห์
-        function createAnalysisCard(stats, projectedScore, target, preTestTotal, preTestScores) {
+        function createAnalysisCard(stats, projectedScore, target, preTestTotal, preTestScores, examType) {
             const { title, min, avg, max, fullScore } = stats;
             const scorePercent = Math.min(100, (projectedScore / fullScore * 100)).toFixed(2);
             const minPercent = (min / fullScore * 100);
@@ -2458,29 +2506,34 @@
             const analysis = analyzeStrengthsWeaknesses(preTestScores, target);
             
             return `
-                <div class="border rounded-lg p-6 shadow-md bg-white">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4">${title}</h3>
+                <div class="border rounded-lg p-4 sm:p-6 shadow-md bg-white">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800">${title}</h3>
+                        <span class="px-2 py-1 text-xs font-medium rounded-full ${examType === 'On-site' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'}">
+                            ${examType}
+                        </span>
+                    </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div class="text-center p-4 bg-blue-50 rounded-lg">
-                            <p class="text-gray-600">คะแนน Pre-test ของคุณ</p>
-                            <p class="text-3xl font-extrabold text-blue-600">${preTestTotal.toFixed(2)}</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+                        <div class="text-center p-3 sm:p-4 bg-blue-50 rounded-lg">
+                            <p class="text-gray-600 text-sm sm:text-base">คะแนน Pre-test ของคุณ</p>
+                            <p class="text-xl sm:text-3xl font-extrabold text-blue-600">${preTestTotal.toFixed(2)}</p>
                         </div>
-                        <div class="text-center p-4 bg-green-50 rounded-lg">
-                            <p class="text-gray-600">คะแนนสอบจริงที่คาดการณ์</p>
-                            <p class="text-3xl font-extrabold text-green-600">${projectedScore.toFixed(2)}</p>
-                            <p class="text-sm text-gray-500">จากเต็ม ${fullScore} คะแนน</p>
+                        <div class="text-center p-3 sm:p-4 bg-green-50 rounded-lg">
+                            <p class="text-gray-600 text-sm sm:text-base">คะแนนสอบจริงที่คาดการณ์</p>
+                            <p class="text-xl sm:text-3xl font-extrabold text-green-600">${projectedScore.toFixed(2)}</p>
+                            <p class="text-xs sm:text-sm text-gray-500">จากเต็ม ${fullScore} คะแนน</p>
                         </div>
                     </div>
                     
                     <!-- แสดงโอกาสสอบติด -->
-                    <div class="mb-6 p-4 rounded-lg text-center text-white ${chance.level === 'high' ? 'chance-high' : chance.level === 'medium' ? 'chance-medium' : 'chance-low'}">
-                        <h4 class="text-lg font-bold mb-2">โอกาสสอบติด: ${chance.text}</h4>
-                        <p class="text-sm">${chance.description}</p>
+                    <div class="mb-4 sm:mb-6 p-3 sm:p-4 rounded-lg text-center text-white ${chance.level === 'high' ? 'chance-high' : chance.level === 'medium' ? 'chance-medium' : 'chance-low'}">
+                        <h4 class="text-base sm:text-lg font-bold mb-2">โอกาสสอบติด: ${chance.text}</h4>
+                        <p class="text-xs sm:text-sm">${chance.description}</p>
                     </div>
                     
                     ${target === 'EP' ? 
-                        `<div class="text-sm text-center bg-orange-100 text-orange-700 p-2 rounded-md mb-6">
+                        `<div class="text-xs sm:text-sm text-center bg-orange-100 text-orange-700 p-2 rounded-md mb-4 sm:mb-6">
                             <b>*หมายเหตุ:</b> คะแนนนี้คำนวณโดยสมมติว่าคุณได้คะแนนส่วนสัมภาษณ์เต็ม 20 คะแนน
                         </div>` : ''
                     }
@@ -2518,45 +2571,45 @@
                         <span>${fullScore}</span>
                     </div>
                     
-                    <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div class="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-center">
                         <div class="bg-red-50 p-3 rounded-lg">
-                            <p class="font-semibold text-red-600">ต่ำสุดปี 68</p>
-                            <p class="text-2xl font-bold">${min.toFixed(2)}</p>
+                            <p class="font-semibold text-red-600 text-xs sm:text-sm">ต่ำสุดปี 68</p>
+                            <p class="text-lg sm:text-2xl font-bold">${min.toFixed(2)}</p>
                         </div>
                         <div class="bg-yellow-50 p-3 rounded-lg">
-                            <p class="font-semibold text-yellow-600">เฉลี่ยปี 68</p>
-                            <p class="text-2xl font-bold">${avg.toFixed(2)}</p>
+                            <p class="font-semibold text-yellow-600 text-xs sm:text-sm">เฉลี่ยปี 68</p>
+                            <p class="text-lg sm:text-2xl font-bold">${avg.toFixed(2)}</p>
                         </div>
                         <div class="bg-green-50 p-3 rounded-lg">
-                            <p class="font-semibold text-green-600">สูงสุดปี 68</p>
-                            <p class="text-2xl font-bold">${max.toFixed(2)}</p>
+                            <p class="font-semibold text-green-600 text-xs sm:text-sm">สูงสุดปี 68</p>
+                            <p class="text-lg sm:text-2xl font-bold">${max.toFixed(2)}</p>
                         </div>
                     </div>
                     
                     <!-- แสดงจุดแข็งจุดอ่อน -->
-                    <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="mt-4 sm:mt-6 grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
                         ${analysis.strengths.length > 0 ? `
-                            <div class="strength-item p-4 rounded-lg">
-                                <h5 class="font-bold text-green-700 mb-2">จุดแข็ง</h5>
-                                <ul class="text-sm space-y-1">
+                            <div class="strength-item p-3 sm:p-4 rounded-lg">
+                                <h5 class="font-bold text-green-700 mb-2 text-sm sm:text-base">จุดแข็ง</h5>
+                                <ul class="text-xs sm:text-sm space-y-1">
                                     ${analysis.strengths.map(strength => `<li>✓ ${strength}</li>`).join('')}
                                 </ul>
                             </div>
                         ` : ''}
                         
                         ${analysis.weaknesses.length > 0 ? `
-                            <div class="weakness-item p-4 rounded-lg">
-                                <h5 class="font-bold text-red-700 mb-2">จุดอ่อน</h5>
-                                <ul class="text-sm space-y-1">
+                            <div class="weakness-item p-3 sm:p-4 rounded-lg">
+                                <h5 class="font-bold text-red-700 mb-2 text-sm sm:text-base">จุดอ่อน</h5>
+                                <ul class="text-xs sm:text-sm space-y-1">
                                     ${analysis.weaknesses.map(weakness => `<li>✗ ${weakness}</li>`).join('')}
                                 </ul>
                             </div>
                         ` : ''}
                         
                         ${analysis.improvements.length > 0 ? `
-                            <div class="improvement-item p-4 rounded-lg">
-                                <h5 class="font-bold text-yellow-700 mb-2">ข้อแนะนำ</h5>
-                                <ul class="text-sm space-y-1">
+                            <div class="improvement-item p-3 sm:p-4 rounded-lg">
+                                <h5 class="font-bold text-yellow-700 mb-2 text-sm sm:text-base">ข้อแนะนำ</h5>
+                                <ul class="text-xs sm:text-sm space-y-1">
                                     ${analysis.improvements.map(improvement => `<li>💡 ${improvement}</li>`).join('')}
                                 </ul>
                             </div>
