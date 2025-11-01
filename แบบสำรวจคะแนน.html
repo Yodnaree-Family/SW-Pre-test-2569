@@ -512,6 +512,82 @@
         .tracking-wider { letter-spacing: 0.05em; }
         
         /* Responsive */
+        @media (max-width: 768px) {
+            .exam-type-card {
+                padding: 1rem;
+            }
+            
+            .input-field {
+                padding: 0.5rem 0.75rem;
+            }
+            
+            .btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.875rem;
+            }
+            
+            .table-container {
+                font-size: 0.75rem;
+            }
+            
+            .table-container th,
+            .table-container td {
+                padding: 0.5rem 0.25rem;
+            }
+            
+            .tab-button,
+            .result-tab,
+            .exam-type-tab,
+            .grade-tab,
+            .chart-tab,
+            .analysis-tab {
+                padding: 0.5rem 1rem;
+                font-size: 0.75rem;
+                margin-bottom: 0.5rem;
+            }
+            
+            .pagination {
+                flex-wrap: wrap;
+            }
+            
+            .page-btn {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.75rem;
+            }
+            
+            .chart-container {
+                padding: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .grid-cols-1,
+            .grid-cols-2,
+            .grid-cols-3 {
+                grid-template-columns: 1fr;
+            }
+            
+            .flex-wrap {
+                flex-direction: column;
+            }
+            
+            .space-x-2 > * + *,
+            .space-x-4 > * + * {
+                margin-left: 0;
+            }
+            
+            .tab-button,
+            .result-tab,
+            .exam-type-tab,
+            .grade-tab,
+            .chart-tab,
+            .analysis-tab {
+                width: 100%;
+                text-align: center;
+                margin-bottom: 0.5rem;
+            }
+        }
+        
         @media (min-width: 640px) {
             .sm\:p-6 { padding: 1.5rem; }
             .sm\:p-8 { padding: 2rem; }
@@ -802,7 +878,18 @@
             
             <!-- Charts Section -->
             <div id="charts-section" class="hidden">
-                <!-- ... (โค้ดส่วนกราฟเหมือนเดิม) ... -->
+                <div class="flex flex-wrap justify-center mb-6 space-x-2">
+                    <button id="chart-tab-special" class="chart-tab active" onclick="switchChartTab('special')">
+                        <i class="fas fa-star mr-2"></i>กราฟห้องเรียนพิเศษ
+                    </button>
+                    <button id="chart-tab-normal" class="chart-tab" onclick="switchChartTab('normal')">
+                        <i class="fas fa-users mr-2"></i>กราฟห้องเรียนปกติ
+                    </button>
+                </div>
+                
+                <div id="charts-container">
+                    <!-- กราฟจะถูกเพิ่มที่นี่โดย JavaScript -->
+                </div>
             </div>
             
             <!-- Analysis Section -->
@@ -1101,6 +1188,22 @@
             applyFilters();
         };
 
+        // ฟังก์ชันสำหรับสลับแท็บกราฟ
+        window.switchChartTab = (tab) => {
+            currentChartTab = tab;
+            document.getElementById('chart-tab-special').classList.toggle('active', tab === 'special');
+            document.getElementById('chart-tab-normal').classList.toggle('active', tab === 'normal');
+            fetchScoresForCharts();
+        };
+
+        // ฟังก์ชันสำหรับสลับแท็บวิเคราะห์
+        window.switchAnalysisTab = (tab) => {
+            currentAnalysisTab = tab;
+            document.getElementById('analysis-tab-special').classList.toggle('active', tab === 'special');
+            document.getElementById('analysis-tab-normal').classList.toggle('active', tab === 'normal');
+            updateAnalysis();
+        };
+
         // ฟังก์ชันเลือก/ยกเลิกเลือกประเภทการสอบ
         window.toggleExamType = (examType) => {
             const checkbox = document.getElementById(`${examType}-checkbox`);
@@ -1115,6 +1218,9 @@
                 card.classList.remove('selected');
                 removeScoreInputs(examType);
             }
+            
+            // ตรวจสอบความสอดคล้องของการเลือกหลักสูตร
+            validateTargetSelection();
         };
 
         // ฟังก์ชันสร้างฟอร์มกรอกคะแนนตามประเภทที่เลือก
@@ -1238,6 +1344,37 @@
             return examTypes[examType];
         }
 
+        // ฟังก์ชันตรวจสอบความสอดคล้องของการเลือกหลักสูตร
+        function validateTargetSelection() {
+            const specialChecked = document.getElementById('target-special-ep').checked || 
+                                 document.getElementById('target-special-smte').checked || 
+                                 document.getElementById('target-special-gm').checked;
+            
+            const normalChecked = document.getElementById('target-normal-in').checked || 
+                                document.getElementById('target-normal-out').checked;
+            
+            // ตรวจสอบว่ามีการเลือกประเภทการสอบห้องเรียนพิเศษหรือไม่
+            const specialExamSelected = document.getElementById('specialOnsite-checkbox').checked || 
+                                      document.getElementById('specialOnline-checkbox').checked;
+            
+            // ตรวจสอบว่ามีการเลือกประเภทการสอบห้องเรียนปกติหรือไม่
+            const normalExamSelected = document.getElementById('normalOnsite-checkbox').checked || 
+                                     document.getElementById('normalOnline-checkbox').checked;
+            
+            // แสดงคำเตือนถ้าเลือกเป้าหมายแต่ไม่ได้เลือกประเภทการสอบที่สอดคล้อง
+            if (specialChecked && !specialExamSelected) {
+                showMessage('คุณเลือกเป้าหมายห้องเรียนพิเศษ แต่ไม่ได้เลือกประเภทการสอบห้องเรียนพิเศษ', 'warning');
+                return false;
+            }
+            
+            if (normalChecked && !normalExamSelected) {
+                showMessage('คุณเลือกเป้าหมายห้องเรียนปกติ แต่ไม่ได้เลือกประเภทการสอบห้องเรียนปกติ', 'warning');
+                return false;
+            }
+            
+            return true;
+        }
+
         // ฟังก์ชันส่งข้อมูลแบบฟอร์ม
         async function submitForm() {
             const nickname = document.getElementById('nickname').value.trim() || 'ไม่ประสงค์ออกนาม';
@@ -1255,6 +1392,11 @@
             
             if (selectedExamTypes.length === 0) {
                 showMessage('กรุณาเลือกประเภทการสอบอย่างน้อย 1 ประเภท', 'error');
+                return;
+            }
+            
+            // ตรวจสอบความสอดคล้องของการเลือกหลักสูตร
+            if (!validateTargetSelection()) {
                 return;
             }
             
@@ -1372,13 +1514,14 @@
             
             const bgColor = type === 'success' ? 'bg-green-100 border-green-400 text-green-700' : 
                           type === 'error' ? 'bg-red-100 border-red-400 text-red-700' : 
+                          type === 'warning' ? 'bg-yellow-100 border-yellow-400 text-yellow-700' :
                           'bg-blue-100 border-blue-400 text-blue-700';
             
             messageDiv.className = `p-4 mb-4 rounded-lg border ${bgColor} shadow-lg transition-all duration-300`;
             messageDiv.innerHTML = `
                 <div class="flex justify-between items-center">
                     <div>
-                        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'} mr-2"></i>
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} mr-2"></i>
                         ${message}
                     </div>
                     <button onclick="this.parentElement.parentElement.remove()" class="ml-4 text-gray-500 hover:text-gray-700">
@@ -1510,26 +1653,26 @@
             
             // เรียงลำดับตามอันดับที่ผู้ใช้กรอก (ต่ำไปสูง)
             const sortedScores = [...scores].sort((a, b) => {
-                // หาคะแนนสูงสุดของแต่ละคนในหลักสูตรที่เลือก
-                let aScore = 0, bScore = 0;
+                // หาอันดับต่ำสุดของแต่ละคนในหลักสูตรที่เลือก
+                let aRank = Infinity, bRank = Infinity;
                 
                 Object.values(a.scores || {}).forEach(score => {
                     if (currentResultTab === 'special' && score.curriculum === 'special') {
-                        aScore = Math.max(aScore, score.totalScore || 0);
+                        aRank = Math.min(aRank, score.rank || Infinity);
                     } else if (currentResultTab === 'normal' && score.curriculum === 'normal') {
-                        aScore = Math.max(aScore, score.totalScore || 0);
+                        aRank = Math.min(aRank, score.rank || Infinity);
                     }
                 });
                 
                 Object.values(b.scores || {}).forEach(score => {
                     if (currentResultTab === 'special' && score.curriculum === 'special') {
-                        bScore = Math.max(bScore, score.totalScore || 0);
+                        bRank = Math.min(bRank, score.rank || Infinity);
                     } else if (currentResultTab === 'normal' && score.curriculum === 'normal') {
-                        bScore = Math.max(bScore, score.totalScore || 0);
+                        bRank = Math.min(bRank, score.rank || Infinity);
                     }
                 });
                 
-                return bScore - aScore; // เรียงจากสูงไปต่ำ
+                return aRank - bRank; // เรียงจากอันดับดีไปหาอันดับแย่
             });
             
             // แสดง/ซ่อนคอลัมน์จัดการสำหรับ Admin
@@ -1669,6 +1812,126 @@
             return gradeMap[gradeCode] || gradeCode;
         }
 
+        // ฟังก์ชันดึงข้อมูลสำหรับกราฟ
+        async function fetchScoresForCharts() {
+            try {
+                const querySnapshot = await db.collection('pretestScores').get();
+                const scores = [];
+                querySnapshot.forEach((doc) => {
+                    scores.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                renderCharts(scores);
+            } catch (error) {
+                console.error('Error fetching data for charts:', error);
+                showMessage('ไม่สามารถโหลดข้อมูลสำหรับกราฟได้', 'error');
+            }
+        }
+
+        // ฟังก์ชันแสดงกราฟ
+        function renderCharts(scores) {
+            const chartsContainer = document.getElementById('charts-container');
+            
+            // กรองข้อมูลสำหรับกราฟห้องเรียนพิเศษ
+            const specialScores = scores.filter(score => 
+                Object.values(score.scores || {}).some(s => s.curriculum === 'special')
+            ).map(score => {
+                const specialScore = Object.values(score.scores || {}).find(s => s.curriculum === 'special');
+                return specialScore ? specialScore.totalScore : 0;
+            });
+            
+            // กรองข้อมูลสำหรับกราฟห้องเรียนปกติ
+            const normalScores = scores.filter(score => 
+                Object.values(score.scores || {}).some(s => s.curriculum === 'normal')
+            ).map(score => {
+                const normalScore = Object.values(score.scores || {}).find(s => s.curriculum === 'normal');
+                return normalScore ? normalScore.totalScore : 0;
+            });
+            
+            // สร้าง HTML สำหรับกราฟ
+            chartsContainer.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="chart-container">
+                        <h3 class="chart-title">การกระจายคะแนนห้องเรียนพิเศษ</h3>
+                        <canvas id="special-chart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3 class="chart-title">การกระจายคะแนนห้องเรียนปกติ</h3>
+                        <canvas id="normal-chart"></canvas>
+                    </div>
+                </div>
+            `;
+            
+            // สร้างกราฟ
+            createScoreDistributionChart('special-chart', specialScores, 'ห้องเรียนพิเศษ');
+            createScoreDistributionChart('normal-chart', normalScores, 'ห้องเรียนปกติ');
+        }
+
+        // ฟังก์ชันสร้างกราฟการกระจายคะแนน
+        function createScoreDistributionChart(canvasId, scores, title) {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            
+            // คำนวณช่วงคะแนน
+            const scoreRanges = [
+                { min: 0, max: 20, label: '0-20' },
+                { min: 21, max: 40, label: '21-40' },
+                { min: 41, max: 60, label: '41-60' },
+                { min: 61, max: 80, label: '61-80' },
+                { min: 81, max: 100, label: '81-100' },
+                { min: 101, max: 120, label: '101-120' }
+            ];
+            
+            const data = scoreRanges.map(range => {
+                return scores.filter(score => score >= range.min && score <= range.max).length;
+            });
+            
+            const labels = scoreRanges.map(range => range.label);
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'จำนวนนักเรียน',
+                        data: data,
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: title
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'จำนวนนักเรียน'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'ช่วงคะแนน'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
         // ฟังก์ชันแสดงผลการวิเคราะห์คะแนน
         function displayAnalysisResults() {
             const container = document.getElementById('analysis-results-container');
@@ -1767,8 +2030,12 @@
             
             let html = '';
             
+            // ใช้เป้าหมายที่ผู้ใช้เลือกแทนที่จะวิเคราะห์ทุกหลักสูตร
+            const targetSpecial = score.targetSpecial || [];
+            const targetNormal = score.targetNormal || [];
+            
             // วิเคราะห์สำหรับเป้าหมายห้องเรียนพิเศษ
-            if (currentAnalysisTab === 'special') {
+            if (currentAnalysisTab === 'special' && targetSpecial.length > 0) {
                 // หาคะแนนห้องเรียนพิเศษล่าสุด
                 let specialScores = null;
                 Object.values(score.scores || {}).forEach(examScore => {
@@ -1778,8 +2045,8 @@
                 });
                 
                 if (specialScores) {
-                    // วิเคราะห์ทุกเป้าหมายห้องเรียนพิเศษ
-                    ['EP', 'SMTE', 'GM'].forEach(target => {
+                    // วิเคราะห์เฉพาะเป้าหมายที่ผู้ใช้เลือก
+                    targetSpecial.forEach(target => {
                         const stats = historicalData2568[target];
                         if (stats) {
                             const projectedScore = calculateRealExamScore(specialScores, target);
@@ -1796,7 +2063,7 @@
                         </div>
                     `;
                 }
-            } else {
+            } else if (currentAnalysisTab === 'normal' && targetNormal.length > 0) {
                 // วิเคราะห์สำหรับเป้าหมายห้องเรียนปกติ
                 // หาคะแนนห้องเรียนปกติล่าสุด
                 let normalScores = null;
@@ -1807,8 +2074,8 @@
                 });
                 
                 if (normalScores) {
-                    // วิเคราะห์ทุกเป้าหมายห้องเรียนปกติ
-                    ['Normal_In', 'Normal_Out'].forEach(target => {
+                    // วิเคราะห์เฉพาะเป้าหมายที่ผู้ใช้เลือก
+                    targetNormal.forEach(target => {
                         const stats = historicalData2568[target];
                         if (stats) {
                             const projectedScore = calculateRealExamScore(normalScores, target);
@@ -1825,6 +2092,14 @@
                         </div>
                     `;
                 }
+            } else {
+                html = `
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-info-circle text-4xl mb-4 text-gray-400"></i>
+                        <p class="text-lg">กรุณาเลือกเป้าหมายการวิเคราะห์ในหน้า "กรอกข้อมูล"</p>
+                        <p class="text-sm mt-2">คุณยังไม่ได้เลือกหลักสูตรเป้าหมายสำหรับการวิเคราะห์</p>
+                    </div>
+                `;
             }
             
             container.innerHTML = html || `
