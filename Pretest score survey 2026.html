@@ -570,6 +570,43 @@
                     <span id="data-source-info">กำลังโหลดข้อมูลจาก Firebase...</span>
                 </div>
                 
+                <!-- ตัวกรองข้อมูล -->
+                <div class="bg-white rounded-lg shadow-md p-4 mb-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">กรองตามระดับชั้น</label>
+                            <select id="grade-filter" class="input-field" onchange="filterResultsTable()">
+                                <option value="all">ทั้งหมด</option>
+                                <option value="grade4">ประถมศึกษาปีที่ 4</option>
+                                <option value="grade5">ประถมศึกษาปีที่ 5</option>
+                                <option value="grade6">ประถมศึกษาปีที่ 6</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">กรองตามประเภทห้อง</label>
+                            <select id="class-type-filter" class="input-field" onchange="filterResultsTable()">
+                                <option value="all">ทั้งหมด</option>
+                                <option value="special">ห้องเรียนพิเศษ</option>
+                                <option value="normal">ห้องเรียนปกติ</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">กรองตามรูปแบบสอบ</label>
+                            <select id="exam-mode-filter" class="input-field" onchange="filterResultsTable()">
+                                <option value="all">ทั้งหมด</option>
+                                <option value="Onsite">On-site</option>
+                                <option value="Online">Online</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span id="filtered-count" class="text-gray-600">แสดงข้อมูลทั้งหมด</span>
+                        <button onclick="resetFilters()" class="btn btn-secondary text-sm">
+                            <i class="fas fa-refresh mr-1"></i> ล้างตัวกรอง
+                        </button>
+                    </div>
+                </div>
+                
                 <div id="loading-indicator" class="text-center py-6 sm:py-8">
                     <div class="loading-spinner mb-4"></div>
                     <p class="text-gray-600">กำลังโหลดข้อมูลจาก Firebase...</p>
@@ -683,6 +720,7 @@
         let currentView = 'dashboard';
         let currentDashboardTab = 'summary';
         let chartInstances = {};
+        let dashboardData = {};
 
         // ฟังก์ชันสำหรับสลับแท็บหลัก
         window.switchView = (view) => {
@@ -749,14 +787,65 @@
         
         // ฟังก์ชันคำนวณข้อมูลสำหรับ Dashboard
         function calculateDashboardData() {
+            if (allScores.length === 0) return;
+            
             // สถิติพื้นฐาน
             const totalRespondents = new Set(allScores.map(score => score.id)).size;
             let allTotalScores = [];
             
+            // เก็บข้อมูลแยกตามประเภทการสอบ
+            const examTypeStats = {
+                specialOnsite: { scores: [], count: 0 },
+                specialOnline: { scores: [], count: 0 },
+                normalOnsite: { scores: [], count: 0 },
+                normalOnline: { scores: [], count: 0 }
+            };
+            
+            // เก็บข้อมูลแยกตามระดับชั้น
+            const gradeStats = {
+                grade4: { scores: [], count: 0 },
+                grade5: { scores: [], count: 0 },
+                grade6: { scores: [], count: 0 }
+            };
+            
+            // รวบรวมข้อมูล
             allScores.forEach(score => {
-                Object.values(score.scores || {}).forEach(examScore => {
-                    allTotalScores.push(examScore.totalScore || 0);
+                // นับตามระดับชั้น
+                if (gradeStats[score.currentGrade]) {
+                    gradeStats[score.currentGrade].count++;
+                }
+                
+                // รวบรวมคะแนนตามประเภทการสอบ
+                Object.entries(score.scores || {}).forEach(([examType, examData]) => {
+                    if (examTypeStats[examType]) {
+                        const totalScore = examData.totalScore || 0;
+                        examTypeStats[examType].scores.push(totalScore);
+                        examTypeStats[examType].count++;
+                        allTotalScores.push(totalScore);
+                        
+                        // รวมคะแนนตามระดับชั้น
+                        if (gradeStats[score.currentGrade]) {
+                            gradeStats[score.currentGrade].scores.push(totalScore);
+                        }
+                    }
                 });
+            });
+            
+            // คำนวณค่าเฉลี่ย
+            Object.keys(examTypeStats).forEach(type => {
+                const stats = examTypeStats[type];
+                stats.average = stats.scores.length > 0 ? 
+                    stats.scores.reduce((a, b) => a + b, 0) / stats.scores.length : 0;
+                stats.max = stats.scores.length > 0 ? Math.max(...stats.scores) : 0;
+                stats.min = stats.scores.length > 0 ? Math.min(...stats.scores) : 0;
+            });
+            
+            Object.keys(gradeStats).forEach(grade => {
+                const stats = gradeStats[grade];
+                stats.average = stats.scores.length > 0 ? 
+                    stats.scores.reduce((a, b) => a + b, 0) / stats.scores.length : 0;
+                stats.max = stats.scores.length > 0 ? Math.max(...stats.scores) : 0;
+                stats.min = stats.scores.length > 0 ? Math.min(...stats.scores) : 0;
             });
             
             const averageScore = allTotalScores.length > 0 ? 
@@ -772,34 +861,9 @@
                     maxScore,
                     minScore
                 },
-                // คำนวณการกระจายตามระดับชั้น
-                gradeDistribution: {
-                    grade4: 0,
-                    grade5: 0,
-                    grade6: 0
-                },
-                // คำนวณการกระจายตามประเภทการสอบ
-                examTypeDistribution: {
-                    specialOnsite: 0,
-                    specialOnline: 0,
-                    normalOnsite: 0,
-                    normalOnline: 0
-                }
+                examTypeStats,
+                gradeStats
             };
-            
-            const uniqueUsers = new Set();
-            allScores.forEach(score => {
-                if (!uniqueUsers.has(score.id)) {
-                    uniqueUsers.add(score.id);
-                    dashboardData.gradeDistribution[score.currentGrade]++;
-                }
-                
-                Object.keys(score.scores || {}).forEach(examType => {
-                    if (dashboardData.examTypeDistribution.hasOwnProperty(examType)) {
-                        dashboardData.examTypeDistribution[examType]++;
-                    }
-                });
-            });
         }
         
         // ฟังก์ชันอัพเดทสถิติหลักใน Dashboard
@@ -825,7 +889,7 @@
         
         // ฟังก์ชันแสดงแท็บสรุป
         function renderSummaryTab(container) {
-            const { gradeDistribution, examTypeDistribution } = dashboardData;
+            const { examTypeStats, gradeStats } = dashboardData;
             
             container.innerHTML = `
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
@@ -843,17 +907,48 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- สถิติแยกตามประเภทการสอบ -->
+                <div class="chart-card mb-6">
+                    <h3 class="chart-title">สถิติคะแนนแยกตามประเภทการสอบ</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+                        <div class="text-center p-4 bg-blue-50 rounded-lg">
+                            <div class="text-sm font-semibold text-blue-700 mb-1">พิเศษ On-site</div>
+                            <div class="text-2xl font-bold text-blue-600">${examTypeStats.specialOnsite.average?.toFixed(2) || '0.00'}</div>
+                            <div class="text-xs text-gray-500">คะแนนเฉลี่ย</div>
+                            <div class="text-xs text-gray-500">${examTypeStats.specialOnsite.count} คน</div>
+                        </div>
+                        <div class="text-center p-4 bg-purple-50 rounded-lg">
+                            <div class="text-sm font-semibold text-purple-700 mb-1">พิเศษ Online</div>
+                            <div class="text-2xl font-bold text-purple-600">${examTypeStats.specialOnline.average?.toFixed(2) || '0.00'}</div>
+                            <div class="text-xs text-gray-500">คะแนนเฉลี่ย</div>
+                            <div class="text-xs text-gray-500">${examTypeStats.specialOnline.count} คน</div>
+                        </div>
+                        <div class="text-center p-4 bg-green-50 rounded-lg">
+                            <div class="text-sm font-semibold text-green-700 mb-1">ปกติ On-site</div>
+                            <div class="text-2xl font-bold text-green-600">${examTypeStats.normalOnsite.average?.toFixed(2) || '0.00'}</div>
+                            <div class="text-xs text-gray-500">คะแนนเฉลี่ย</div>
+                            <div class="text-xs text-gray-500">${examTypeStats.normalOnsite.count} คน</div>
+                        </div>
+                        <div class="text-center p-4 bg-orange-50 rounded-lg">
+                            <div class="text-sm font-semibold text-orange-700 mb-1">ปกติ Online</div>
+                            <div class="text-2xl font-bold text-orange-600">${examTypeStats.normalOnline.average?.toFixed(2) || '0.00'}</div>
+                            <div class="text-xs text-gray-500">คะแนนเฉลี่ย</div>
+                            <div class="text-xs text-gray-500">${examTypeStats.normalOnline.count} คน</div>
+                        </div>
+                    </div>
+                </div>
             `;
             
             // สร้างกราฟการกระจายตามระดับชั้น
-            createDashboardGradeChart(gradeDistribution);
+            createDashboardGradeChart(gradeStats);
             
             // สร้างกราฟการกระจายตามประเภทการสอบ
-            createDashboardExamTypeChart(examTypeDistribution);
+            createDashboardExamTypeChart(examTypeStats);
         }
         
         // ฟังก์ชันสร้างกราฟการกระจายตามระดับชั้น
-        function createDashboardGradeChart(gradeDistribution) {
+        function createDashboardGradeChart(gradeStats) {
             const ctx = document.getElementById('dashboard-grade-chart').getContext('2d');
             
             // ทำลายกราฟเก่าถ้ามี
@@ -867,9 +962,9 @@
                     labels: ['ประถมศึกษาปีที่ 4', 'ประถมศึกษาปีที่ 5', 'ประถมศึกษาปีที่ 6'],
                     datasets: [{
                         data: [
-                            gradeDistribution.grade4,
-                            gradeDistribution.grade5,
-                            gradeDistribution.grade6
+                            gradeStats.grade4.count,
+                            gradeStats.grade5.count,
+                            gradeStats.grade6.count
                         ],
                         backgroundColor: [
                             'rgba(255, 99, 132, 0.7)',
@@ -897,7 +992,7 @@
         }
         
         // ฟังก์ชันสร้างกราฟการกระจายตามประเภทการสอบ
-        function createDashboardExamTypeChart(examTypeDistribution) {
+        function createDashboardExamTypeChart(examTypeStats) {
             const ctx = document.getElementById('dashboard-exam-type-chart').getContext('2d');
             
             // ทำลายกราฟเก่าถ้ามี
@@ -911,10 +1006,10 @@
                     labels: ['พิเศษ On-site', 'พิเศษ Online', 'ปกติ On-site', 'ปกติ Online'],
                     datasets: [{
                         data: [
-                            examTypeDistribution.specialOnsite,
-                            examTypeDistribution.specialOnline,
-                            examTypeDistribution.normalOnsite,
-                            examTypeDistribution.normalOnline
+                            examTypeStats.specialOnsite.count,
+                            examTypeStats.specialOnline.count,
+                            examTypeStats.normalOnsite.count,
+                            examTypeStats.normalOnline.count
                         ],
                         backgroundColor: [
                             'rgba(75, 192, 192, 0.7)',
@@ -968,8 +1063,13 @@
             }
             
             // ข้อมูลตัวอย่างสำหรับการเปรียบเทียบ
+            const { gradeStats } = dashboardData;
             const labels = ['ประถมศึกษาปีที่ 4', 'ประถมศึกษาปีที่ 5', 'ประถมศึกษาปีที่ 6'];
-            const data = [65, 72, 78];
+            const data = [
+                gradeStats.grade4.average || 0,
+                gradeStats.grade5.average || 0,
+                gradeStats.grade6.average || 0
+            ];
             
             chartInstances['comparison-grade-chart'] = new Chart(ctx, {
                 type: 'bar',
@@ -1230,8 +1330,6 @@
                 });
                 
                 scoresData[examType] = {
-                    examType: examTypeData.examType,
-                    curriculum: examTypeData.curriculum,
                     rank: parseInt(document.getElementById(`${examType}-rank`).value) || 0,
                     scores: scores,
                     totalScore: totalScore
@@ -1412,37 +1510,127 @@
             
             if (allScores.length === 0) {
                 tableBody.innerHTML = '<tr><td colspan="10" class="text-center py-6 text-gray-500">ไม่มีข้อมูลในระบบ</td></tr>';
+                document.getElementById('filtered-count').textContent = 'ไม่มีข้อมูล';
+                return;
+            }
+            
+            // รวบรวมและเรียงลำดับข้อมูลทั้งหมด
+            let allExamData = [];
+            
+            allScores.forEach(score => {
+                Object.entries(score.scores || {}).forEach(([examType, examScore]) => {
+                    allExamData.push({
+                        nickname: score.nickname,
+                        currentGrade: score.currentGrade,
+                        examType: examType,
+                        examScore: examScore,
+                        timestamp: score.timestamp
+                    });
+                });
+            });
+            
+            // เรียงลำดับตามอันดับจากน้อยไปมาก
+            allExamData.sort((a, b) => {
+                if (a.examScore.rank !== b.examScore.rank) {
+                    return a.examScore.rank - b.examScore.rank;
+                }
+                return (b.timestamp?.toDate?.() || 0) - (a.timestamp?.toDate?.() || 0);
+            });
+            
+            renderFilteredTable(allExamData);
+            document.getElementById('filtered-count').textContent = `แสดงข้อมูลทั้งหมด ${allExamData.length} รายการ`;
+        }
+
+        // ฟังก์ชันกรองข้อมูลในตาราง
+        function filterResultsTable() {
+            const gradeFilter = document.getElementById('grade-filter').value;
+            const classTypeFilter = document.getElementById('class-type-filter').value;
+            const examModeFilter = document.getElementById('exam-mode-filter').value;
+            
+            let filteredData = [];
+            
+            allScores.forEach(score => {
+                Object.entries(score.scores || {}).forEach(([examType, examScore]) => {
+                    // ตรวจสอบเงื่อนไขการกรอง
+                    const matchesGrade = gradeFilter === 'all' || score.currentGrade === gradeFilter;
+                    const matchesClassType = classTypeFilter === 'all' || 
+                        (classTypeFilter === 'special' && examType.includes('special')) ||
+                        (classTypeFilter === 'normal' && examType.includes('normal'));
+                    const matchesExamMode = examModeFilter === 'all' || 
+                        (examModeFilter === 'Onsite' && examType.includes('Onsite')) ||
+                        (examModeFilter === 'Online' && examType.includes('Online'));
+                    
+                    if (matchesGrade && matchesClassType && matchesExamMode) {
+                        filteredData.push({
+                            nickname: score.nickname,
+                            currentGrade: score.currentGrade,
+                            examType: examType,
+                            examScore: examScore,
+                            timestamp: score.timestamp
+                        });
+                    }
+                });
+            });
+            
+            // เรียงลำดับใหม่ตามอันดับ
+            filteredData.sort((a, b) => {
+                if (a.examScore.rank !== b.examScore.rank) {
+                    return a.examScore.rank - b.examScore.rank;
+                }
+                return (b.timestamp?.toDate?.() || 0) - (a.timestamp?.toDate?.() || 0);
+            });
+            
+            renderFilteredTable(filteredData);
+        }
+
+        // ฟังก์ชันแสดงตารางที่กรองแล้ว
+        function renderFilteredTable(filteredData) {
+            const tableBody = document.getElementById('results-table-body');
+            
+            if (filteredData.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="10" class="text-center py-6 text-gray-500">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการกรอง</td></tr>';
+                document.getElementById('filtered-count').textContent = 'ไม่พบข้อมูล';
                 return;
             }
             
             let rows = '';
             
-            allScores.forEach(score => {
-                Object.values(score.scores || {}).forEach(examScore => {
-                    const gradeText = getGradeText(score.currentGrade);
-                    
-                    rows += `
-                        <tr class="bg-white border-b hover:bg-gray-50">
-                            <td class="py-2 px-2 sm:py-3 sm:px-4 font-bold text-gray-900">${examScore.rank}</td>
-                            <td class="py-2 px-2 sm:py-3 sm:px-4">${score.nickname}</td>
-                            <td class="py-2 px-2 sm:py-3 sm:px-4">${gradeText}</td>
-                            <td class="py-2 px-2 sm:py-3 sm:px-4">
-                                <span class="px-2 py-1 text-xs font-medium rounded-full ${examScore.examType === 'On-site' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'}">
-                                    ${examScore.examType}
-                                </span>
-                            </td>
-                            <td class="py-2 px-2 sm:py-3 sm:px-4 text-right font-bold text-blue-600">${examScore.totalScore.toFixed(2)}</td>
-                            <td class="py-2 px-2 sm:py-3 sm:px-4">${examScore.scores.math.toFixed(2)}</td>
-                            <td class="py-2 px-2 sm:py-3 sm:px-4">${examScore.scores.science.toFixed(2)}</td>
-                            <td class="py-2 px-2 sm:py-3 sm:px-4">${examScore.scores.english.toFixed(2)}</td>
-                            <td class="py-2 px-2 sm:py-3 sm:px-4">${examScore.scores.thai ? examScore.scores.thai.toFixed(2) : '-'}</td>
-                            <td class="py-2 px-2 sm:py-3 sm:px-4">${examScore.scores.social ? examScore.scores.social.toFixed(2) : '-'}</td>
-                        </tr>
-                    `;
-                });
+            filteredData.forEach(data => {
+                const gradeText = getGradeText(data.currentGrade);
+                const examScore = data.examScore;
+                const examTypeText = getExamTypeText(data.examType);
+                
+                rows += `
+                    <tr class="bg-white border-b hover:bg-gray-50">
+                        <td class="py-2 px-2 sm:py-3 sm:px-4 font-bold text-gray-900">${examScore.rank}</td>
+                        <td class="py-2 px-2 sm:py-3 sm:px-4">${data.nickname}</td>
+                        <td class="py-2 px-2 sm:py-3 sm:px-4">${gradeText}</td>
+                        <td class="py-2 px-2 sm:py-3 sm:px-4">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full ${data.examType.includes('Onsite') ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'}">
+                                ${examTypeText}
+                            </span>
+                        </td>
+                        <td class="py-2 px-2 sm:py-3 sm:px-4 text-right font-bold text-blue-600">${examScore.totalScore.toFixed(2)}</td>
+                        <td class="py-2 px-2 sm:py-3 sm:px-4">${examScore.scores.math.toFixed(2)}</td>
+                        <td class="py-2 px-2 sm:py-3 sm:px-4">${examScore.scores.science.toFixed(2)}</td>
+                        <td class="py-2 px-2 sm:py-3 sm:px-4">${examScore.scores.english.toFixed(2)}</td>
+                        <td class="py-2 px-2 sm:py-3 sm:px-4">${examScore.scores.thai ? examScore.scores.thai.toFixed(2) : '-'}</td>
+                        <td class="py-2 px-2 sm:py-3 sm:px-4">${examScore.scores.social ? examScore.scores.social.toFixed(2) : '-'}</td>
+                    </tr>
+                `;
             });
             
             tableBody.innerHTML = rows;
+            document.getElementById('filtered-count').textContent = `แสดงข้อมูล ${filteredData.length} รายการ`;
+        }
+
+        // ฟังก์ชันล้างตัวกรอง
+        function resetFilters() {
+            document.getElementById('grade-filter').value = 'all';
+            document.getElementById('class-type-filter').value = 'all';
+            document.getElementById('exam-mode-filter').value = 'all';
+            renderScoresTable();
+            document.getElementById('filtered-count').textContent = 'แสดงข้อมูลทั้งหมด';
         }
 
         // ฟังก์ชันแปลงรหัสระดับชั้นเป็นข้อความ
@@ -1453,6 +1641,17 @@
                 'grade6': 'ป.6'
             };
             return gradeMap[gradeCode] || gradeCode;
+        }
+
+        // ฟังก์ชันแปลงรหัสประเภทการสอบเป็นข้อความ
+        function getExamTypeText(examType) {
+            const examTypeMap = {
+                'specialOnsite': 'พิเศษ On-site',
+                'specialOnline': 'พิเศษ Online',
+                'normalOnsite': 'ปกติ On-site',
+                'normalOnline': 'ปกติ Online'
+            };
+            return examTypeMap[examType] || examType;
         }
 
         // ฟังก์ชันดึงข้อมูลสำหรับกราฟ
