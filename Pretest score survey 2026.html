@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569</title>
-    <!-- ใช้ Tailwind CSS ผ่าน CDN ที่แนะนำ -->
+    <!-- ใช้ Tailwind CSS ผ่าน CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -26,7 +26,368 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
-        /* เพิ่มสไตล์ใหม่สำหรับการปรับปรุง */
+        /* Reset และ Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans Thai', sans-serif;
+            background-color: #f7f8fc;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        
+        /* Custom Styles */
+        .header-gradient {
+            background: linear-gradient(135deg, #2a2a72 0%, #009ffd 100%);
+        }
+        
+        .input-field {
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background-color: #f9fafb;
+            width: 100%;
+            font-size: 16px;
+        }
+        
+        .input-field:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+            outline: none;
+        }
+        
+        .input-field.error {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+        }
+        
+        .btn {
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(to right, #3b82f6, #60a5fa);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(59, 130, 246, 0.2);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(to right, #6b7280, #9ca3af);
+        }
+        
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(107, 114, 128, 0.2);
+        }
+        
+        .btn-success {
+            background: linear-gradient(to right, #16a34a, #22c55e);
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(22, 163, 74, 0.2);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(to right, #dc2626, #ef4444);
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(220, 38, 38, 0.2);
+        }
+        
+        .exam-type-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+            margin-bottom: 1rem;
+        }
+        
+        .exam-type-card:hover {
+            border-color: #9ca3af;
+        }
+        
+        .exam-type-card.selected {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        
+        .exam-type-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .exam-date {
+            color: #dc2626;
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+        
+        .score-input-section {
+            background: #f8f9fa;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .success-message {
+            background: #d1fae5;
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: center;
+            margin: 2rem 0;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab-button {
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            background: #f9fafb;
+            color: #4b5563;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tab-button.active {
+            background-color: #e0e7ff;
+            color: #4338ca;
+            border-color: #a5b4fc;
+        }
+        
+        .result-tab {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            background: #f9fafb;
+            color: #4b5563;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .result-tab.active {
+            background-color: #e0e7ff;
+            color: #4338ca;
+            border-color: #a5b4fc;
+        }
+        
+        .exam-type-tab {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            background: #f9fafb;
+            color: #4b5563;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .exam-type-tab.active {
+            background-color: #e0e7ff;
+            color: #4338ca;
+            border-color: #a5b4fc;
+        }
+        
+        .grade-tab {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            background: #f9fafb;
+            color: #4b5563;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .grade-tab.active {
+            background-color: #e0e7ff;
+            color: #4338ca;
+            border-color: #a5b4fc;
+        }
+        
+        .chart-tab {
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            background: #f9fafb;
+            color: #4b5563;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .chart-tab.active {
+            background-color: #e0e7ff;
+            color: #4338ca;
+            border-color: #a5b4fc;
+        }
+        
+        .analysis-tab {
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            background: #f9fafb;
+            color: #4b5563;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .analysis-tab.active {
+            background-color: #e0e7ff;
+            color: #4338ca;
+            border-color: #a5b4fc;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Analysis Styles */
+        .chance-high {
+            background: linear-gradient(135deg, #10b981, #34d399);
+            color: white;
+        }
+        
+        .chance-medium {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            color: white;
+        }
+        
+        .chance-low {
+            background: linear-gradient(135deg, #ef4444, #f87171);
+            color: white;
+        }
+        
+        .strength-item {
+            background: #d1fae5;
+            border-left: 4px solid #10b981;
+        }
+        
+        .weakness-item {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+        }
+        
+        .improvement-item {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+        }
+
+        /* Chart Styles */
+        .chart-container {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+        
+        .chart-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: #1f2937;
+            text-align: center;
+        }
+        
+        /* Pagination Styles */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 1rem;
+            gap: 0.5rem;
+        }
+        
+        .page-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            background: white;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+        }
+        
+        .page-btn:hover {
+            background: #f3f4f6;
+        }
+        
+        .page-btn.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Dashboard Styles (ใหม่) */
         .dashboard-card {
             background: white;
             border-radius: 1rem;
@@ -80,14 +441,6 @@
             padding: 1.5rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             margin-bottom: 1.5rem;
-        }
-        
-        .chart-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            color: #1f2937;
-            text-align: center;
         }
         
         .progress-bar {
@@ -176,7 +529,35 @@
             border-color: #a5b4fc;
         }
         
-        /* เพิ่ม Responsive Design เพิ่มเติม */
+        /* Responsive */
+        @media (min-width: 640px) {
+            body {
+                font-size: 16px;
+            }
+            
+            .sm\:p-6 { padding: 1.5rem; }
+            .sm\:p-8 { padding: 2rem; }
+            .sm\:p-10 { padding: 2.5rem; }
+            .sm\:text-4xl { font-size: 2.25rem; }
+            .sm\:space-x-4 > * + * { margin-left: 1rem; }
+            
+            .tab-button {
+                padding: 0.75rem 1.5rem;
+                font-size: 1rem;
+                margin-bottom: 0;
+            }
+            
+            .btn {
+                font-size: 1rem;
+            }
+        }
+        
+        @media (min-width: 768px) {
+            .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+            .md\:w-48 { width: 12rem; }
+        }
+        
         @media (max-width: 640px) {
             .stat-number {
                 font-size: 2rem;
@@ -298,30 +679,372 @@
                 </div>
             </div>
             
-            <!-- ส่วนอื่นๆ ของแอปฯ ที่มีอยู่เดิม -->
             <!-- Form Section -->
             <div id="form-section" class="hidden">
-                <!-- เนื้อหาของฟอร์มที่มีอยู่เดิม -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-blue-800 text-sm sm:text-base">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    <span>กรุณากรอกข้อมูลตามความเป็นจริงเพื่อประโยชน์ในการวิเคราะห์คะแนน</span>
+                </div>
+                
+                <!-- ข้อมูลพื้นฐาน -->
+                <div class="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6">
+                    <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">ข้อมูลพื้นฐาน</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">ชื่อเล่น (ไม่บังคับ)</label>
+                            <input type="text" id="nickname" class="input-field" placeholder="กรอกชื่อเล่น (ไม่บังคับ)" maxlength="20">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-semibold mb-2">ระดับชั้นปัจจุบัน <span class="text-red-600">*</span></label>
+                            <select id="current-grade" class="input-field" required>
+                                <option value="">เลือกระดับชั้น</option>
+                                <option value="grade4">ประถมศึกษาปีที่ 4</option>
+                                <option value="grade5">ประถมศึกษาปีที่ 5</option>
+                                <option value="grade6">ประถมศึกษาปีที่ 6</option>
+                            </select>
+                            <div id="current-grade-error" class="text-red-600 text-sm mt-1 hidden">
+                                <i class="fas fa-exclamation-circle mr-1"></i>กรุณาเลือกระดับชั้น
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- เลือกประเภทการสอบ -->
+                <div class="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6">
+                    <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">เลือกประเภทการสอบที่ต้องการบันทึกคะแนน</h2>
+                    <p class="text-gray-600 mb-4 text-sm sm:text-base">สามารถเลือกได้มากกว่า 1 ประเภท (เลือกประเภทที่คุณได้สอบจริง)</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- ห้องเรียนพิเศษ (On-site) -->
+                        <div class="exam-type-card" onclick="toggleExamType('specialOnsite')">
+                            <div class="exam-type-icon text-blue-600">
+                                <i class="fas fa-school"></i>
+                            </div>
+                            <h3 class="font-bold text-base sm:text-lg">ห้องเรียนพิเศษ (On-site)</h3>
+                            <p class="exam-date">สอบวันเสาร์ที่ 20 ธันวาคม 2568</p>
+                            <div class="mt-2 flex items-center">
+                                <input type="checkbox" id="specialOnsite-checkbox" class="mr-2" onchange="toggleExamType('specialOnsite')">
+                                <span class="text-sm sm:text-base">เลือกประเภทนี้</span>
+                            </div>
+                        </div>
+                        
+                        <!-- ห้องเรียนปกติ (On-site) -->
+                        <div class="exam-type-card" onclick="toggleExamType('normalOnsite')">
+                            <div class="exam-type-icon text-green-600">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <h3 class="font-bold text-base sm:text-lg">ห้องเรียนปกติ (On-site)</h3>
+                            <p class="exam-date">สอบวันเสาร์ที่ 20 ธันวาคม 2568</p>
+                            <div class="mt-2 flex items-center">
+                                <input type="checkbox" id="normalOnsite-checkbox" class="mr-2" onchange="toggleExamType('normalOnsite')">
+                                <span class="text-sm sm:text-base">เลือกประเภทนี้</span>
+                            </div>
+                        </div>
+                        
+                        <!-- ห้องเรียนพิเศษ (Online) -->
+                        <div class="exam-type-card" onclick="toggleExamType('specialOnline')">
+                            <div class="exam-type-icon text-purple-600">
+                                <i class="fas fa-laptop"></i>
+                            </div>
+                            <h3 class="font-bold text-base sm:text-lg">ห้องเรียนพิเศษ (Online)</h3>
+                            <p class="exam-date">สอบวันอาทิตย์ที่ 21 ธันวาคม 2568</p>
+                            <div class="mt-2 flex items-center">
+                                <input type="checkbox" id="specialOnline-checkbox" class="mr-2" onchange="toggleExamType('specialOnline')">
+                                <span class="text-sm sm:text-base">เลือกประเภทนี้</span>
+                            </div>
+                        </div>
+                        
+                        <!-- ห้องเรียนปกติ (Online) -->
+                        <div class="exam-type-card" onclick="toggleExamType('normalOnline')">
+                            <div class="exam-type-icon text-orange-600">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <h3 class="font-bold text-base sm:text-lg">ห้องเรียนปกติ (Online)</h3>
+                            <p class="exam-date">สอบวันอาทิตย์ที่ 21 ธันวาคม 2568</p>
+                            <div class="mt-2 flex items-center">
+                                <input type="checkbox" id="normalOnline-checkbox" class="mr-2" onchange="toggleExamType('normalOnline')">
+                                <span class="text-sm sm:text-base">เลือกประเภทนี้</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="exam-type-error" class="text-red-600 text-sm mt-3 hidden">
+                        <i class="fas fa-exclamation-circle mr-1"></i>กรุณาเลือกประเภทการสอบอย่างน้อย 1 ประเภท
+                    </div>
+                </div>
+                
+                <!-- กรอกคะแนนตามประเภทที่เลือก -->
+                <div id="score-inputs-container">
+                    <!-- คะแนนจะถูกเพิ่มที่นี่โดย JavaScript -->
+                </div>
+                
+                <!-- ส่วนเป้าหมายการสอบเข้า -->
+                <div class="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6">
+                    <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">เป้าหมายการสอบเข้า</h2>
+                    <p class="text-gray-600 mb-4 text-sm sm:text-base">เลือกหลักสูตรที่ต้องการวิเคราะห์เปรียบเทียบกับคะแนนปี 2568</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                        <!-- เป้าหมายห้องเรียนพิเศษ -->
+                        <div>
+                            <h3 class="font-semibold text-base sm:text-lg text-gray-800 mb-3">หลักสูตรห้องเรียนพิเศษ</h3>
+                            <div class="space-y-3">
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="target-special-ep" class="mr-3" onchange="validateTargetSelection()">
+                                    <span class="font-medium text-sm sm:text-base">EP (English Program)</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="target-special-smte" class="mr-3" onchange="validateTargetSelection()">
+                                    <span class="font-medium text-sm sm:text-base">SMTE (Science Math Technology and Environment)</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="target-special-gm" class="mr-3" onchange="validateTargetSelection()">
+                                    <span class="font-medium text-sm sm:text-base">Gifted Math</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- เป้าหมายห้องเรียนปกติ -->
+                        <div>
+                            <h3 class="font-semibold text-base sm:text-lg text-gray-800 mb-3">หลักสูตรห้องเรียนปกติ</h3>
+                            <div class="space-y-3">
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="target-normal-in" class="mr-3" onchange="validateTargetSelection()">
+                                    <span class="font-medium text-sm sm:text-base">ในเขตพื้นที่บริการ</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="target-normal-out" class="mr-3" onchange="validateTargetSelection()">
+                                    <span class="font-medium text-sm sm:text-base">นอกเขตพื้นที่บริการ</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="target-validation-message" class="mt-4 text-sm text-red-600 hidden">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        <span>กรุณาเลือกเป้าหมายให้สอดคล้องกับประเภทการสอบที่เลือก</span>
+                    </div>
+                </div>
+                
+                <!-- ปุ่มส่งข้อมูล -->
+                <div class="text-center mt-6 sm:mt-8">
+                    <button id="submit-btn" class="btn btn-success" onclick="validateAndSubmitForm()">
+                        <i class="fas fa-paper-plane mr-2"></i> ส่งข้อมูลคะแนน
+                    </button>
+                </div>
             </div>
             
             <!-- Results Section -->
             <div id="results-section" class="hidden">
-                <!-- เนื้อหาของผลลัพธ์ที่มีอยู่เดิม -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-blue-800 text-sm sm:text-base">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    <span id="data-source-info">กำลังโหลดข้อมูลจาก Firebase...</span>
+                </div>
+                
+                <!-- Tabs สำหรับกรองข้อมูล -->
+                <div class="flex flex-wrap justify-center mb-4 sm:mb-6 space-x-2">
+                    <button id="result-tab-special" class="result-tab active" onclick="switchResultTab('special')">ห้องเรียนพิเศษ</button>
+                    <button id="result-tab-normal" class="result-tab" onclick="switchResultTab('normal')">ห้องเรียนปกติ</button>
+                </div>
+                
+                <div class="flex flex-wrap justify-center mb-4 sm:mb-6 space-x-2">
+                    <button id="exam-type-all" class="exam-type-tab active" onclick="switchExamTypeTab('all')">ทั้งหมด</button>
+                    <button id="exam-type-onsite" class="exam-type-tab" onclick="switchExamTypeTab('On-site')">On-site</button>
+                    <button id="exam-type-online" class="exam-type-tab" onclick="switchExamTypeTab('Online')">Online</button>
+                </div>
+                
+                <!-- แท็บกรองระดับชั้น -->
+                <div class="flex flex-wrap justify-center mb-4 sm:mb-6 space-x-2">
+                    <button id="grade-all" class="grade-tab active" onclick="switchGradeTab('all')">ทุกระดับชั้น</button>
+                    <button id="grade-4" class="grade-tab" onclick="switchGradeTab('grade4')">ป.4</button>
+                    <button id="grade-5" class="grade-tab" onclick="switchGradeTab('grade5')">ป.5</button>
+                    <button id="grade-6" class="grade-tab" onclick="switchGradeTab('grade6')">ป.6</button>
+                </div>
+                
+                <div id="loading-indicator" class="text-center py-6 sm:py-8">
+                    <div class="loading-spinner mb-4"></div>
+                    <p class="text-gray-600">กำลังโหลดข้อมูลจาก Firebase...</p>
+                </div>
+                
+                <div class="table-container border rounded-lg shadow-md">
+                    <table class="w-full text-xs sm:text-sm text-left text-gray-600">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                            <tr>
+                                <th scope="col" class="py-2 px-2 sm:py-3 sm:px-4">อันดับที่สอบได้</th>
+                                <th scope="col" class="py-2 px-2 sm:py-3 sm:px-4">ชื่อ</th>
+                                <th scope="col" class="py-2 px-2 sm:py-3 sm:px-4">ระดับชั้น</th>
+                                <th scope="col" class="py-2 px-2 sm:py-3 sm:px-4">ประเภทสอบ</th>
+                                <th scope="col" class="py-2 px-2 sm:py-3 sm:px-4 text-right">คะแนนรวม</th>
+                                <th scope="col" class="py-2 px-2 sm:py-3 sm:px-4">คณิต</th>
+                                <th scope="col" class="py-2 px-2 sm:py-3 sm:px-4">วิทย์</th>
+                                <th scope="col" class="py-2 px-2 sm:py-3 sm:px-4">อังกฤษ</th>
+                                <th scope="col" class="py-2 px-2 sm:py-3 sm:px-4">ไทย</th>
+                                <th scope="col" class="py-2 px-2 sm:py-3 sm:px-4">สังคม</th>
+                                <th scope="col" class="py-2 px-2 sm:py-3 sm:px-4" id="admin-action-header" style="display: none;">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-table-body">
+                            <!-- ข้อมูลจะถูกโหลดโดย JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div id="pagination-container" class="pagination mt-4 hidden">
+                    <!-- ปุ่มหน้าและเลขหน้าจะถูกเพิ่มโดย JavaScript -->
+                </div>
+
+                <div class="text-center mt-4 sm:mt-6">
+                    <button onclick="fetchScoresFromFirebase()" class="btn btn-secondary mr-2 mb-2">
+                        <i class="fas fa-sync-alt mr-2"></i> โหลดข้อมูลใหม่
+                    </button>
+                    <!-- ปุ่มสำหรับ Admin เท่านั้น -->
+                    <button id="admin-export-btn" class="btn btn-success hidden mb-2" onclick="exportToCSV()">
+                        <i class="fas fa-download mr-2"></i> ดาวน์โหลดข้อมูล (Admin)
+                    </button>
+                    <button onclick="showAdminLogin()" class="btn btn-primary mb-2">
+                        <i class="fas fa-lock mr-2"></i> เข้าสู่ระบบ Admin
+                    </button>
+                </div>
             </div>
             
             <!-- Charts Section -->
             <div id="charts-section" class="hidden">
-                <!-- เนื้อหาของกราฟที่มีอยู่เดิม -->
+                <div class="text-center max-w-4xl mx-auto">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-blue-800 text-sm sm:text-base">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <span id="charts-data-source-info">กำลังโหลดข้อมูลสำหรับกราฟ...</span>
+                    </div>
+                    
+                    <!-- Tabs สำหรับเลือกหลักสูตร -->
+                    <div class="flex flex-wrap justify-center mb-4 sm:mb-6 space-x-2">
+                        <button id="chart-tab-special" class="chart-tab active" onclick="switchChartTab('special')">
+                            <i class="fas fa-star mr-2"></i>กราฟห้องเรียนพิเศษ
+                        </button>
+                        <button id="chart-tab-normal" class="chart-tab" onclick="switchChartTab('normal')">
+                            <i class="fas fa-users mr-2"></i>กราฟห้องเรียนปกติ
+                        </button>
+                    </div>
+                    
+                    <!-- Dropdown สำหรับกรองข้อมูล -->
+                    <div class="flex flex-wrap justify-center mb-4 sm:mb-6 gap-2">
+                        <div class="relative">
+                            <select id="chart-grade-filter" class="input-field w-full md:w-48" onchange="applyChartFilters()">
+                                <option value="all">ทุกระดับชั้น</option>
+                                <option value="grade4">ป.4</option>
+                                <option value="grade5">ป.5</option>
+                                <option value="grade6">ป.6</option>
+                            </select>
+                        </div>
+                        <div class="relative">
+                            <select id="chart-exam-type-filter" class="input-field w-full md:w-48" onchange="applyChartFilters()">
+                                <option value="all">ทุกประเภทการสอบ</option>
+                                <option value="On-site">On-site</option>
+                                <option value="Online">Online</option>
+                            </select>
+                        </div>
+                        <div class="relative">
+                            <select id="chart-stat-type-filter" class="input-field w-full md:w-48" onchange="applyChartFilters()">
+                                <option value="all">แสดงผลทั้งหมด</option>
+                                <option value="min">คะแนนต่ำสุด</option>
+                                <option value="max">คะแนนสูงสุด</option>
+                                <option value="avg">คะแนนเฉลี่ย</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div id="charts-loading-indicator" class="text-center py-6 sm:py-8">
+                        <div class="loading-spinner mb-4"></div>
+                        <p class="text-gray-600">กำลังโหลดข้อมูลสำหรับกราฟ...</p>
+                    </div>
+                    
+                    <div id="charts-container" class="space-y-6 sm:space-y-8">
+                        <!-- กราฟจะถูกเพิ่มที่นี่โดย JavaScript -->
+                    </div>
+                </div>
             </div>
             
             <!-- Analysis Section -->
             <div id="analysis-section" class="hidden">
-                <!-- เนื้อหาของการวิเคราะห์ที่มีอยู่เดิม -->
+                <div class="text-center max-w-4xl mx-auto">
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 text-yellow-800 rounded-r-lg text-sm sm:text-base">
+                        <h3 class="font-bold">วิเคราะห์คะแนนเปรียบเทียบคะแนนสอบ Pre-test กับคะแนนสอบเข้าจริง</h3>
+                        <p>ระบบจะประมวลผลคะแนน Pre-test ของคุณเปรียบเทียบกับคะแนนสอบเข้าจริงปี 2568</p>
+                    </div>
+                    
+                    <!-- Tabs สำหรับเลือกหลักสูตรวิเคราะห์ -->
+                    <div class="flex flex-wrap justify-center mb-4 sm:mb-6 space-x-2">
+                        <button id="analysis-tab-special" class="analysis-tab active" onclick="switchAnalysisTab('special')">
+                            <i class="fas fa-star mr-2"></i>วิเคราะห์ห้องเรียนพิเศษ
+                        </button>
+                        <button id="analysis-tab-normal" class="analysis-tab" onclick="switchAnalysisTab('normal')">
+                            <i class="fas fa-users mr-2"></i>วิเคราะห์ห้องเรียนปกติ
+                        </button>
+                    </div>
+                    
+                    <!-- ข้อมูลคะแนนปัจจุบัน -->
+                    <div id="current-scores-info" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-blue-800 text-sm sm:text-base">
+                        <h4 class="font-bold mb-2">คะแนนปัจจุบันของคุณ</h4>
+                        <div id="current-scores-details"></div>
+                    </div>
+                    
+                    <div id="analysis-results-container" class="text-left space-y-6 sm:space-y-8">
+                        <div class="text-center py-6 sm:py-8 text-gray-500">
+                            <i class="fas fa-info-circle text-3xl sm:text-4xl mb-4 text-gray-400"></i>
+                            <p class="text-base sm:text-lg">ยังไม่มีข้อมูลสำหรับการวิเคราะห์</p>
+                            <p class="text-sm mt-2">กรุณากรอกข้อมูลในหน้า "กรอกข้อมูล" ก่อน</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            
+
             <!-- Admin Section -->
             <div id="admin-section" class="hidden">
-                <!-- เนื้อหาของส่วน Admin ที่มีอยู่เดิม -->
+                <div class="text-center max-w-4xl mx-auto">
+                    <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6 text-red-800 rounded-r-lg text-sm sm:text-base">
+                        <h3 class="font-bold">จัดการระบบ (Admin Only)</h3>
+                        <p>ส่วนนี้สำหรับการจัดการข้อมูลในระบบ</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
+                        <div class="border rounded-lg p-4 sm:p-6 bg-white shadow-md">
+                            <h4 class="text-base sm:text-lg font-bold mb-4">จัดการข้อมูล</h4>
+                            <div class="space-y-4">
+                                <button onclick="showDeleteDataModal()" class="btn btn-danger w-full">
+                                    <i class="fas fa-trash mr-2"></i> ลบข้อมูลทั้งหมด
+                                </button>
+                                <button onclick="exportToCSV()" class="btn btn-success w-full">
+                                    <i class="fas fa-download mr-2"></i> ดาวน์โหลดข้อมูล Excel
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="border rounded-lg p-4 sm:p-6 bg-white shadow-md">
+                            <h4 class="text-base sm:text-lg font-bold mb-4">สถิติระบบ</h4>
+                            <div class="space-y-2 text-left text-sm sm:text-base">
+                                <div class="flex justify-between">
+                                    <span>จำนวนข้อมูลทั้งหมด:</span>
+                                    <span id="total-records" class="font-bold">0 รายการ</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>ห้องเรียนพิเศษ:</span>
+                                    <span id="special-count" class="font-bold">0 รายการ</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>ห้องเรียนปกติ:</span>
+                                    <span id="normal-count" class="font-bold">0 รายการ</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>สอบทั้งสองหลักสูตร:</span>
+                                    <span id="both-count" class="font-bold">0 รายการ</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button onclick="fetchScoresFromFirebase()" class="btn btn-secondary">
+                            <i class="fas fa-sync-alt mr-2"></i> อัพเดทสถิติ
+                        </button>
+                    </div>
+                </div>
             </div>
         </main>
         
@@ -346,14 +1069,140 @@
         <p>Developed for Satriwitthaya Pre-test Takers | ข้อมูลจะถูกบันทึกใน Firebase เท่านั้น</p>
     </footer>
 
-    <!-- Modal ต่างๆ ที่มีอยู่เดิม -->
+    <!-- Admin Login Modal -->
+    <div id="admin-login-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 sm:p-8 max-w-md w-full mx-4">
+            <h3 class="text-lg sm:text-xl font-bold mb-4 text-center">เข้าสู่ระบบ Admin</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-gray-700 mb-2 text-sm sm:text-base">รหัสผ่าน Admin</label>
+                    <input type="password" id="admin-password" class="input-field w-full" placeholder="กรอกรหัสผ่าน">
+                </div>
+                <div class="flex justify-center space-x-4">
+                    <button onclick="adminLogin()" class="btn btn-primary">เข้าสู่ระบบ</button>
+                    <button onclick="hideAdminLogin()" class="btn btn-secondary">ยกเลิก</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Data Modal -->
+    <div id="delete-data-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 sm:p-8 max-w-md w-full mx-4">
+            <h3 class="text-lg sm:text-xl font-bold mb-4 text-center text-red-600">ยืนยันการลบข้อมูล</h3>
+            <div class="space-y-4">
+                <p class="text-gray-700 text-center text-sm sm:text-base">คุณต้องการลบข้อมูลทั้งหมดในระบบใช่หรือไม่?</p>
+                <p class="text-xs sm:text-sm text-red-600 text-center">⚠️ การกระทำนี้ไม่สามารถย้อนกลับได้!</p>
+                <div class="flex justify-center space-x-4">
+                    <button onclick="deleteAllData()" class="btn btn-danger">ลบข้อมูลทั้งหมด</button>
+                    <button onclick="hideDeleteDataModal()" class="btn btn-secondary">ยกเลิก</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Single Data Modal -->
+    <div id="delete-single-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 sm:p-8 max-w-md w-full mx-4">
+            <h3 class="text-lg sm:text-xl font-bold mb-4 text-center text-red-600">ยืนยันการลบข้อมูล</h3>
+            <div class="space-y-4">
+                <p class="text-gray-700 text-center text-sm sm:text-base">คุณต้องการลบข้อมูลนี้ใช่หรือไม่?</p>
+                <p id="delete-single-details" class="text-xs sm:text-sm text-gray-600 text-center"></p>
+                <p class="text-xs sm:text-sm text-red-600 text-center">⚠️ การกระทำนี้ไม่สามารถย้อนกลับได้!</p>
+                <div class="flex justify-center space-x-4">
+                    <button onclick="deleteSingleData()" class="btn btn-danger">ลบข้อมูล</button>
+                    <button onclick="hideDeleteSingleModal()" class="btn btn-secondary">ยกเลิก</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
+        // 🔥 Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAFgpikjnnG-WX0cF_SYt3okVLZ3RJLcwQ",
+            authDomain: "satriwit-project.firebaseapp.com",
+            projectId: "satriwit-project",
+            storageBucket: "satriwit-project.firebasestorage.app",
+            messagingSenderId: "867567936913",
+            appId: "1:867567936913:web:585829ad8ea23ece60e630"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // ตัวแปรเก็บข้อมูล
+        let allScores = [];
+        let currentView = 'dashboard';
+        let currentResultTab = 'special';
+        let currentExamTypeTab = 'all';
+        let currentGradeTab = 'all';
+        let currentChartTab = 'special';
+        let currentAnalysisTab = 'special';
+        let isAdmin = false;
+        let chartInstances = {};
+        let currentPage = 1;
+        const itemsPerPage = 50;
+        let dataToDelete = null;
+        
         // ตัวแปรใหม่สำหรับ Dashboard
         let currentDashboardTab = 'summary';
         let dashboardData = {};
         
-        // ฟังก์ชันสำหรับสลับแท็บหลัก (เพิ่ม Dashboard)
+        // ตัวแปรสำหรับกรองข้อมูลในกราฟ
+        let chartGradeFilter = 'all';
+        let chartExamTypeFilter = 'all';
+        let chartStatTypeFilter = 'all';
+        
+        // รหัสผ่าน Admin
+        const ADMIN_PASSWORD = "satriwit2024";
+
+        // ข้อมูลสำหรับการวิเคราะห์
+        const historicalData2568 = {
+            EP: { 
+                title: "EP ปี 2568", 
+                max: 168.50, 
+                avg: 139.89, 
+                min: 119.17, 
+                fullScore: 200,
+                chanceThresholds: { high: 150, medium: 130 }
+            },
+            SMTE: { 
+                title: "SMTE ปี 2568", 
+                max: 77.25, 
+                avg: 58.58, 
+                min: 47.75, 
+                fullScore: 100,
+                chanceThresholds: { high: 65, medium: 55 }
+            },
+            GM: { 
+                title: "GM ปี 2568", 
+                max: 90.00, 
+                avg: 73.30, 
+                min: 66.00, 
+                fullScore: 110,
+                chanceThresholds: { high: 80, medium: 70 }
+            },
+            Normal_In: { 
+                title: "ห้องปกติ (ในเขต) ปี 2568", 
+                max: 58.50, 
+                avg: 50.33, 
+                min: 41.00, 
+                fullScore: 100,
+                chanceThresholds: { high: 55, medium: 48 }
+            },
+            Normal_Out: { 
+                title: "ห้องปกติ (นอกเขต) ปี 2568", 
+                max: 65.50, 
+                avg: 51.41, 
+                min: 44.00, 
+                fullScore: 100,
+                chanceThresholds: { high: 58, medium: 50 }
+            }
+        };
+
+        // ฟังก์ชันสำหรับสลับแท็บหลัก
         window.switchView = (view) => {
             currentView = view;
             document.getElementById('dashboard-section').classList.add('hidden');
@@ -391,7 +1240,7 @@
                 backBtn.classList.add('hidden');
             }
         };
-        
+
         // ฟังก์ชันสำหรับสลับแท็บ Dashboard
         window.switchDashboardTab = (tab) => {
             currentDashboardTab = tab;
@@ -400,7 +1249,7 @@
             document.getElementById('dashboard-tab-trends').classList.toggle('active', tab === 'trends');
             renderDashboardContent();
         };
-        
+
         // ฟังก์ชันโหลดข้อมูลสำหรับ Dashboard
         async function loadDashboardData() {
             try {
@@ -1476,7 +2325,7 @@
                 }
             });
         }
-        
+
         // ฟังก์ชันอื่นๆ ที่มีอยู่เดิมจะอยู่ที่นี่...
         // (โค้ดเดิมทั้งหมดที่ไม่ได้เปลี่ยนแปลง)
         
