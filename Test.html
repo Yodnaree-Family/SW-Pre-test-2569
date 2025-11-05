@@ -25,6 +25,9 @@
     <!-- เพิ่ม Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
+    <!-- เพิ่ม SheetJS สำหรับ Export Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    
     <style>
         /* Reset และ Base Styles */
         * {
@@ -116,6 +119,15 @@
         .btn-danger:hover {
             transform: translateY(-2px);
             box-shadow: 0 7px 20px rgba(220, 38, 38, 0.2);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(to right, #d97706, #f59e0b);
+        }
+        
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(217, 119, 6, 0.2);
         }
         
         .exam-type-card {
@@ -322,6 +334,34 @@
             font-size: 0.875rem;
         }
         
+        .admin-login-form {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .admin-table th {
+            background-color: #4f46e5;
+            color: white;
+        }
+        
+        .delete-btn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .delete-btn:hover {
+            background: #b91c1c;
+        }
+        
         @media (min-width: 640px) {
             body {
                 font-size: 16px;
@@ -372,6 +412,9 @@
             <button id="back-to-form-btn" class="absolute top-4 left-4 btn btn-secondary text-sm hidden" onclick="switchView('form')">
                 <i class="fas fa-arrow-left mr-1"></i> กลับหน้ากรอกข้อมูล
             </button>
+            <button id="admin-logout-btn" class="absolute top-4 right-4 btn btn-warning text-sm hidden" onclick="adminLogout()">
+                <i class="fas fa-sign-out-alt mr-1"></i> ออกจากระบบ Admin
+            </button>
             <h1 class="text-xl sm:text-3xl md:text-4xl font-extrabold text-white leading-tight">
                 ระบบสำรวจและวิเคราะห์คะแนน Pre-test สตรีวิทยา
             </h1>
@@ -399,6 +442,7 @@
                 <button id="tab-results" class="tab-button" onclick="switchView('results')"><i class="fas fa-chart-bar mr-2"></i>ดูผลสำรวจรวม</button>
                 <button id="tab-charts" class="tab-button" onclick="switchView('charts')"><i class="fas fa-chart-pie mr-2"></i>กราฟสรุปผล</button>
                 <button id="tab-analysis" class="tab-button" onclick="switchView('analysis')"><i class="fas fa-calculator mr-2"></i>วิเคราะห์คะแนน</button>
+                <button id="tab-admin" class="tab-button" onclick="switchView('admin-login')"><i class="fas fa-cog mr-2"></i>Admin</button>
             </div>
 
             <!-- Success Message -->
@@ -686,6 +730,85 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Admin Login Section -->
+            <div id="admin-login-section" class="hidden">
+                <div class="text-center max-w-4xl mx-auto">
+                    <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-6">ระบบจัดการข้อมูลสำหรับผู้ดูแลระบบ</h2>
+                    
+                    <div class="admin-login-form">
+                        <h3 class="text-lg font-bold mb-4">เข้าสู่ระบบผู้ดูแล</h3>
+                        <div class="mb-4">
+                            <label for="admin-password" class="block text-gray-700 font-semibold mb-2">รหัสผ่าน</label>
+                            <input type="password" id="admin-password" class="input-field" placeholder="กรอกรหัสผ่าน">
+                        </div>
+                        <button onclick="adminLogin()" class="btn btn-primary w-full">
+                            <i class="fas fa-sign-in-alt mr-2"></i> เข้าสู่ระบบ
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Admin Panel Section -->
+            <div id="admin-panel-section" class="hidden">
+                <div class="text-center max-w-6xl mx-auto">
+                    <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-6">แผงควบคุมผู้ดูแลระบบ</h2>
+                    
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-blue-800 text-sm sm:text-base">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        <span id="admin-data-source-info">กำลังโหลดข้อมูลจาก Firebase...</span>
+                    </div>
+                    
+                    <!-- ปุ่มจัดการข้อมูล -->
+                    <div class="flex flex-wrap justify-center gap-4 mb-6">
+                        <button onclick="exportToExcel()" class="btn btn-success">
+                            <i class="fas fa-file-excel mr-2"></i> Export to Excel
+                        </button>
+                        <button onclick="refreshAdminData()" class="btn btn-secondary">
+                            <i class="fas fa-sync-alt mr-2"></i> โหลดข้อมูลใหม่
+                        </button>
+                    </div>
+                    
+                    <!-- สถิติ Admin -->
+                    <div class="dashboard-grid mb-6">
+                        <div class="dashboard-card text-center">
+                            <div class="text-gray-500 text-sm font-semibold mb-2">จำนวนข้อมูลทั้งหมด</div>
+                            <div class="stat-number text-blue-600" id="admin-total-records">0</div>
+                            <div class="text-xs text-gray-500 mt-2">รายการ</div>
+                        </div>
+                        
+                        <div class="dashboard-card text-center">
+                            <div class="text-gray-500 text-sm font-semibold mb-2">ข้อมูลล่าสุด</div>
+                            <div class="stat-number text-green-600" id="admin-latest-record">-</div>
+                            <div class="text-xs text-gray-500 mt-2">วันที่บันทึก</div>
+                        </div>
+                    </div>
+                    
+                    <div id="admin-loading-indicator" class="text-center py-6 sm:py-8">
+                        <div class="loading-spinner mb-4"></div>
+                        <p class="text-gray-600">กำลังโหลดข้อมูลสำหรับการจัดการ...</p>
+                    </div>
+                    
+                    <!-- ตารางข้อมูล Admin -->
+                    <div class="table-container border rounded-lg shadow-md mb-6">
+                        <table class="w-full text-xs sm:text-sm text-left text-gray-600 admin-table">
+                            <thead class="text-xs text-white uppercase">
+                                <tr>
+                                    <th scope="col" class="py-3 px-4">วันที่บันทึก</th>
+                                    <th scope="col" class="py-3 px-4">ชื่อ</th>
+                                    <th scope="col" class="py-3 px-4">ระดับชั้น</th>
+                                    <th scope="col" class="py-3 px-4">ประเภทสอบ</th>
+                                    <th scope="col" class="py-3 px-4 text-right">คะแนนรวม</th>
+                                    <th scope="col" class="py-3 px-4">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-table-body">
+                                <!-- ข้อมูลจะถูกโหลดโดย JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </main>
         
         <!-- Line OPC Section -->
@@ -730,6 +853,8 @@
         let currentDashboardTab = 'summary';
         let chartInstances = {};
         let dashboardData = {};
+        let isAdminLoggedIn = false;
+        const ADMIN_PASSWORD = "satriwit2024"; // เปลี่ยนรหัสผ่านตามต้องการ
 
         // ข้อมูลคะแนนปี 2568 สำหรับการเปรียบเทียบ
         const comparisonData2024 = {
@@ -807,14 +932,38 @@
             document.getElementById('results-section').classList.add('hidden');
             document.getElementById('charts-section').classList.add('hidden');
             document.getElementById('analysis-section').classList.add('hidden');
+            document.getElementById('admin-login-section').classList.add('hidden');
+            document.getElementById('admin-panel-section').classList.add('hidden');
+            
             document.getElementById('tab-dashboard').classList.remove('active');
             document.getElementById('tab-form').classList.remove('active');
             document.getElementById('tab-results').classList.remove('active');
             document.getElementById('tab-charts').classList.remove('active');
             document.getElementById('tab-analysis').classList.remove('active');
+            document.getElementById('tab-admin').classList.remove('active');
             
-            document.getElementById(`${view}-section`).classList.remove('hidden');
-            document.getElementById(`tab-${view}`).classList.add('active');
+            // แสดงปุ่มออกจากระบบ Admin เฉพาะเมื่อล็อกอินแล้ว
+            const adminLogoutBtn = document.getElementById('admin-logout-btn');
+            if (isAdminLoggedIn) {
+                adminLogoutBtn.classList.remove('hidden');
+            } else {
+                adminLogoutBtn.classList.add('hidden');
+            }
+            
+            // ตรวจสอบว่าผู้ใช้เป็น Admin หรือไม่
+            if (view === 'admin-login' || view === 'admin-panel') {
+                if (isAdminLoggedIn) {
+                    document.getElementById('admin-panel-section').classList.remove('hidden');
+                    document.getElementById('tab-admin').classList.add('active');
+                    loadAdminData();
+                } else {
+                    document.getElementById('admin-login-section').classList.remove('hidden');
+                    document.getElementById('tab-admin').classList.add('active');
+                }
+            } else {
+                document.getElementById(`${view}-section`).classList.remove('hidden');
+                document.getElementById(`tab-${view}`).classList.add('active');
+            }
             
             const backBtn = document.getElementById('back-to-form-btn');
             if (view === 'results' || view === 'charts' || view === 'analysis') {
@@ -2187,6 +2336,204 @@
                 };
             }
         }
+
+        // ฟังก์ชันล็อกอิน Admin
+        window.adminLogin = () => {
+            const password = document.getElementById('admin-password').value;
+            
+            if (password === ADMIN_PASSWORD) {
+                isAdminLoggedIn = true;
+                showMessage('เข้าสู่ระบบผู้ดูแลสำเร็จ', 'success');
+                switchView('admin-panel');
+            } else {
+                showMessage('รหัสผ่านไม่ถูกต้อง', 'error');
+                document.getElementById('admin-password').value = '';
+            }
+        };
+
+        // ฟังก์ชันออกจากระบบ Admin
+        window.adminLogout = () => {
+            isAdminLoggedIn = false;
+            showMessage('ออกจากระบบผู้ดูแลเรียบร้อย', 'info');
+            switchView('dashboard');
+        };
+
+        // ฟังก์ชันโหลดข้อมูลสำหรับ Admin
+        async function loadAdminData() {
+            try {
+                document.getElementById('admin-loading-indicator').classList.remove('hidden');
+                
+                const querySnapshot = await db.collection('pretestScores')
+                    .orderBy('timestamp', 'desc')
+                    .get();
+                
+                const scores = [];
+                querySnapshot.forEach((doc) => {
+                    scores.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                allScores = scores;
+                
+                // อัพเดทข้อมูลสถิติ
+                document.getElementById('admin-total-records').textContent = allScores.length;
+                
+                if (allScores.length > 0) {
+                    const latestRecord = allScores[0];
+                    const timestamp = latestRecord.timestamp ? 
+                        new Date(latestRecord.timestamp.seconds * 1000).toLocaleDateString('th-TH') : 
+                        'ไม่ทราบวันที่';
+                    document.getElementById('admin-latest-record').textContent = timestamp;
+                }
+                
+                document.getElementById('admin-data-source-info').innerHTML = 
+                    '<i class="fas fa-cloud mr-2"></i>แสดงข้อมูลจาก Firebase (' + allScores.length + ' รายการ) - อัปเดตล่าสุด: ' + new Date().toLocaleTimeString('th-TH');
+                
+                renderAdminTable();
+                
+            } catch (error) {
+                console.error('Error loading admin data:', error);
+                showMessage('ไม่สามารถโหลดข้อมูลสำหรับการจัดการได้: ' + error.message, 'error');
+            } finally {
+                document.getElementById('admin-loading-indicator').classList.add('hidden');
+            }
+        }
+
+        // ฟังก์ชันรีเฟรชข้อมูล Admin
+        window.refreshAdminData = () => {
+            loadAdminData();
+        };
+
+        // ฟังก์ชันแสดงตารางข้อมูลสำหรับ Admin
+        function renderAdminTable() {
+            const tableBody = document.getElementById('admin-table-body');
+            
+            if (!tableBody) return;
+            
+            if (allScores.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-gray-500">ไม่มีข้อมูลในระบบ</td></tr>';
+                return;
+            }
+            
+            let rows = '';
+            
+            allScores.forEach(score => {
+                const timestamp = score.timestamp ? 
+                    new Date(score.timestamp.seconds * 1000).toLocaleDateString('th-TH') + ' ' + 
+                    new Date(score.timestamp.seconds * 1000).toLocaleTimeString('th-TH') : 
+                    'ไม่ทราบวันที่';
+                
+                const examTypes = Object.keys(score.scores || {}).join(', ');
+                const totalScores = Object.values(score.scores || {}).map(s => s.totalScore).join(', ');
+                
+                rows += `
+                    <tr class="bg-white border-b hover:bg-gray-50">
+                        <td class="py-3 px-4">${timestamp}</td>
+                        <td class="py-3 px-4">${score.nickname}</td>
+                        <td class="py-3 px-4">${getGradeText(score.currentGrade)}</td>
+                        <td class="py-3 px-4">${examTypes}</td>
+                        <td class="py-3 px-4 text-right">${totalScores}</td>
+                        <td class="py-3 px-4">
+                            <button onclick="deleteRecord('${score.id}')" class="delete-btn">
+                                <i class="fas fa-trash mr-1"></i> ลบ
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tableBody.innerHTML = rows;
+        }
+
+        // ฟังก์ชันลบข้อมูล
+        window.deleteRecord = async (recordId) => {
+            if (!confirm('คุณแน่ใจว่าต้องการลบข้อมูลนี้?')) {
+                return;
+            }
+            
+            try {
+                await db.collection('pretestScores').doc(recordId).delete();
+                showMessage('ลบข้อมูลสำเร็จ', 'success');
+                loadAdminData(); // โหลดข้อมูลใหม่หลังจากลบ
+            } catch (error) {
+                console.error('Error deleting record:', error);
+                showMessage('ไม่สามารถลบข้อมูลได้: ' + error.message, 'error');
+            }
+        };
+
+        // ฟังก์ชันส่งออกข้อมูลเป็น Excel
+        window.exportToExcel = () => {
+            if (allScores.length === 0) {
+                showMessage('ไม่มีข้อมูลที่จะส่งออก', 'error');
+                return;
+            }
+            
+            try {
+                // เตรียมข้อมูลสำหรับ Excel
+                const excelData = [];
+                
+                // เพิ่มหัวข้อตาราง
+                excelData.push([
+                    'วันที่บันทึก', 'ชื่อ', 'ระดับชั้น', 'ประเภทการสอบ', 
+                    'อันดับ', 'คะแนนรวม', 'คณิตศาสตร์', 'วิทยาศาสตร์', 
+                    'ภาษาอังกฤษ', 'ภาษาไทย', 'สังคมศึกษา', 'เป้าหมายพิเศษ', 'เป้าหมายปกติ'
+                ]);
+                
+                // เพิ่มข้อมูล
+                allScores.forEach(score => {
+                    const timestamp = score.timestamp ? 
+                        new Date(score.timestamp.seconds * 1000).toLocaleDateString('th-TH') + ' ' + 
+                        new Date(score.timestamp.seconds * 1000).toLocaleTimeString('th-TH') : 
+                        'ไม่ทราบวันที่';
+                    
+                    Object.entries(score.scores || {}).forEach(([examType, examData]) => {
+                        const row = [
+                            timestamp,
+                            score.nickname,
+                            getGradeText(score.currentGrade),
+                            examType,
+                            examData.rank || '',
+                            examData.totalScore || '',
+                            examData.scores?.math || '',
+                            examData.scores?.science || '',
+                            examData.scores?.english || '',
+                            examData.scores?.thai || '',
+                            examData.scores?.social || '',
+                            score.targetSpecial?.join(', ') || '',
+                            score.targetNormal?.join(', ') || ''
+                        ];
+                        excelData.push(row);
+                    });
+                });
+                
+                // สร้าง Workbook
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.aoa_to_sheet(excelData);
+                
+                // ตั้งค่าความกว้างคอลัมน์
+                const colWidths = [
+                    { wch: 20 }, { wch: 15 }, { wch: 10 }, { wch: 20 },
+                    { wch: 8 }, { wch: 12 }, { wch: 12 }, { wch: 12 },
+                    { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 20 }, { wch: 20 }
+                ];
+                ws['!cols'] = colWidths;
+                
+                // เพิ่ม Worksheet ลงใน Workbook
+                XLSX.utils.book_append_sheet(wb, ws, 'คะแนน Pre-test');
+                
+                // ส่งออกไฟล์
+                const fileName = `satriwit-pretest-data-${new Date().toISOString().split('T')[0]}.xlsx`;
+                XLSX.writeFile(wb, fileName);
+                
+                showMessage('ส่งออกข้อมูลเป็น Excel สำเร็จ', 'success');
+                
+            } catch (error) {
+                console.error('Error exporting to Excel:', error);
+                showMessage('ไม่สามารถส่งออกข้อมูลได้: ' + error.message, 'error');
+            }
+        };
 
         // ตั้งค่าเริ่มต้นเมื่อโหลดหน้าเว็บ
         document.addEventListener('DOMContentLoaded', function() {
