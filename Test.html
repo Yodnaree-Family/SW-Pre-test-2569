@@ -1401,11 +1401,13 @@
             document.getElementById(`${examType}-total-score`).textContent = total.toFixed(2);
         };
 
-        // ฟังก์ชันดึงข้อมูลประเภทการสอบ
+        // ฟังก์ชันดึงข้อมูลประเภทการสอบ - แก้ไขแล้ว
         function getExamTypeData(examType) {
             const examTypes = {
                 'specialOnsite': {
                     title: 'คะแนนห้องเรียนพิเศษ (On-site)',
+                    examType: 'On-site',
+                    curriculum: 'Special',
                     subjects: [
                         { id: 'math', name: 'คณิตศาสตร์', maxScore: 50 },
                         { id: 'science', name: 'วิทยาศาสตร์', maxScore: 30 },
@@ -1414,6 +1416,8 @@
                 },
                 'normalOnsite': {
                     title: 'คะแนนห้องเรียนปกติ (On-site)',
+                    examType: 'On-site',
+                    curriculum: 'Normal',
                     subjects: [
                         { id: 'math', name: 'คณิตศาสตร์', maxScore: 30 },
                         { id: 'science', name: 'วิทยาศาสตร์', maxScore: 30 },
@@ -1424,6 +1428,8 @@
                 },
                 'specialOnline': {
                     title: 'คะแนนห้องเรียนพิเศษ (Online)',
+                    examType: 'Online',
+                    curriculum: 'Special',
                     subjects: [
                         { id: 'math', name: 'คณิตศาสตร์', maxScore: 50 },
                         { id: 'science', name: 'วิทยาศาสตร์', maxScore: 30 },
@@ -1432,6 +1438,8 @@
                 },
                 'normalOnline': {
                     title: 'คะแนนห้องเรียนปกติ (Online)',
+                    examType: 'Online',
+                    curriculum: 'Normal',
                     subjects: [
                         { id: 'math', name: 'คณิตศาสตร์', maxScore: 30 },
                         { id: 'science', name: 'วิทยาศาสตร์', maxScore: 30 },
@@ -1528,7 +1536,7 @@
             return isValid;
         }
 
-        // ฟังก์ชันส่งข้อมูลแบบฟอร์ม
+        // ฟังก์ชันส่งข้อมูลแบบฟอร์ม - แก้ไขแล้ว
         window.validateAndSubmitForm = async function() {
             if (!validateForm()) {
                 showMessage('กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง', 'error');
