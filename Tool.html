@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569</title>
-    <!-- ใช้ Tailwind CSS ผ่าน CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -18,14 +17,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    <!-- เพิ่ม Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     
-    <!-- เพิ่ม Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- เพิ่ม SheetJS สำหรับ Export Excel -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     
     <style>
@@ -396,18 +392,15 @@
     </style>
 </head>
 <body class="p-4 sm:p-6">
-    <!-- Message Box -->
     <div id="message-box" class="fixed top-5 right-5 z-50 w-full max-w-sm"></div>
     
-    <!-- Header -->
     <div class="max-w-7xl mx-auto text-center py-3 mb-4 bg-pink-100 rounded-xl shadow-md border-2 border-pink-300">
         <h2 class="text-lg sm:text-2xl font-extrabold text-pink-700 tracking-wider">
             ครอบครัวยอดนารี ❤️ สตรีวิทยา
         </h2>
     </div>
     
-     <!-- Main Content -->
-    <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+     <div class="max-w-7xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
         <header class="text-center p-6 sm:p-10 header-gradient relative">
             <button id="back-to-form-btn" class="absolute top-4 left-4 btn btn-secondary text-sm hidden" onclick="switchView('form')">
                 <i class="fas fa-arrow-left mr-1"></i> กลับหน้ากรอกข้อมูล
@@ -422,7 +415,6 @@
         </header>
         
         <main class="p-4 sm:p-6 md:p-8">
-            <!-- Connection Status -->
             <div id="connection-status" class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 text-yellow-800 rounded-r-lg hidden">
                 <div class="flex justify-between items-center">
                     <div>
@@ -435,7 +427,6 @@
                 </div>
             </div>
             
-            <!-- Tabs -->
             <div class="flex flex-wrap justify-center border-b mb-6 space-x-2 sm:space-x-4">
                 <button id="tab-dashboard" class="tab-button active" onclick="switchView('dashboard')"><i class="fas fa-chart-pie mr-2"></i>แดชบอร์ดและสรุปผล</button>
                 <button id="tab-form" class="tab-button" onclick="switchView('form')"><i class="fas fa-edit mr-2"></i>กรอกข้อมูล</button>
@@ -444,7 +435,6 @@
                 <button id="tab-admin" class="tab-button" onclick="switchView('admin-login')"><i class="fas fa-cog mr-2"></i>Admin</button>
             </div>
 
-            <!-- Success Message -->
             <div id="success-message" class="success-message hidden">
                 <i class="fas fa-check-circle text-3xl sm:text-4xl mb-4 text-green-600"></i>
                 <h3 class="text-xl sm:text-2xl font-bold mb-4">ส่งข้อมูลสำเร็จ! 🎉</h3>
@@ -455,12 +445,10 @@
                 </button>
             </div>
             
-            <!-- Dashboard Section -->
             <div id="dashboard-section">
                 <div class="text-center max-w-6xl mx-auto">
                     <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4">ภาพรวมผลสำรวจคะแนน Pre-test</h2>
                     
-                    <!-- Dashboard Filters -->
                     <div id="dashboard-filters" class="flex flex-wrap justify-center gap-4 mb-6 bg-gray-50 p-4 rounded-lg shadow-sm">
                         <div>
                             <label for="dashboard-filter-curriculum" class="block text-sm font-medium text-gray-700 mb-1">ประเภทหลักสูตร</label>
@@ -481,7 +469,6 @@
                         </div>
                     </div>
 
-                    <!-- สถิติสำคัญ -->
                     <div class="dashboard-grid">
                         <div class="dashboard-card text-center">
                             <div class="text-gray-500 text-sm font-semibold mb-2">ผู้ตอบแบบสำรวจ (ที่กรองแล้ว)</div>
@@ -508,27 +495,22 @@
                         </div>
                     </div>
                     
-                    <!-- Loading Indicator for Dashboard -->
                     <div id="dashboard-loading-indicator" class="text-center py-6 sm:py-8 hidden">
                         <div class="loading-spinner mb-4"></div>
                         <p class="text-gray-600">กำลังโหลดข้อมูลแดชบอร์ด...</p>
                     </div>
 
-                    <!-- Dashboard Charts Container -->
                     <div id="dashboard-charts-container" class="mt-6">
-                        <!-- กราฟจะถูกโหลดที่นี่โดย JavaScript -->
-                    </div>
+                        </div>
                 </div>
             </div>
             
-            <!-- Form Section -->
             <div id="form-section" class="hidden">
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-blue-800 text-sm sm:text-base">
                     <i class="fas fa-info-circle mr-2"></i>
                     <span>กรุณากรอกข้อมูลตามความเป็นจริงเพื่อประโยชน์ในการวิเคราะห์คะแนน</span>
                 </div>
                 
-                <!-- ข้อมูลพื้นฐาน -->
                 <div class="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6">
                     <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">ข้อมูลพื้นฐาน</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -551,13 +533,11 @@
                     </div>
                 </div>
                 
-                <!-- เลือกประเภทการสอบ -->
                 <div class="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6">
                     <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">เลือกประเภทการสอบที่ต้องการบันทึกคะแนน</h2>
                     <p class="text-gray-600 mb-4 text-sm sm:text-base">สามารถเลือกได้มากกว่า 1 ประเภท (เลือกประเภทที่คุณได้สอบจริง)</p>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- ห้องเรียนพิเศษ (On-site) -->
                         <div class="exam-type-card" onclick="toggleExamType('specialOnsite')">
                             <div class="exam-type-icon text-blue-600">
                                 <i class="fas fa-school"></i>
@@ -570,7 +550,6 @@
                             </div>
                         </div>
                         
-                        <!-- ห้องเรียนปกติ (On-site) -->
                         <div class="exam-type-card" onclick="toggleExamType('normalOnsite')">
                             <div class="exam-type-icon text-green-600">
                                 <i class="fas fa-user-graduate"></i>
@@ -583,7 +562,6 @@
                             </div>
                         </div>
                         
-                        <!-- ห้องเรียนพิเศษ (Online) -->
                         <div class="exam-type-card" onclick="toggleExamType('specialOnline')">
                             <div class="exam-type-icon text-purple-600">
                                 <i class="fas fa-laptop"></i>
@@ -596,7 +574,6 @@
                             </div>
                         </div>
                         
-                        <!-- ห้องเรียนปกติ (Online) -->
                         <div class="exam-type-card" onclick="toggleExamType('normalOnline')">
                             <div class="exam-type-icon text-orange-600">
                                 <i class="fas fa-globe"></i>
@@ -614,18 +591,14 @@
                     </div>
                 </div>
                 
-                <!-- กรอกคะแนนตามประเภทที่เลือก -->
                 <div id="score-inputs-container">
-                    <!-- คะแนนจะถูกเพิ่มที่นี่โดย JavaScript -->
-                </div>
+                    </div>
                 
-                <!-- ส่วนเป้าหมายการสอบเข้า -->
                 <div class="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6">
                     <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">เป้าหมายการสอบเข้า</h2>
                     <p class="text-gray-600 mb-4 text-sm sm:text-base" id="target-description">เลือกหลักสูตรที่ต้องการวิเคราะห์เปรียบเทียบกับคะแนนปี 2568</p>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                        <!-- เป้าหมายห้องเรียนพิเศษ -->
                         <div id="special-target-section">
                             <h3 class="font-semibold text-base sm:text-lg text-gray-800 mb-3">หลักสูตรห้องเรียนพิเศษ</h3>
                             <div class="space-y-3">
@@ -644,7 +617,6 @@
                             </div>
                         </div>
                         
-                        <!-- เป้าหมายห้องเรียนปกติ -->
                         <div id="normal-target-section">
                             <h3 class="font-semibold text-base sm:text-lg text-gray-800 mb-3">หลักสูตรห้องเรียนปกติ</h3>
                             <div class="space-y-3">
@@ -661,7 +633,6 @@
                     </div>
                 </div>
                 
-                <!-- ปุ่มส่งข้อมูล -->
                 <div class="text-center mt-6 sm:mt-8">
                     <button id="submit-btn" class="btn btn-success" onclick="validateAndSubmitForm()">
                         <i class="fas fa-paper-plane mr-2"></i> ส่งข้อมูลคะแนน
@@ -669,14 +640,12 @@
                 </div>
             </div>
             
-            <!-- Results Section -->
             <div id="results-section" class="hidden">
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-blue-800 text-sm sm:text-base">
                     <i class="fas fa-info-circle mr-2"></i>
                     <span id="data-source-info">กำลังโหลดข้อมูลจาก Firebase...</span>
                 </div>
                 
-                <!-- ตัวกรองข้อมูล Results -->
                 <div class="flex flex-wrap justify-center gap-4 mb-6 bg-gray-50 p-4 rounded-lg shadow-sm">
                     <div>
                         <label for="results-filter-curriculum" class="block text-sm font-medium text-gray-700 mb-1">ประเภทหลักสูตร</label>
@@ -727,8 +696,7 @@
                             </tr>
                         </thead>
                         <tbody id="results-table-body">
-                            <!-- ข้อมูลจะถูกโหลดโดย JavaScript -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
 
@@ -739,7 +707,6 @@
                 </div>
             </div>
             
-            <!-- Analysis Section -->
             <div id="analysis-section" class="hidden">
                 <div class="text-center max-w-4xl mx-auto">
                     <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 text-yellow-800 rounded-r-lg text-sm sm:text-base">
@@ -747,7 +714,6 @@
                         <p>ระบบจะประมวลผลคะแนน Pre-test ของคุณ (จากหน้ากรอกข้อมูล) และเปรียบเทียบกับสถิติคะแนนสอบเข้าจริงปี 2568</p>
                     </div>
                     
-                    <!-- Container for text analysis results -->
                     <div id="analysis-results-container" class="text-left space-y-6 sm:space-y-8">
                         <div class="text-center py-6 sm:py-8 text-gray-500">
                             <i class="fas fa-info-circle text-3xl sm:text-4xl mb-4 text-gray-400"></i>
@@ -756,19 +722,14 @@
                         </div>
                     </div>
                     
-                    <!-- Container for analysis chart -->
                     <div id="analysis-chart-container" class="chart-card mt-8">
-                        <!-- Analysis chart will be rendered here -->
-                    </div>
+                        </div>
 
-                    <!-- Container for summary text -->
                     <div id="analysis-summary-text" class="mt-6 text-center p-4 bg-gray-50 rounded-lg">
-                        <!-- Analysis summary will be rendered here -->
-                    </div>
+                        </div>
                 </div>
             </div>
             
-            <!-- Admin Login Section -->
             <div id="admin-login-section" class="hidden">
                 <div class="text-center max-w-4xl mx-auto">
                     <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-6">ระบบจัดการข้อมูลสำหรับผู้ดูแลระบบ</h2>
@@ -786,7 +747,6 @@
                 </div>
             </div>
             
-            <!-- Admin Panel Section -->
             <div id="admin-panel-section" class="hidden">
                 <div class="text-center max-w-6xl mx-auto">
                     <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-6">แผงควบคุมผู้ดูแลระบบ</h2>
@@ -796,7 +756,6 @@
                         <span id="admin-data-source-info">กำลังโหลดข้อมูลจาก Firebase...</span>
                     </div>
                     
-                    <!-- ปุ่มจัดการข้อมูล -->
                     <div class="flex flex-wrap justify-center gap-4 mb-6">
                         <button onclick="exportToExcel()" class="btn btn-success">
                             <i class="fas fa-file-excel mr-2"></i> Export to Excel
@@ -806,7 +765,6 @@
                         </button>
                     </div>
                     
-                    <!-- สถิติ Admin -->
                     <div class="dashboard-grid mb-6">
                         <div class="dashboard-card text-center">
                             <div class="text-gray-500 text-sm font-semibold mb-2">จำนวนข้อมูลทั้งหมด</div>
@@ -826,7 +784,6 @@
                         <p class="text-gray-600">กำลังโหลดข้อมูลสำหรับการจัดการ...</p>
                     </div>
                     
-                    <!-- ตารางข้อมูล Admin -->
                     <div class="table-container border rounded-lg shadow-md mb-6">
                         <table class="w-full text-xs sm:text-sm text-left text-gray-600 admin-table">
                             <thead class="text-xs text-white uppercase">
@@ -840,15 +797,13 @@
                                 </tr>
                             </thead>
                             <tbody id="admin-table-body">
-                                <!-- ข้อมูลจะถูกโหลดโดย JavaScript -->
-                            </tbody>
+                                </tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </main>
         
-        <!-- Line OPC Section -->
         <div class="line-opc-section mx-4 sm:mx-6 mb-4 sm:mb-6">
             <div class="flex flex-col items-center">
                 <div class="text-center mb-4">
@@ -1054,34 +1009,43 @@
             }
         }
 
-        // ฟังก์ชันกรองข้อมูล
+        // ฟังก์ชันกรองข้อมูล (เวอร์ชันแก้ไข)
         function filterData(filters) {
             let filteredScores = []; // Array of individual exam scores
-            let filteredRespondents = new Set(); // Set of unique user IDs
+            let filteredUserEntries = []; // Array of user entries
+            let respondentIdSet = new Set();
 
             allScores.forEach(userEntry => {
                 let userMatchesGrade = (filters.grade === 'all' || userEntry.currentGrade === filters.grade);
-                
-                if (userMatchesGrade) {
-                    Object.values(userEntry.scores || {}).forEach(examScore => {
-                        let scoreMatchesCurriculum = (filters.curriculum === 'all' || examScore.curriculum === filters.curriculum);
-                        
-                        if (scoreMatchesCurriculum) {
-                            filteredScores.push(examScore);
-                            // Add user ID to set only if they have a matching score
-                            filteredRespondents.add(userEntry.id); 
-                        }
-                    });
+                if (!userMatchesGrade) return; // ข้าม user นี้ถ้าเกรดไม่ตรง
+
+                let matchingScoresForThisUser = [];
+                // *** FIX: ใช้ Object.entries เพื่อให้ได้ key (e.g., 'specialOnsite') ***
+                Object.entries(userEntry.scores || {}).forEach(([examTypeKey, examScore]) => {
+                    let scoreMatchesCurriculum = (filters.curriculum === 'all' || examScore.curriculum === filters.curriculum);
+                    
+                    if (scoreMatchesCurriculum) {
+                        // *** FIX: เพิ่ม examTypeKey เข้าไปใน object ***
+                        matchingScoresForThisUser.push({ ...examScore, examTypeKey: examTypeKey });
+                        respondentIdSet.add(userEntry.id);
+                    }
+                });
+
+                // ถ้า user นี้มีคะแนนที่ตรงกับ filter
+                if (matchingScoresForThisUser.length > 0) {
+                    filteredUserEntries.push(userEntry);
+                    filteredScores.push(...matchingScoresForThisUser);
                 }
             });
 
             return {
-                scores: filteredScores, // Array of exam score objects
-                respondentCount: filteredRespondents.size // Count of unique users
+                scores: filteredScores, // Array of exam score objects (พร้อม examTypeKey)
+                users: filteredUserEntries, // Array of user entry objects (ที่กรองแล้ว)
+                respondentCount: respondentIdSet.size
             };
         }
 
-        // ฟังก์ชันคำนวณสถิติจากข้อมูลที่กรองแล้ว
+        // ฟังก์ชันคำนวณสถิติจากข้อมูลที่กรองแล้ว (เวอร์ชันแก้ไข)
         function calculateDashboardData(filteredData) {
             const scoresArray = filteredData.scores.map(s => s.totalScore || 0);
             
@@ -1090,32 +1054,25 @@
             const totalMax = scoresArray.length > 0 ? Math.max(...scoresArray) : 0;
             const totalMin = scoresArray.length > 0 ? Math.min(...scoresArray) : 0;
             
-            // Calculate distributions (Note: This is on filtered scores, not users)
             const gradeDistribution = { grade4: 0, grade5: 0, grade6: 0 };
             const examTypeDistribution = { specialOnsite: 0, specialOnline: 0, normalOnsite: 0, normalOnline: 0 };
 
-            // We need to loop allScores again to get distributions based on users
-            let filteredUserEntries = allScores.filter(userEntry => {
-                 let userMatchesGrade = (document.getElementById('dashboard-filter-grade').value === 'all' || userEntry.currentGrade === document.getElementById('dashboard-filter-grade').value);
-                 let userMatchesCurriculum = (document.getElementById('dashboard-filter-curriculum').value === 'all' || Object.values(userEntry.scores || {}).some(s => s.curriculum === document.getElementById('dashboard-filter-curriculum').value));
-                 return userMatchesGrade && userMatchesCurriculum;
-            });
-
-            filteredUserEntries.forEach(userEntry => {
+            // *** FIX: ใช้ข้อมูลที่กรองแล้วโดยตรง ***
+            
+            // 1. คำนวณการกระจายตามระดับชั้น (จาก list users ที่กรองแล้ว)
+            filteredData.users.forEach(userEntry => {
                  if (gradeDistribution.hasOwnProperty(userEntry.currentGrade)) {
                     gradeDistribution[userEntry.currentGrade]++;
                  }
-
-                 Object.keys(userEntry.scores || {}).forEach(examType => {
-                     if (examTypeDistribution.hasOwnProperty(examType)) {
-                         // Only count if it matches curriculum filter
-                         const curriculumFilter = document.getElementById('dashboard-filter-curriculum').value;
-                         if(curriculumFilter === 'all' || userEntry.scores[examType].curriculum === curriculumFilter) {
-                            examTypeDistribution[examType]++;
-                         }
-                     }
-                 });
             });
+
+            // 2. คำนวณการกระจายตามประเภทการสอบ (จาก list scores ที่กรองแล้ว)
+            filteredData.scores.forEach(examScore => {
+                if (examTypeDistribution.hasOwnProperty(examScore.examTypeKey)) {
+                    examTypeDistribution[examScore.examTypeKey]++;
+                }
+            });
+            // *** END FIX ***
 
             return {
                 totalRespondents,
@@ -2064,7 +2021,7 @@
             // สร้างกราฟสรุปผล
             if (analysisDataForChart.length > 0) {
                 // Remove duplicates if multiple exam types target the same program
-                const uniqueAnalysisData = Array.from(new Map(analysisDataForChart.map(item => [item.targetLabel, item])).values();
+                const uniqueAnalysisData = Array.from(new Map(analysisDataForChart.map(item => [item.targetLabel, item])).values());
                 
                 createAnalysisChart(uniqueAnalysisData);
                 createAnalysisSummary(uniqueAnalysisData);
