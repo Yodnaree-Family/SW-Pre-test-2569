@@ -2287,9 +2287,8 @@
                             // (ตรรกะที่เคยอยู่ใน analyzeSpecialTarget)
                             const projectedScore = calculateRealExamScore(preTestScores, t.target, examType);
                             const stats = comparisonData2024[t.target];
-                            const analysis = analyzeStrengthsWeaknesses(preTestScores, t.target, examType);
-                            
-                            analysisHTML += createAnalysisCard(stats, projectedScore, t.target, preTestScores.totalScore, preTestScores);
+                            // 🚨 V11 FIX: Pass examType
+                            analysisHTML += createAnalysisCard(stats, projectedScore, t.target, preTestScores.totalScore, preTestScores, examType);
                         }
                     });
                 }
@@ -2307,9 +2306,8 @@
                             const preTestScores = getScoresFromForm(examType);
                             const projectedScore = calculateRealExamScore(preTestScores, t.target, examType);
                             const stats = comparisonData2024[t.target];
-                            const analysis = analyzeStrengthsWeaknesses(preTestScores, t.target, examType);
-                            
-                            analysisHTML += createAnalysisCard(stats, projectedScore, t.target, preTestScores.totalScore, preTestScores);
+                            // 🚨 V11 FIX: Pass examType
+                            analysisHTML += createAnalysisCard(stats, projectedScore, t.target, preTestScores.totalScore, preTestScores, examType);
                         }
                     });
                 }
@@ -2439,8 +2437,9 @@
             return { strengths, weaknesses, improvements };
         }
 
+        // 🚨 V11 FIX: Added examType as argument
         // ฟังก์ชันสร้างการ์ดแสดงผลการวิเคราะห์
-        function createAnalysisCard(stats, projectedScore, target, preTestTotal, preTestScores) {
+        function createAnalysisCard(stats, projectedScore, target, preTestTotal, preTestScores, examType) {
             if (!stats) return ''; // Guard clause if stats are missing
             
             const { title, min, avg, max, fullScore } = stats;
@@ -2453,7 +2452,8 @@
             const chance = calculateAdmissionChance(projectedScore, stats);
             
             // วิเคราะห์จุดแข็งจุดอ่อน
-            const analysis = analyzeStrengthsWeaknesses(preTestScores, target, examType); // examType is in scope
+            // 🚨 V11 FIX: Pass examType
+            const analysis = analyzeStrengthsWeaknesses(preTestScores, target, examType);
             
             // 🚨 FIX (V10): Ensure scorePercent is not NaN if fullScore is 0
             const displayScorePercent = isNaN(scorePercent) ? 0 : scorePercent.toFixed(2);
