@@ -2027,96 +2027,106 @@
             }
         };
 
-        // 🔥 ฟังก์ชันดึงข้อมูลจาก Firebase
-        async function fetchScoresFromFirebase(renderTable = true, forceFetch = false) {
-            
-            try {
-                if(renderTable) {
-                    document.getElementById('loading-indicator').classList.remove('hidden');
-                    document.getElementById('results-table-body').innerHTML = '';
-                    showMessage('กำลังโหลดข้อมูล...', 'info');
-                }
-                
-                // Only fetch if we don't have data, OR if forceFetch is true
-                if (!isDataFetched || forceFetch) {
-                    if (forceFetch && isDataFetched) { // Show re-fetch message only if data already existed
-                       showMessage('กำลังโหลดข้อมูลใหม่จาก Firebase...', 'info');
-                    }
-                    
-                    const querySnapshot = await db.collection('pretestScores')
-                        .orderBy('timestamp', 'desc')
-                        .get();
-                    
-                    const scores = [];
-                    querySnapshot.forEach((doc) => {
-                        scores.push({
-                            id: doc.id,
-                            ...doc.data()
-                        });
-                    });
-                    
-                    allScores = scores;
-                    isDataFetched = true; // Set cache flag
-                }
-                
-                if(renderTable) {
-                    document.getElementById('data-source-info').innerHTML = 
-                        '<i class="fas fa-cloud mr-2"></i>แสดงข้อมูล (' + allScores.length + ' รายการ) - อัปเดตล่าสุด: ' + new Date().toLocaleTimeString('th-TH');
-                    
-                    if (forceFetch) { // Show success message only on forced refresh
-                        showMessage('โหลดข้อมูลจาก Firebase สำเร็จ! (' + allScores.length + ' รายการ)', 'success');
-                    }
-                    renderScoresTable();
-                }
-                
-            } catch (error) {
-                console.error('Error fetching from Firebase:', error);
-                isDataFetched = false; // Reset cache flag on error
-                if(renderTable) {
-                    showMessage('ไม่สามารถโหลดข้อมูลจาก Firebase ได้: ' + error.message, 'error');
-                    document.getElementById('data-source-info').innerHTML = 
-                        '<i class="fas fa-exclamation-triangle mr-2"></i>ไม่สามารถโหลดข้อมูลจาก Firebase ได้';
-                }
-            } finally {
-                 if(renderTable) {
-                    document.getElementById('loading-indicator').classList.add('hidden');
-                 }
-            }
+       // 🔥 ฟังก์ชันดึงข้อมูลจาก Firebase (แก้ไขใหม่)
+async function fetchScoresFromFirebase(renderTable = true, forceFetch = false) {
+    try {
+        if(renderTable) {
+            document.getElementById('loading-indicator').classList.remove('hidden');
+            document.getElementById('results-table-body').innerHTML = '';
+            showMessage('กำลังโหลดข้อมูล...', 'info');
         }
+        
+        // Always fetch fresh data for results table to ensure accuracy
+        const querySnapshot = await db.collection('pretestScores')
+            .orderBy('timestamp', 'desc')
+            .get();
+        
+        const scores = [];
+        querySnapshot.forEach((doc) => {
+            scores.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+        
+        allScores = scores;
+        isDataFetched = true;
+        
+        if(renderTable) {
+            document.getElementById('data-source-info').innerHTML = 
+                '<i class="fas fa-cloud mr-2"></i>แสดงข้อมูล (' + allScores.length + ' รายการ) - อัปเดตล่าสุด: ' + new Date().toLocaleTimeString('th-TH');
+            
+            showMessage('โหลดข้อมูลจาก Firebase สำเร็จ! (' + allScores.length + ' รายการ)', 'success');
+            renderScoresTable();
+            
+            // Debug: Log the data structure
+            console.log('All scores data:', allScores);
+            allScores.forEach((score, index) => {
+                console.log(`User ${index + 1}:`, score.nickname, 'Grades:', score.currentGrade, 'Scores:', score.scores);
+            });
+        }
+        
+    } catch (error) {
+        console.error('Error fetching from Firebase:', error);
+        isDataFetched = false;
+        if(renderTable) {
+            showMessage('ไม่สามารถโหลดข้อมูลจาก Firebase ได้: ' + error.message, 'error');
+            document.getElementById('data-source-info').innerHTML = 
+                '<i class="fas fa-exclamation-triangle mr-2"></i>ไม่สามารถโหลดข้อมูลจาก Firebase ได้';
+        }
+    } finally {
+        if(renderTable) {
+            document.getElementById('loading-indicator').classList.add('hidden');
+        }
+    }
+}
 
-        // ฟังก์ชันแสดงตารางผลลัพธ์ (แก้ไขตรรกะการกรองใหม่)
-        function renderScoresTable() {
-            const tableBody = document.getElementById('results-table-body');
-            
-            if (!tableBody) return;
-            
-            if (allScores.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="10" class="text-center py-6 text-gray-500">ไม่มีข้อมูลในระบบ</td></tr>';
-                return;
-            }
-            
-            // รับค่าตัวกรอง
-            const curriculumFilter = document.getElementById('results-filter-curriculum').value;
-            const gradeFilter = document.getElementById('results-filter-grade').value;
-            const examTypeFilter = document.getElementById('results-filter-exam-type').value;
-            
-            // สร้าง list ของข้อสอบทั้งหมด
-            let allExamScores = [];
-            allScores.forEach(score => { // score is a user document
-                Object.entries(score.scores || {}).forEach(([examTypeKey, examScore]) => { // examScore is the exam object
-                    
-                    // ตรวจสอบว่ามีข้อมูลคะแนนหรือไม่ (ป้องกัน Error)
+// ฟังก์ชันแสดงตารางผลลัพธ์ (แก้ไขใหม่ทั้งหมด)
+function renderScoresTable() {
+    const tableBody = document.getElementById('results-table-body');
+    
+    if (!tableBody) return;
+    
+    if (allScores.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="10" class="text-center py-6 text-gray-500">ไม่มีข้อมูลในระบบ</td></tr>';
+        return;
+    }
+    
+    // รับค่าตัวกรอง
+    const curriculumFilter = document.getElementById('results-filter-curriculum').value;
+    const gradeFilter = document.getElementById('results-filter-grade').value;
+    const examTypeFilter = document.getElementById('results-filter-exam-type').value;
+    
+    console.log('Filters - Curriculum:', curriculumFilter, 'Grade:', gradeFilter, 'Exam Type:', examTypeFilter);
+    
+    // สร้าง list ของข้อสอบทั้งหมด
+    let allExamScores = [];
+    let userCount = 0;
+    let examCount = 0;
+    
+    allScores.forEach(score => {
+        userCount++;
+        console.log(`Processing user ${userCount}:`, score.nickname, 'Grade:', score.currentGrade);
+        
+        // ตรวจสอบว่ามีข้อมูล scores หรือไม่
+        if (score.scores && typeof score.scores === 'object') {
+            Object.entries(score.scores).forEach(([examTypeKey, examScore]) => {
+                examCount++;
+                console.log(`  Exam ${examCount}:`, examTypeKey, examScore);
+                
+                // ตรวจสอบโครงสร้างข้อมูล
+                if (examScore && typeof examScore === 'object') {
                     const scoresData = examScore.scores || {};
-
+                    
                     allExamScores.push({
                         // Copy user-level data
-                        nickname: score.nickname,
-                        currentGrade: score.currentGrade,
+                        nickname: score.nickname || 'ไม่ระบุชื่อ',
+                        currentGrade: score.currentGrade || 'ไม่ระบุระดับชั้น',
                         // Copy exam-level data
-                        examType: examScore.examType,
-                        curriculum: examScore.curriculum,
-                        rank: examScore.rank,
-                        totalScore: examScore.totalScore,
+                        examType: examScore.examType || 'ไม่ระบุประเภท',
+                        curriculum: examScore.curriculum || 'ไม่ระบุหลักสูตร',
+                        rank: examScore.rank || 0,
+                        totalScore: examScore.totalScore || 0,
                         // Copy individual scores
                         scores: {
                             math: scoresData.math || 0,
@@ -2126,72 +2136,92 @@
                             social: scoresData.social || 0
                         }
                     });
-                });
-            });
-
-            // กรอง List ที่สร้างขึ้น
-            const filteredExamScores = allExamScores.filter(exam => {
-                const gradeMatch = (gradeFilter === 'all') || (exam.currentGrade === gradeFilter);
-                const curriculumMatch = (curriculumFilter === 'all') || (exam.curriculum === curriculumFilter);
-                const examTypeMatch = (examTypeFilter === 'all') || (exam.examType === examTypeFilter);
-                
-                return gradeMatch && curriculumMatch && examTypeMatch;
-            });
-
-            
-            // เรียงลำดับตามอันดับที่สอบได้ (น้อยไปมาก) และหากอันดับเท่ากันให้เรียงตามคะแนนรวม (มากไปน้อย)
-            filteredExamScores.sort((a, b) => {
-                if (a.rank !== b.rank) {
-                    return a.rank - b.rank; // เรียงตามอันดับจากน้อยไปมาก
                 } else {
-                    return b.totalScore - a.totalScore; // หากอันดับเท่ากัน เรียงตามคะแนนรวมจากมากไปน้อย
+                    console.warn('Invalid examScore structure:', examScore);
                 }
             });
-            
-            let rows = '';
-
-            // แสดงผลตารางจาก List ที่กรองแล้ว
-            if (filteredExamScores.length === 0) {
-                 tableBody.innerHTML = '<tr><td colspan="10" class="text-center py-6 text-gray-500">ไม่พบข้อมูลตามตัวกรองที่เลือก</td></tr>';
-                 return;
-            }
-            
-            filteredExamScores.forEach((examScore, index) => {
-                const gradeText = getGradeText(examScore.currentGrade);
-                
-                rows += `
-                    <tr class="bg-white border-b hover:bg-gray-50">
-                        <td class="py-2 px-2 sm:py-3 sm:px-4 font-bold text-gray-900">${examScore.rank}</td>
-                        <td class="py-2 px-2 sm:py-3 sm:px-4">${examScore.nickname}</td>
-                        <td class="py-2 px-2 sm:py-3 sm:px-4">${gradeText}</td>
-                        <td class="py-2 px-2 sm:py-3 sm:px-4">
-                            <span class="px-2 py-1 text-xs font-medium rounded-full ${examScore.examType === 'On-site' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'}">
-                                ${examScore.curriculum === 'Special' ? 'พิเศษ' : 'ปกติ'} ${examScore.examType}
-                            </span>
-                        </td>
-                        <td class="py-2 px-2 sm:py-3 sm:px-4 text-right font-bold text-blue-600">${examScore.totalScore.toFixed(2)}</td>
-                        <td class="py-2 px-2 sm:py-3 sm:px-4">${examScore.scores.math ? examScore.scores.math.toFixed(2) : '-'}</td>
-                        <td class="py-2 px-2 sm:py-3 sm:px-4">${examScore.scores.science ? examScore.scores.science.toFixed(2) : '-'}</td>
-                        <td class="py-2 px-2 sm:py-3 sm:px-4">${examScore.scores.english ? examScore.scores.english.toFixed(2) : '-'}</td>
-                        <td class="py-2 px-2 sm:py-3 sm:px-4">${examScore.scores.thai ? examScore.scores.thai.toFixed(2) : '-'}</td>
-                        <td class="py-2 px-2 sm:py-3 sm:px-4">${examScore.scores.social ? examScore.scores.social.toFixed(2) : '-'}</td>
-                    </tr>
-                `;
-            });
-            
-            tableBody.innerHTML = rows;
+        } else {
+            console.warn('User has no scores data:', score.nickname);
         }
-
-        // ฟังก์ชันแปลงรหัสระดับชั้นเป็นข้อความ
-        function getGradeText(gradeCode) {
-            const gradeMap = {
-                'grade4': 'ป.4',
-                'grade5': 'ป.5', 
-                'grade6': 'ป.6'
-            };
-            return gradeMap[gradeCode] || gradeCode;
+    });
+    
+    console.log('Total users:', userCount);
+    console.log('Total exams found:', examCount);
+    console.log('All exam scores:', allExamScores);
+    
+    // กรอง List ที่สร้างขึ้น
+    const filteredExamScores = allExamScores.filter(exam => {
+        const gradeMatch = (gradeFilter === 'all') || (exam.currentGrade === gradeFilter);
+        const curriculumMatch = (curriculumFilter === 'all') || (exam.curriculum === curriculumFilter);
+        const examTypeMatch = (examTypeFilter === 'all') || (exam.examType === examTypeFilter);
+        
+        const isMatch = gradeMatch && curriculumMatch && examTypeMatch;
+        
+        if (isMatch) {
+            console.log('Match found:', exam.nickname, exam.curriculum, exam.examType, exam.currentGrade);
         }
+        
+        return isMatch;
+    });
+    
+    console.log('Filtered results:', filteredExamScores.length, filteredExamScores);
 
+    // เรียงลำดับตามอันดับที่สอบได้ (น้อยไปมาก) และหากอันดับเท่ากันให้เรียงตามคะแนนรวม (มากไปน้อย)
+    filteredExamScores.sort((a, b) => {
+        if (a.rank !== b.rank) {
+            return a.rank - b.rank; // เรียงตามอันดับจากน้อยไปมาก
+        } else {
+            return b.totalScore - a.totalScore; // หากอันดับเท่ากัน เรียงตามคะแนนรวมจากมากไปน้อย
+        }
+    });
+    
+    let rows = '';
+
+    // แสดงผลตารางจาก List ที่กรองแล้ว
+    if (filteredExamScores.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="10" class="text-center py-6 text-gray-500">ไม่พบข้อมูลตามตัวกรองที่เลือก</td></tr>';
+        return;
+    }
+    
+    filteredExamScores.forEach((examScore, index) => {
+        const gradeText = getGradeText(examScore.currentGrade);
+        
+        rows += `
+            <tr class="bg-white border-b hover:bg-gray-50">
+                <td class="py-2 px-2 sm:py-3 sm:px-4 font-bold text-gray-900">${examScore.rank}</td>
+                <td class="py-2 px-2 sm:py-3 sm:px-4">${examScore.nickname}</td>
+                <td class="py-2 px-2 sm:py-3 sm:px-4">${gradeText}</td>
+                <td class="py-2 px-2 sm:py-3 sm:px-4">
+                    <span class="px-2 py-1 text-xs font-medium rounded-full ${examScore.examType === 'On-site' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800'}">
+                        ${examScore.curriculum === 'Special' ? 'พิเศษ' : 'ปกติ'} ${examScore.examType}
+                    </span>
+                </td>
+                <td class="py-2 px-2 sm:py-3 sm:px-4 text-right font-bold text-blue-600">${examScore.totalScore.toFixed(2)}</td>
+                <td class="py-2 px-2 sm:py-3 sm:px-4">${examScore.scores.math ? examScore.scores.math.toFixed(2) : '-'}</td>
+                <td class="py-2 px-2 sm:py-3 sm:px-4">${examScore.scores.science ? examScore.scores.science.toFixed(2) : '-'}</td>
+                <td class="py-2 px-2 sm:py-3 sm:px-4">${examScore.scores.english ? examScore.scores.english.toFixed(2) : '-'}</td>
+                <td class="py-2 px-2 sm:py-3 sm:px-4">${examScore.scores.thai ? examScore.scores.thai.toFixed(2) : '-'}</td>
+                <td class="py-2 px-2 sm:py-3 sm:px-4">${examScore.scores.social ? examScore.scores.social.toFixed(2) : '-'}</td>
+            </tr>
+        `;
+    });
+    
+    tableBody.innerHTML = rows;
+    
+    // แสดงสถิติการกรอง
+    console.log('Final filtered count:', filteredExamScores.length);
+    showMessage(`แสดงข้อมูล ${filteredExamScores.length} รายการจากทั้งหมด ${allExamScores.length} การสอบ`, 'info');
+}
+
+// ฟังก์ชันแปลงรหัสระดับชั้นเป็นข้อความ
+function getGradeText(gradeCode) {
+    const gradeMap = {
+        'grade4': 'ป.4',
+        'grade5': 'ป.5', 
+        'grade6': 'ป.6'
+    };
+    return gradeMap[gradeCode] || gradeCode || 'ไม่ระบุ';
+}
         // --- Analysis Functions (อัปเดตแล้ว) ---
 
         // ฟังก์ชันแสดงผลการวิเคราะห์
