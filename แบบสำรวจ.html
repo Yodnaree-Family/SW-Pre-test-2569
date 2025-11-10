@@ -672,86 +672,116 @@
 </section>
 
 
-                        <!-- 2. 🚀 ผลคะแนนตามกลุ่ม (Performance by Category) -->
-                        <section>
-                            <h2 class="dashboard-section-header">
-                                <i class="fas fa-rocket"></i>ผลคะแนนตามกลุ่ม (Performance by Category)
-                            </h2>
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                <div class="chart-card space-y-4">
-                                    <h3 class="chart-title">ค่าเฉลี่ยคะแนนรายกลุ่ม</h3>
-                                     <div class="stat-breakdown text-center">
-                                        ห้องเรียนพิเศษ: <span id="avg-score-special">0.00</span>
-                                    </div>
-                                    <div class="stat-breakdown text-center">
-                                        ห้องเรียนปกติ: <span id="avg-score-normal">0.00</span>
-                                    </div>
-                                    <hr class="my-2">
-                                    <div class="stat-breakdown text-center">
-                                        On-site: <span id="avg-score-onsite">0.00</span>
-                                    </div>
-                                    <div class="stat-breakdown text-center">
-                                        Online: <span id="avg-score-online">0.00</span>
-                                    </div>
-                                </div>
-                                <div class="chart-card">
-                                    <h3 class="chart-title">กราฟเปรียบเทียบคะแนนเฉลี่ย</h3>
-                                    <div class="chart-container-improved">
-                                        <canvas id="overall-comparison-chart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
+                       <!-- 2. 🚀 ผลคะแนนตามกลุ่ม (Performance by Category) -->
+<section class="mb-10">
+  <h2 class="dashboard-section-header flex items-center gap-2 text-xl font-semibold text-slate-800">
+    <i class="fas fa-rocket text-orange-500"></i>
+    ผลคะแนนตามกลุ่ม (Performance by Category)
+  </h2>
 
-                        <!-- 3. 📈 ผลคะแนนรายระดับชั้น (By Grade Level) -->
-                        <section>
-                            <h2 class="dashboard-section-header">
-                                <i class="fas fa-layer-group"></i>ผลคะแนนรายระดับชั้น (By Grade Level)
-                            </h2>
-                            
-                            <!-- Grade Stats Summary -->
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                                <div class="grade-section-card">
-                                    <h4>ประถมศึกษาปีที่ 4 (ป.4)</h4>
-                                    <div class="grade-stat-item">ผู้ตอบ: <span id="p4-respondents">0</span> คน</div>
-                                    <div class="grade-stat-item">เฉลี่ย: <span id="p4-avg-score">0.00</span> คะแนน</div>
-                                    <div class="grade-stat-item">สูงสุด: <span id="p4-max-score">0.00</span> คะแนน</div>
-                                </div>
-                                <div class="grade-section-card">
-                                    <h4>ประถมศึกษาปีที่ 5 (ป.5)</h4>
-                                    <div class="grade-stat-item">ผู้ตอบ: <span id="p5-respondents">0</span> คน</div>
-                                    <div class="grade-stat-item">เฉลี่ย: <span id="p5-avg-score">0.00</span> คะแนน</div>
-                                    <div class="grade-stat-item">สูงสุด: <span id="p5-max-score">0.00</span> คะแนน</div>
-                                </div>
-                                <div class="grade-section-card">
-                                    <h4>ประถมศึกษาปีที่ 6 (ป.6)</h4>
-                                    <div class="grade-stat-item">ผู้ตอบ: <span id="p6-respondents">0</span> คน</div>
-                                    <div class="grade-stat-item">เฉลี่ย: <span id="p6-avg-score">0.00</span> คะแนน</div>
-                                    <div class="grade-stat-item">สูงสุด: <span id="p6-max-score">0.00</span> คะแนน</div>
-                                </div>
-                            </div>
-                            
-                            <!-- Grade Charts -->
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                <div class="chart-card">
-                                    <h3 class="chart-title">แนวโน้มคะแนนเฉลี่ย (ป.4 → ป.6)</h3>
-                                    <div class="chart-container-improved">
-                                        <canvas id="grade-trend-chart"></canvas>
-                                    </div>
-                                </div>
-                                <div class="chart-card">
-                                    <h3 class="chart-title">เปรียบเทียบรูปแบบสอบ (On-site vs Online)</h3>
-                                    <div class="chart-container-improved">
-                                        <canvas id="grade-type-comparison-chart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
+    <!-- Left: สถิติ -->
+    <div class="bg-white rounded-2xl shadow-md p-6 space-y-5 border border-slate-100">
+      <h3 class="text-lg font-medium text-slate-700 flex items-center gap-2">
+        <i class="fas fa-chart-bar text-green-500"></i>
+        ค่าเฉลี่ยคะแนนรายกลุ่ม
+      </h3>
 
-                    </div>
-                </div>
-            </div>
-            <!-- 🚨 END: DASHBOARD SECTION REBUILT (V3) 🚨 -->
+      <div class="space-y-3 text-center text-sm">
+        <div class="bg-gradient-to-r from-green-50 to-green-100 rounded-lg py-2">
+          ห้องเรียนพิเศษ:
+          <span id="avg-score-special" class="font-semibold text-green-700">0.00</span>
+        </div>
+        <div class="bg-gradient-to-r from-sky-50 to-sky-100 rounded-lg py-2">
+          ห้องเรียนปกติ:
+          <span id="avg-score-normal" class="font-semibold text-sky-700">0.00</span>
+        </div>
+        <hr class="my-2 border-slate-200">
+        <div class="bg-gradient-to-r from-amber-50 to-amber-100 rounded-lg py-2">
+          On-site:
+          <span id="avg-score-onsite" class="font-semibold text-amber-700">0.00</span>
+        </div>
+        <div class="bg-gradient-to-r from-violet-50 to-violet-100 rounded-lg py-2">
+          Online:
+          <span id="avg-score-online" class="font-semibold text-violet-700">0.00</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: กราฟเปรียบเทียบ -->
+    <div class="bg-white rounded-2xl shadow-md p-6 border border-slate-100">
+      <h3 class="text-lg font-medium text-slate-700 flex items-center gap-2 mb-4">
+        <i class="fas fa-chart-line text-indigo-500"></i>
+        กราฟเปรียบเทียบคะแนนเฉลี่ย
+      </h3>
+      <div class="chart-container-improved min-h-[240px] flex items-center justify-center">
+        <canvas id="overall-comparison-chart"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. 📈 ผลคะแนนรายระดับชั้น (By Grade Level) -->
+<section>
+  <h2 class="dashboard-section-header flex items-center gap-2 text-xl font-semibold text-slate-800">
+    <i class="fas fa-layer-group text-green-600"></i>
+    ผลคะแนนรายระดับชั้น (By Grade Level)
+  </h2>
+
+  <!-- Grade Stats Summary -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4 mb-8">
+    <div class="bg-white rounded-2xl shadow-md p-5 border border-slate-100 hover:shadow-lg transition">
+      <h4 class="text-slate-700 font-semibold mb-2">ประถมศึกษาปีที่ 4 (ป.4)</h4>
+      <div class="text-sm text-slate-600 space-y-1">
+        <div>ผู้ตอบ: <span id="p4-respondents" class="font-medium text-slate-800">0</span> คน</div>
+        <div>เฉลี่ย: <span id="p4-avg-score" class="font-medium text-green-700">0.00</span> คะแนน</div>
+        <div>สูงสุด: <span id="p4-max-score" class="font-medium text-orange-600">0.00</span> คะแนน</div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-md p-5 border border-slate-100 hover:shadow-lg transition">
+      <h4 class="text-slate-700 font-semibold mb-2">ประถมศึกษาปีที่ 5 (ป.5)</h4>
+      <div class="text-sm text-slate-600 space-y-1">
+        <div>ผู้ตอบ: <span id="p5-respondents" class="font-medium text-slate-800">0</span> คน</div>
+        <div>เฉลี่ย: <span id="p5-avg-score" class="font-medium text-green-700">0.00</span> คะแนน</div>
+        <div>สูงสุด: <span id="p5-max-score" class="font-medium text-orange-600">0.00</span> คะแนน</div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-md p-5 border border-slate-100 hover:shadow-lg transition">
+      <h4 class="text-slate-700 font-semibold mb-2">ประถมศึกษาปีที่ 6 (ป.6)</h4>
+      <div class="text-sm text-slate-600 space-y-1">
+        <div>ผู้ตอบ: <span id="p6-respondents" class="font-medium text-slate-800">0</span> คน</div>
+        <div>เฉลี่ย: <span id="p6-avg-score" class="font-medium text-green-700">0.00</span> คะแนน</div>
+        <div>สูงสุด: <span id="p6-max-score" class="font-medium text-orange-600">0.00</span> คะแนน</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grade Charts -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white rounded-2xl shadow-md p-6 border border-slate-100">
+      <h3 class="text-lg font-medium text-slate-700 flex items-center gap-2 mb-4">
+        <i class="fas fa-chart-area text-sky-500"></i>
+        แนวโน้มคะแนนเฉลี่ย (ป.4 → ป.6)
+      </h3>
+      <div class="chart-container-improved min-h-[240px] flex items-center justify-center">
+        <canvas id="grade-trend-chart"></canvas>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-md p-6 border border-slate-100">
+      <h3 class="text-lg font-medium text-slate-700 flex items-center gap-2 mb-4">
+        <i class="fas fa-balance-scale text-purple-500"></i>
+        เปรียบเทียบรูปแบบสอบ (On-site vs Online)
+      </h3>
+      <div class="chart-container-improved min-h-[240px] flex items-center justify-center">
+        <canvas id="grade-type-comparison-chart"></canvas>
+      </div>
+    </div>
+  </div>
+</section>
+
             
             <!-- Form Section -->
             <div id="form-section" class="hidden">
