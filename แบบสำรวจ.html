@@ -362,16 +362,112 @@
             background: #b91c1c;
         }
 
-        /* 🚨 START: ANALYSIS CARD STYLES (From V7/V8) 🚨 */
+        /* 🚨 START: ADDED CSS FOR V12 ANALYSIS UI 🚨 */
         .chance-high { background: linear-gradient(to right, #16a34a, #22c55e); }
         .chance-medium { background: linear-gradient(to right, #d97706, #f59e0b); }
-        .chance-low { background: linear-gradient(to right, #dc2626, #ef4444); }
-        
-        .strength-item { background-color: #f0fdf4; border: 1px solid #bbf7d0; }
-        .weakness-item { background-color: #fef2f2; border: 1px solid #fecaca; }
-        .improvement-item { background-color: #fefce8; border: 1px solid #fef08a; }
-        /* 🚨 END: ANALYSIS CARD STYLES 🚨 */
+        .chance-low { background: linear-gradient(to right, #f97316, #fb923c); } /* ท้าทาย (ส้ม) */
 
+        .strength-item { background: #f0fdf4; border: 1px solid #bbf7d0; }
+        .weakness-item { background: #fffbeb; border: 1px solid #fde68a; } /* จุดที่ควรเสริม (เหลือง) */
+        .improvement-item { background: #f0f9ff; border: 1px solid #bae6fd; } /* ข้อแนะนำ (ฟ้า) */
+        
+        .subject-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.875rem;
+        }
+        .subject-table th, .subject-table td {
+            border: 1px solid #e5e7eb;
+            padding: 0.5rem 0.75rem;
+            text-align: center;
+        }
+        .subject-table th {
+            background-color: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+        }
+        .subject-table td {
+            color: #4b5563;
+        }
+        .subject-table .score-pretest {
+            font-weight: 600;
+            color: #3b82f6;
+        }
+        .subject-table .score-projected {
+            font-weight: 600;
+            color: #16a34a;
+        }
+        /* 🚨 END: ADDED CSS FOR V12 ANALYSIS UI 🚨 */
+
+        /* เพิ่ม CSS สำหรับแท็บวิเคราะห์ */
+        .analysis-tab {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            background: #f9fafb;
+            color: #4b5563;
+            margin: 0 0.25rem;
+        }
+        
+        .analysis-tab.active {
+            background-color: #e0e7ff;
+            color: #4338ca;
+            border-color: #a5b4fc;
+        }
+        
+        .analysis-tab-content {
+            display: none;
+        }
+        
+        .analysis-tab-content.active {
+            display: block;
+        }
+        
+        /* เพิ่ม CSS สำหรับปุ่มลบทั้งหมด */
+        .btn-delete-all {
+            background: linear-gradient(to right, #dc2626, #ef4444);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-delete-all:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(220, 38, 38, 0.2);
+        }
+        
+        .confirmation-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .confirmation-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
         
         @media (min-width: 640px) {
             body {
@@ -409,6 +505,20 @@
 <body class="p-4 sm:p-6">
     <!-- Message Box -->
     <div id="message-box" class="fixed top-5 right-5 z-50 w-full max-w-sm"></div>
+    
+    <!-- Confirmation Modal สำหรับลบข้อมูลทั้งหมด -->
+    <div id="delete-all-modal" class="confirmation-modal hidden">
+        <div class="confirmation-content">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">ยืนยันการลบข้อมูลทั้งหมด</h3>
+            <p class="text-gray-600 mb-6">คุณกำลังจะลบข้อมูลทั้งหมดในระบบ การกระทำนี้ไม่สามารถย้อนกลับได้</p>
+            <p class="text-red-600 font-semibold mb-4">พิมพ์ "DELETE ALL" เพื่อยืนยันการลบ</p>
+            <input type="text" id="delete-all-confirmation" class="input-field mb-4" placeholder="พิมพ์ DELETE ALL">
+            <div class="flex justify-center space-x-4">
+                <button id="confirm-delete-all" class="btn btn-danger">ลบทั้งหมด</button>
+                <button id="cancel-delete-all" class="btn btn-secondary">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
     
     <!-- Header -->
     <div class="max-w-7xl mx-auto text-center py-3 mb-4 bg-pink-100 rounded-xl shadow-md border-2 border-pink-300">
@@ -457,13 +567,7 @@
 
             <!-- Success Message -->
             <div id="success-message" class="success-message hidden">
-                <i class="fas fa-check-circle text-3xl sm:text-4xl mb-4 text-green-600"></i>
-                <h3 class="text-xl sm:text-2xl font-bold mb-4">ส่งข้อมูลสำเร็จ! 🎉</h3>
-                <p class="mb-4 text-base sm:text-lg">ขอบคุณที่ร่วมแบ่งปันข้อมูลคะแนน 🙏</p>
-                <p class="mb-6">ข้อมูลของคุณจะถูกบันทึกในระบบและช่วยให้น้องๆ ทุกคนได้เห็นภาพรวมคะแนน</p>
-                <button onclick="resetForm()" class="btn btn-primary">
-                    <i class="fas fa-plus mr-2"></i> ส่งข้อมูลเพิ่มเติม
-                </button>
+                <!-- เนื้อหาจะถูกแทนที่ด้วย JavaScript -->
             </div>
             
             <!-- Dashboard Section -->
@@ -650,7 +754,7 @@
                                 </label>
                                 <label class="flex items-center">
                                     <input type="checkbox" id="target-special-gm" class="mr-3" onchange="validateTargetSelection()">
-                                    <span class="font-medium text-sm sm:text-base">Gifted Math</span>
+                                    <span class="font-medium text-sm sm:text-base">GM (Gifted Math)</span>
                                 </label>
                             </div>
                         </div>
@@ -687,8 +791,7 @@
                     <span id="data-source-info">กำลังโหลดข้อมูลจาก Firebase...</span>
                 </div>
                 
-                <!-- 🚨 START: CODE EDITED (Swapped Filters) 🚨 -->
-                <!-- ตัวกรองข้อมูล Results (สลับลำดับตามที่ขอ) -->
+                <!-- ตัวกรองข้อมูล Results -->
                 <div class="flex flex-wrap justify-center gap-4 mb-6 bg-gray-50 p-4 rounded-lg shadow-sm">
                     <div>
                         <label for="results-filter-curriculum" class="block text-sm font-medium text-gray-700 mb-1">ประเภทหลักสูตร</label>
@@ -716,8 +819,6 @@
                         </select>
                     </div>
                 </div>
-                <!-- 🚨 END: CODE EDITED 🚨 -->
-
                 
                 <div id="loading-indicator" class="text-center py-6 sm:py-8">
                     <div class="loading-spinner mb-4"></div>
@@ -747,33 +848,33 @@
                 </div>
 
                 <div class="text-center mt-4 sm:mt-6">
-                    <!-- 🚨 START: CODE EDITED (Added forceFetch) 🚨 -->
                     <button onclick="fetchScoresFromFirebase(true, true)" class="btn btn-secondary mr-2 mb-2">
                         <i class="fas fa-sync-alt mr-2"></i> โหลดข้อมูลใหม่
                     </button>
-                    <!-- 🚨 END: CODE EDITED 🚨 -->
                 </div>
             </div>
             
-            <!-- Analysis Section -->
+            <!-- ANALYSIS SECTION -->
             <div id="analysis-section" class="hidden">
-                <div class="text-center max-w-4xl mx-auto">
+                <div class="text-center max-w-6xl mx-auto">
                     <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 text-yellow-800 rounded-r-lg text-sm sm:text-base">
                         <h3 class="font-bold">วิเคราะห์คะแนนเปรียบเทียบคะแนนสอบ Pre-test กับคะแนนสอบเข้าจริง (ปี 2568)</h3>
                         <p>ระบบจะประมวลผลคะแนน Pre-test ของคุณ (จากหน้ากรอกข้อมูล) และเปรียบเทียบกับสถิติคะแนนสอบเข้าจริงปี 2568</p>
                     </div>
                     
+                    <!-- แท็บสำหรับเลือกประเภทการวิเคราะห์ -->
+                    <div id="analysis-tabs" class="flex flex-wrap justify-center mb-6">
+                        <!-- แท็บจะถูกสร้างโดย JavaScript -->
+                    </div>
+                    
                     <!-- Container for text analysis results -->
                     <div id="analysis-results-container" class="text-left space-y-6 sm:space-y-8">
-                        <!-- 🚨 START: CODE EDITED (This content is now generated by JS) 🚨 -->
                         <div class="text-center py-6 sm:py-8 text-gray-500">
                             <i class="fas fa-info-circle text-3xl sm:text-4xl mb-4 text-gray-400"></i>
                             <p class="text-base sm:text-lg">ยังไม่มีข้อมูลสำหรับการวิเคราะห์</p>
                             <p class="text-sm mt-2">กรุณากรอกข้อมูลและเลือกเป้าหมายในหน้า "กรอกข้อมูล" ก่อน</p>
                         </div>
-                        <!-- 🚨 END: CODE EDITED 🚨 -->
                     </div>
-                    
                 </div>
             </div>
             
@@ -805,16 +906,18 @@
                         <span id="admin-data-source-info">กำลังโหลดข้อมูลจาก Firebase...</span>
                     </div>
                     
-                    <!-- ปุ่มจัดการข้อมูล -->
+                    <!-- ปุ่มจัดการข้อมูล - เพิ่มปุ่มลบข้อมูลทั้งหมด -->
                     <div class="flex flex-wrap justify-center gap-4 mb-6">
                         <button onclick="exportToExcel()" class="btn btn-success">
                             <i class="fas fa-file-excel mr-2"></i> Export to Excel
                         </button>
-                        <!-- 🚨 START: CODE EDITED (Added forceFetch) 🚨 -->
-                        <button onclick="refreshAdminData(true)" class="btn btn-secondary">
+                        <button onclick="refreshAdminData()" class="btn btn-secondary">
                             <i class="fas fa-sync-alt mr-2"></i> โหลดข้อมูลใหม่
                         </button>
-                        <!-- 🚨 END: CODE EDITED 🚨 -->
+                        <!-- ปุ่มลบข้อมูลทั้งหมด -->
+                        <button onclick="showDeleteAllConfirmation()" class="btn-delete-all">
+                            <i class="fas fa-trash-alt mr-2"></i> ลบข้อมูลทั้งหมด
+                        </button>
                     </div>
                     
                     <!-- สถิติ Admin -->
@@ -863,10 +966,10 @@
         <div class="line-opc-section mx-4 sm:mx-6 mb-4 sm:mb-6">
             <div class="flex flex-col items-center">
                 <div class="text-center mb-4">
-                    <p class="text-base sm:text-lg font-semibold mb-2">🌟 รวบรวมข้อมูลและจัดทำโดย ... ลุ้นสอวอไปด้วยกันนะ 🌟</p>
+                    <p class="text-base sm:text-lg font-semibold mb-2">🌟 รวบรวมข้อมูลและออกแบบระบบโดย ... ลุ้นสอวอไปด้วยกันนะ 🌟</p>
                     <p class="text-lg sm:text-xl font-bold">ครอบครัวยอดนารี❤️สตรีวิทยา</p>
                 </div>
-                <a href="https://line.me/ti/g2/ZRIN-ofnybH08hXhS6OYTfIMeKqvupT0Qzd44Q?utmsource=invitation&utmmedium=linkcopy&utmcampaign=default" 
+                <a href="https://line.me/ti/g2/ZRIN-ofnybH08hXhS6OYTfIMeKqvupT0Qzd44Q" 
                    target="_blank" class="btn btn-primary">
                     <i class="fab fa-line mr-2 text-xl"></i>
                     Line OPC
@@ -877,7 +980,7 @@
     </div>
     
     <footer class="text-center py-4 sm:py-6 text-gray-500 text-xs sm:text-sm">
-        <p>Developed for Satriwitthaya Pre-test Takers | ข้อมูลจะถูกบันทึกใน Firebase เท่านั้น</p>
+        <p>Developed for Satriwithaya Pre-test Takers | โดยลุ้นสอวอไปด้วยกันนะ</p>
     </footer>
 
     <script>
@@ -901,49 +1004,56 @@
         let currentView = 'dashboard';
         let chartInstances = {};
         let isAdminLoggedIn = false;
-        const ADMIN_PASSWORD = "satriwit2024"; // เปลี่ยนรหัสผ่านตามต้องการ
+        const ADMIN_PASSWORD = "satriwit2025"; // เปลี่ยนรหัสผ่านตามต้องการ
 
-        // 🚨 START: CODE EDITED (Added chanceThresholds for V7) 🚨
-        // ข้อมูลคะแนนปี 2568 สำหรับการเปรียบเทียบ (อัปเดตตามคำขอ)
+        // ข้อมูลคะแนนสอบจริงปี 2568 สำหรับการเปรียบเทียบ
         const comparisonData2024 = {
             'EP': {
                 title: 'หลักสูตร EP (English Program)',
-                max: 168.50, avg: 139.89, min: 119.17, fullScore: 200,
-                subjects: { math: 50, science: 50, english: 80, interview: 20 },
-                chanceThresholds: { high: 140.00, medium: 120.00 }, // สมมติเกณฑ์
-                note: "คำนวณบนสมมุติฐานที่ได้ส่วนสัมภาษณ์เต็ม 20 คะแนน"
+                max: 168.50,
+                avg: 139.89,
+                min: 119.17,
+                fullScore: 200,
+                chanceThresholds: { high: 145.00, medium: 130.00 }, // เกณฑ์ (สูง/ปานกลาง)
+                note: "คำนวณบนสมมุติฐานที่ได้คะแนนในส่วนสัมภาษณ์เต็ม 20 คะแนน"
             },
             'SMTE': {
                 title: 'หลักสูตร SMTE',
-                max: 77.25, avg: 58.58, min: 47.75, fullScore: 100,
-                subjects: { math: 50, science: 50 },
-                chanceThresholds: { high: 59.00, medium: 48.00 }, // สมมติเกณฑ์
-                note: "ไม่รวมคะแนนภาษาอังกฤษในการคำนวณ"
+                max: 77.25,
+                avg: 58.58,
+                min: 47.75,
+                fullScore: 100,
+                chanceThresholds: { high: 62.00, medium: 52.00 },
+                note: "หลักสูตร SMTE ไม่สอบวิชาภาษาอังกฤษจึงไม่นำมาใช้ในการคำนวณ"
             },
             'GM': {
-                title: 'หลักสูตร Gifted Math',
-                max: 90.00, avg: 73.30, min: 66.00, fullScore: 110,
-                subjects: { math: 50, science: 50, english: 10 },
-                chanceThresholds: { high: 74.00, medium: 66.00 }, // สมมติเกณฑ์
+                title: 'หลักสูตร GM (Gifted Math)',
+                max: 90.00,
+                avg: 73.30,
+                min: 66.00,
+                fullScore: 110,
+                chanceThresholds: { high: 75.00, medium: 68.00 },
                 note: ""
             },
             'Normal_In': {
                 title: 'หลักสูตรห้องเรียนปกติ (ในเขต)',
-                max: 58.50, avg: 50.33, min: 41.00, fullScore: 100,
-                subjects: { math: 20, science: 20, english: 20, thai: 20, social: 20 },
-                chanceThresholds: { high: 51.00, medium: 41.00 }, // สมมติเกณฑ์
+                max: 58.50,
+                avg: 50.33,
+                min: 41.00,
+                fullScore: 100,
+                chanceThresholds: { high: 53.00, medium: 45.00 },
                 note: ""
             },
             'Normal_Out': {
                 title: 'หลักสูตรห้องเรียนปกติ (นอกเขต)',
-                max: 65.50, avg: 51.41, min: 44.00, fullScore: 100,
-                subjects: { math: 20, science: 20, english: 20, thai: 20, social: 20 },
-                chanceThresholds: { high: 52.00, medium: 44.00 }, // สมมติเกณฑ์
+                max: 65.50,
+                avg: 51.41,
+                min: 44.00,
+                fullScore: 100,
+                chanceThresholds: { high: 54.00, medium: 47.00 },
                 note: ""
             }
         };
-        // 🚨 END: CODE EDITED 🚨
-
 
         // ฟังก์ชันสำหรับสลับแท็บหลัก
         window.switchView = (view) => {
@@ -985,133 +1095,22 @@
             }
             
             const backBtn = document.getElementById('back-to-form-btn');
-
-            // 🚨 START: CODE EDITED (V10 - Fatal Error Fix) 🚨
-            // ย้ายการเรียกใช้ฟังก์ชันไปตาม View ที่ถูกต้อง
-            if (view === 'results') {
+            if (view === 'results' || view === 'analysis') {
                 backBtn.classList.remove('hidden');
-                fetchScoresFromFirebase(true, false); // Fetch (from cache if possible) and render table
-            } else if (view === 'analysis') {
-                backBtn.classList.remove('hidden');
-                renderAnalysis(); // Render analysis based on form data
+                if (view === 'results') {
+                    fetchScoresFromFirebase(true, false); 
+                } else if (view === 'analysis') {
+                    renderAnalysis();
+                }
             } else if (view === 'dashboard') {
                 backBtn.classList.add('hidden');
-                renderFullDashboard(); // Render dashboard
+                renderFullDashboard();
             } else {
                 backBtn.classList.add('hidden');
             }
-            // 🚨 END: CODE EDITED 🚨
         };
 
-        // --- Dashboard Functions (V8 Logic) ---
-
-        // 🚨 START: CODE EDITED (V8 - Rebuilt Dashboard Logic) 🚨
-        
-        // ฟังก์ชันสร้าง Object สำหรับเก็บสถิติ
-        function createStatsObject() {
-            return {
-                respondentIds: new Set(),
-                scoresAll: [],
-                scoresSpecial: [],
-                scoresNormal: [],
-                examTypeDistribution: { specialOnsite: 0, specialOnline: 0, normalOnsite: 0, normalOnline: 0 },
-                byGrade: {
-                    grade4: { respondentIds: new Set(), scoresAll: [], scoresSpecial: [], scoresNormal: [], byTypeSpecial: { 'On-site': [], 'Online': [] }, byTypeNormal: { 'On-site': [], 'Online': [] } },
-                    grade5: { respondentIds: new Set(), scoresAll: [], scoresSpecial: [], scoresNormal: [], byTypeSpecial: { 'On-site': [], 'Online': [] }, byTypeNormal: { 'On-site': [], 'Online': [] } },
-                    grade6: { respondentIds: new Set(), scoresAll: [], scoresSpecial: [], scoresNormal: [], byTypeSpecial: { 'On-site': [], 'Online': [] }, byTypeNormal: { 'On-site': [], 'Online': [] } }
-                }
-            };
-        }
-
-        // ฟังก์ชันหลักในการประมวลผลข้อมูล Dashboard (V8)
-        function processDashboardData(filters) {
-            let stats = createStatsObject();
-
-            allScores.forEach(userEntry => {
-                const userGrade = userEntry.currentGrade;
-                
-                // 1. ตรวจสอบว่า User นี้ควรถูกนับในระดับชั้นหรือไม่ (ตามตัวกรอง)
-                const gradeMatchesFilter = (filters.grade === 'all' || userGrade === filters.grade);
-                
-                // 2. วนลูปการสอบทั้งหมดของ User
-                Object.entries(userEntry.scores || {}).forEach(([examTypeKey, examScore]) => {
-                    
-                    // 3. ตรวจสอบว่าข้อมูลนี้ (เก่า/ใหม่) เป็น Special หรือ Normal
-                    let derivedCurriculum = 'Normal'; // Default
-                    if (examScore.curriculum) {
-                        derivedCurriculum = examScore.curriculum; // ข้อมูลใหม่ (ดีที่สุด)
-                    } else if (examTypeKey.includes('special')) {
-                        derivedCurriculum = 'Special'; // ข้อมูลเก่า (คาดเดา)
-                    }
-
-                    // 4. ตรวจสอบว่าการสอบนี้ตรงกับตัวกรองหลักสูตรหรือไม่
-                    const curriculumMatchesFilter = (filters.curriculum === 'all' || derivedCurriculum === filters.curriculum);
-                    
-                    if (!curriculumMatchesFilter) return; // ข้ามการสอบนี้
-
-                    // 5. ถ้าผ่านตัวกรองทั้งหมด (Curriculum)
-                    const totalScore = examScore.totalScore || 0;
-                    
-                    // เพิ่มข้อมูลลงในสถิติรวม (Overall)
-                    stats.respondentIds.add(userEntry.id);
-                    stats.scoresAll.push(totalScore);
-                    if (stats.examTypeDistribution.hasOwnProperty(examTypeKey)) {
-                        stats.examTypeDistribution[examTypeKey]++;
-                    }
-                    
-                    if (derivedCurriculum === 'Special') {
-                        stats.scoresSpecial.push(totalScore);
-                    } else {
-                        stats.scoresNormal.push(totalScore);
-                    }
-
-                    // 6. เพิ่มข้อมูลลงในสถิติรายระดับชั้น (ถ้า User นี้ตรงกับตัวกรองเกรด)
-                    if (gradeMatchesFilter && stats.byGrade.hasOwnProperty(userGrade)) {
-                        const gradeStats = stats.byGrade[userGrade];
-                        gradeStats.respondentIds.add(userEntry.id);
-                        gradeStats.scoresAll.push(totalScore);
-                        
-                        const examType = examScore.examType || (examTypeKey.includes('Online') ? 'Online' : 'On-site');
-                        
-                        if (derivedCurriculum === 'Special') {
-                            gradeStats.scoresSpecial.push(totalScore);
-                            if (gradeStats.byTypeSpecial.hasOwnProperty(examType)) {
-                                gradeStats.byTypeSpecial[examType].push(totalScore);
-                            }
-                        } else {
-                            gradeStats.scoresNormal.push(totalScore);
-                            if (gradeStats.byTypeNormal.hasOwnProperty(examType)) {
-                                gradeStats.byTypeNormal[examType].push(totalScore);
-                            }
-                        }
-                    }
-                });
-            });
-
-            // 7. คำนวณค่าเฉลี่ย/สูงสุด/ต่ำสุด (เฉพาะข้อมูลที่ตรงกับตัวกรองหลักสูตร)
-            const scoresToCalculate = (filters.curriculum === 'Special') ? stats.scoresSpecial :
-                                      (filters.curriculum === 'Normal') ? stats.scoresNormal :
-                                      stats.scoresAll;
-
-            const totalRespondents = stats.respondentIds.size;
-            const totalAverage = scoresToCalculate.length > 0 ? scoresToCalculate.reduce((a, b) => a + b, 0) / scoresToCalculate.length : 0;
-            const totalMax = scoresToCalculate.length > 0 ? Math.max(...scoresToCalculate) : 0;
-            const totalMin = scoresToCalculate.length > 0 ? Math.min(...scoresToCalculate) : 0;
-
-            return {
-                totalRespondents,
-                totalAverage,
-                totalMax,
-                totalMin,
-                gradeDistribution: {
-                    grade4: stats.byGrade.grade4.respondentIds.size,
-                    grade5: stats.byGrade.grade5.respondentIds.size,
-                    grade6: stats.byGrade.grade6.respondentIds.size
-                },
-                examTypeDistribution: stats.examTypeDistribution,
-                byGrade: stats.byGrade // ส่งข้อมูลรายเกรดที่ประมวลผลแล้ว
-            };
-        }
+        // --- Dashboard Functions ---
 
         // ฟังก์ชันหลักในการแสดงผล Dashboard
         async function renderFullDashboard() {
@@ -1121,7 +1120,7 @@
             try {
                 // 1. Fetch data if not already fetched
                 if (!isDataFetched) {
-                    await fetchScoresFromFirebase(false); // Fetch without rendering table
+                    await fetchScoresFromFirebase(false);
                 }
 
                 // 2. Get filter values
@@ -1130,13 +1129,13 @@
                     grade: document.getElementById('dashboard-filter-grade').value
                 };
 
-                // 3. Process data based on filters
+                // 3. Process data (Filter and Calculate Stats)
                 const stats = processDashboardData(filters);
                 
                 // 4. Update main stat cards
                 updateMainStats(stats);
 
-                // 5. Render charts based on processed stats
+                // 5. Render charts based on calculated stats
                 renderDashboardCharts(stats);
 
             } catch (error) {
@@ -1146,9 +1145,88 @@
                 document.getElementById('dashboard-loading-indicator').classList.add('hidden');
             }
         }
-        // 🚨 END: CODE EDITED (V8 - Rebuilt Dashboard Logic) 🚨
 
+        // ฟังก์ชันสร้าง Object สถิติ
+        function createStatsObject() {
+            return {
+                respondentIds: new Set(),
+                scores: [], // For Min/Max/Avg
+                gradeDistribution: { grade4: 0, grade5: 0, grade6: 0 },
+                examTypeDistribution: { specialOnsite: 0, specialOnline: 0, normalOnsite: 0, normalOnline: 0 },
+                byGrade: {
+                    grade4: { scoresSpecial: [], scoresNormal: [], byTypeSpecial: { 'On-site': [], 'Online': [] }, byTypeNormal: { 'On-site': [], 'Online': [] } },
+                    grade5: { scoresSpecial: [], scoresNormal: [], byTypeSpecial: { 'On-site': [], 'Online': [] }, byTypeNormal: { 'On-site': [], 'Online': [] } },
+                    grade6: { scoresSpecial: [], scoresNormal: [], byTypeSpecial: { 'On-site': [], 'Online': [] }, byTypeNormal: { 'On-site': [], 'Online': [] } }
+                }
+            };
+        }
         
+        // ฟังก์ชันประมวลผลข้อมูล (กรองและคำนวณ)
+        function processDashboardData(filters) {
+            const stats = createStatsObject();
+            
+            allScores.forEach(userEntry => {
+                const userGrade = userEntry.currentGrade;
+                
+                // 1. กรองตามระดับชั้น (User Level)
+                const gradeMatch = (filters.grade === 'all' || userGrade === filters.grade);
+                if (!gradeMatch) return;
+                
+                let userHasMatchingScore = false;
+
+                Object.entries(userEntry.scores || {}).forEach(([examTypeKey, examScore]) => {
+                    // 2. Ableitung des Lehrplans
+                    const curriculum = examScore.curriculum || (examTypeKey.includes('special') ? 'Special' : 'Normal');
+                    
+                    // 3. กรองตามหลักสูตร (Exam Level)
+                    const curriculumMatch = (filters.curriculum === 'all' || curriculum === filters.curriculum);
+                    if (!curriculumMatch) return;
+
+                    // ---- ถ้าผ่านการกรองทั้งหมด ----
+                    userHasMatchingScore = true;
+                    
+                    // A. เพิ่มข้อมูลสำหรับสถิติรวม
+                    stats.scores.push(examScore.totalScore);
+                    if (stats.examTypeDistribution.hasOwnProperty(examTypeKey)) {
+                        stats.examTypeDistribution[examTypeKey]++;
+                    }
+                    
+                    // B. เพิ่มข้อมูลสำหรับสถิติรายระดับชั้น
+                    if (stats.byGrade.hasOwnProperty(userGrade)) {
+                        const gradeData = stats.byGrade[userGrade];
+                        if (curriculum === 'Special') {
+                            gradeData.scoresSpecial.push(examScore.totalScore);
+                            if (gradeData.byTypeSpecial.hasOwnProperty(examScore.examType)) {
+                                gradeData.byTypeSpecial[examScore.examType].push(examScore.totalScore);
+                            }
+                        } else {
+                            gradeData.scoresNormal.push(examScore.totalScore);
+                            if (gradeData.byTypeNormal.hasOwnProperty(examScore.examType)) {
+                                gradeData.byTypeNormal[examScore.examType].push(examScore.totalScore);
+                            }
+                        }
+                    }
+                });
+                
+                // C. นับผู้ตอบ (หาก user นี้มีคะแนนที่ตรงกับการกรอง)
+                if (userHasMatchingScore) {
+                    stats.respondentIds.add(userEntry.id);
+                    if (stats.gradeDistribution.hasOwnProperty(userGrade)) {
+                        stats.gradeDistribution[userGrade]++;
+                    }
+                }
+            });
+
+            // 4. คำนวณสถิติสรุป
+            const scoresArray = stats.scores;
+            stats.totalRespondents = stats.respondentIds.size;
+            stats.totalAverage = scoresArray.length > 0 ? scoresArray.reduce((a, b) => a + b, 0) / scoresArray.length : 0;
+            stats.totalMax = scoresArray.length > 0 ? Math.max(...scoresArray) : 0;
+            stats.totalMin = scoresArray.length > 0 ? Math.min(...scoresArray) : 0;
+
+            return stats;
+        }
+
         // ฟังก์ชันอัพเดทสถิติหลัก
         function updateMainStats(stats) {
             document.getElementById('total-respondents').textContent = stats.totalRespondents;
@@ -1157,14 +1235,24 @@
             document.getElementById('min-score').textContent = stats.totalMin.toFixed(2);
         }
 
-        // 🚨 START: CODE EDITED (V7 Render Fix) 🚨
-        // ฟังก์ชันแสดงกราฟใน Dashboard (V7 - แก้ไขการ Render)
+        // ฟังก์ชันแสดงกราฟใน Dashboard
         function renderDashboardCharts(stats) {
             const container = document.getElementById('dashboard-charts-container');
+            container.innerHTML = ''; // Clear previous charts
             
+            if (stats.totalRespondents === 0) {
+                 container.innerHTML = `
+                    <div class="text-center py-6 sm:py-8 text-gray-500">
+                        <i class="fas fa-info-circle text-3xl sm:text-4xl mb-4 text-gray-400"></i>
+                        <p class="text-base sm:text-lg">ไม่พบข้อมูลตามตัวกรองที่เลือก</p>
+                    </div>
+                `;
+                return;
+            }
+
             // 1. สร้างโครง HTML ทั้งหมดก่อน
             container.innerHTML = `
-                <!-- ส่วนที่ 1: การกระจายตัว (ที่กรองแล้ว) -->
+                <!-- ส่วนที่ 1: การกระจายตัว -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                     <div class="chart-card">
                         <h3 class="chart-title">การกระจายตามระดับชั้น (ผู้ตอบ)</h3>
@@ -1181,7 +1269,7 @@
                     </div>
                 </div>
                 
-                <!-- ส่วนที่ 2: สถิติคะแนน (ที่กรองแล้ว) -->
+                <!-- ส่วนที่ 2: สถิติคะแนนรวม (ที่กรองแล้ว) -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                     <div class="chart-card">
                         <h3 class="chart-title">สถิติพื้นฐานคะแนน (ที่กรองแล้ว)</h3>
@@ -1199,59 +1287,32 @@
                 </div>
 
                 <!-- ส่วนที่ 3: ผลคะแนนรายระดับชั้น -->
-                <div class="chart-card mb-6">
-                    <h3 class="chart-title">ผลคะแนนรายระดับชั้น (ป.4 - ป.6)</h3>
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div>
-                            <h4 class="text-sm font-semibold text-center mb-2">แนวโน้มคะแนนเฉลี่ย (ป.4 → ป.6)</h4>
-                            <div class="chart-container-improved" style="height: 250px;">
-                                <canvas id="grade-trend-chart"></canvas>
-                            </div>
-                        </div>
-                        <div>
-                            <h4 class="text-sm font-semibold text-center mb-2">เปรียบเทียบรูปแบบสอบ (On-site vs Online)</h4>
-                            <div class="chart-container-improved" style="height: 250px;">
-                                <canvas id="exam-type-comparison-chart"></canvas>
-                            </div>
-                        </div>
+                <div class="chart-card">
+                    <h3 class="chart-title">ผลคะแนนรายระดับชั้น (ที่กรองแล้ว)</h3>
+                    <div id="grade-level-charts-container" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- กราฟรายระดับชั้นจะถูกวาดที่นี่ -->
                     </div>
                 </div>
             `;
 
-            // 2. ดึงข้อมูลคะแนน (ที่กรองแล้ว) สำหรับกราฟ Histogram
-            const filters = {
-                curriculum: document.getElementById('dashboard-filter-curriculum').value,
-                grade: document.getElementById('dashboard-filter-grade').value
-            };
-            
-            // (ใช้ตรรกะ V8 เพื่อดึงข้อมูลที่กรองแล้ว)
-            let filteredScores = [];
-            if (filters.curriculum === 'all') {
-                filteredScores = stats.byGrade.grade4.scoresAll
-                                    .concat(stats.byGrade.grade5.scoresAll)
-                                    .concat(stats.byGrade.grade6.scoresAll);
-            } else if (filters.curriculum === 'Special') {
-                filteredScores = stats.byGrade.grade4.scoresSpecial
-                                    .concat(stats.byGrade.grade5.scoresSpecial)
-                                    .concat(stats.byGrade.grade6.scoresSpecial);
-            } else { // Normal
-                filteredScores = stats.byGrade.grade4.scoresNormal
-                                    .concat(stats.byGrade.grade5.scoresNormal)
-                                    .concat(stats.byGrade.grade6.scoresNormal);
-            }
-            
-            // 3. เรียกวาดกราฟทั้งหมด
-            createDashboardGradeChart(stats.gradeDistribution);
-            createDashboardExamTypeChart(stats.examTypeDistribution);
-            createBasicStatsChart(stats);
-            createScoreDistributionChart(filteredScores); // ส่งข้อมูลที่กรองแล้ว
-            
-            // 🚨 START: CODE EDITED (V8 - Added call) 🚨
-            populateByGradeLevel(stats.byGrade); // วาดกราฟส่วนที่ 3
-            // 🚨 END: CODE EDITED 🚨
-        }
-        // 🚨 END: CODE EDITED (V7 Render Fix) 🚨
+            // 2. วาดกราฟลงบน <canvas> ที่เตรียมไว้
+            try {
+                // ส่วนที่ 1
+                createDashboardGradeChart(stats.gradeDistribution);
+                createDashboardExamTypeChart(stats.examTypeDistribution);
+                
+                // ส่วนที่ 2
+                createBasicStatsChart(stats);
+                createScoreDistributionChart(stats.scores);
 
+                // ส่วนที่ 3
+                populateByGradeLevel(stats.byGrade); 
+
+            } catch (chartError) {
+                console.error("Chart rendering error:", chartError);
+                container.innerHTML = `<div class="text-red-500">เกิดข้อผิดพลาดในการวาดกราฟ: ${chartError.message}</div>`;
+            }
+        }
 
         // ฟังก์ชันสร้างกราฟการกระจายตามระดับชั้น
         function createDashboardGradeChart(gradeDistribution) {
@@ -1380,16 +1441,7 @@
                 chartInstances['score-distribution-chart'].destroy();
             }
 
-            if (totalScores.length === 0) {
-                 // แสดงข้อความว่า "ไม่มีข้อมูล" ถ้าไม่มีคะแนน
-                const context = ctx.getContext('2d');
-                context.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-                context.textAlign = 'center';
-                context.fillStyle = '#9ca3af'; // text-gray-400
-                context.font = "16px 'Noto Sans Thai'";
-                context.fillText('ไม่พบข้อมูลตามตัวกรองนี้', ctx.canvas.width / 2, ctx.canvas.height / 2);
-                return;
-            }
+            if (totalScores.length === 0) return;
             
             const maxScore = Math.max(...totalScores);
             const minScore = Math.min(...totalScores);
@@ -1401,7 +1453,7 @@
             let binSize = (maxScore - minScore) / binCount;
             
             // ปรับขนาดช่วงคะแนนให้เหมาะสม
-            if (binSize < 5 && maxScore > 20) {
+            if (binSize < 5) {
                 binSize = 5;
             }
             
@@ -1450,67 +1502,39 @@
             });
         }
 
-        // 🚨 START: CODE EDITED (V6 - Updated Grade Level Charts) 🚨
         // ฟังก์ชันคำนวณค่าเฉลี่ยอย่างปลอดภัย
         function safeAverage(scoresArray) {
             if (scoresArray.length === 0) return 0;
             return scoresArray.reduce((a, b) => a + b, 0) / scoresArray.length;
         }
 
-        // ฟังก์ชันวาดกราฟรายระดับชั้น (อัปเดต V6)
-        function populateByGradeLevel(byGradeStats) {
-            const labels = ['ป.4', 'ป.5', 'ป.6'];
-            
-            // 1. ข้อมูลสำหรับกราฟแนวโน้ม
-            const trendDataSpecial = [
-                safeAverage(byGradeStats.grade4.scoresSpecial),
-                safeAverage(byGradeStats.grade5.scoresSpecial),
-                safeAverage(byGradeStats.grade6.scoresSpecial)
-            ];
-            
-            const trendDataNormal = [
-                safeAverage(byGradeStats.grade4.scoresNormal),
-                safeAverage(byGradeStats.grade5.scoresNormal),
-                safeAverage(byGradeStats.grade6.scoresNormal)
-            ];
-            
-            // 2. ข้อมูลสำหรับกราฟเปรียบเทียบประเภท
-            const comparisonData = {
-                specialOnsite: [
-                    safeAverage(byGradeStats.grade4.byTypeSpecial['On-site']),
-                    safeAverage(byGradeStats.grade5.byTypeSpecial['On-site']),
-                    safeAverage(byGradeStats.grade6.byTypeSpecial['On-site'])
-                ],
-                specialOnline: [
-                    safeAverage(byGradeStats.grade4.byTypeSpecial['Online']),
-                    safeAverage(byGradeStats.grade5.byTypeSpecial['Online']),
-                    safeAverage(byGradeStats.grade6.byTypeSpecial['Online'])
-                ],
-                normalOnsite: [
-                    safeAverage(byGradeStats.grade4.byTypeNormal['On-site']),
-                    safeAverage(byGradeStats.grade5.byTypeNormal['On-site']),
-                    safeAverage(byGradeStats.grade6.byTypeNormal['On-site'])
-                ],
-                normalOnline: [
-                    safeAverage(byGradeStats.grade4.byTypeNormal['Online']),
-                    safeAverage(byGradeStats.grade5.byTypeNormal['Online']),
-                    safeAverage(byGradeStats.grade6.byTypeNormal['Online'])
-                ]
-            };
-
-            // สร้างกราฟแนวโน้ม
-            const trendCtx = document.getElementById('grade-trend-chart').getContext('2d');
-            if (chartInstances['grade-trend-chart']) {
-                chartInstances['grade-trend-chart'].destroy();
+        // ฟังก์ชันวาดกราฟแนวโน้มคะแนนเฉลี่ย (ป.4 -> ป.6)
+        function createTrendChart(containerId, gradeData) {
+            const ctx = document.getElementById(containerId).getContext('2d');
+            if (chartInstances[containerId]) {
+                chartInstances[containerId].destroy();
             }
-            chartInstances['grade-trend-chart'] = new Chart(trendCtx, {
+
+            // คำนวณค่าเฉลี่ยสำหรับแต่ละเส้น
+            const avgSpecial = [
+                safeAverage(gradeData.grade4.scoresSpecial),
+                safeAverage(gradeData.grade5.scoresSpecial),
+                safeAverage(gradeData.grade6.scoresSpecial)
+            ];
+            const avgNormal = [
+                safeAverage(gradeData.grade4.scoresNormal),
+                safeAverage(gradeData.grade5.scoresNormal),
+                safeAverage(gradeData.grade6.scoresNormal)
+            ];
+
+            chartInstances[containerId] = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: labels,
+                    labels: ['ป.4', 'ป.5', 'ป.6'],
                     datasets: [
                         {
                             label: 'ห้องเรียนพิเศษ',
-                            data: trendDataSpecial,
+                            data: avgSpecial,
                             borderColor: 'rgba(75, 192, 192, 1)',
                             backgroundColor: 'rgba(75, 192, 192, 0.2)',
                             fill: false,
@@ -1518,7 +1542,7 @@
                         },
                         {
                             label: 'ห้องเรียนปกติ',
-                            data: trendDataNormal,
+                            data: avgNormal,
                             borderColor: 'rgba(255, 159, 64, 1)',
                             backgroundColor: 'rgba(255, 159, 64, 0.2)',
                             fill: false,
@@ -1529,55 +1553,102 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: true, position: 'bottom', labels: { boxWidth: 12, padding: 10 } } },
-                    scales: { y: { beginAtZero: true, title: { display: true, text: 'คะแนนเฉลี่ย' } } }
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'คะแนนเฉลี่ย' } }
+                    }
                 }
             });
-
-            // สร้างกราฟเปรียบเทียบประเภท
-            const compCtx = document.getElementById('exam-type-comparison-chart').getContext('2d');
-            if (chartInstances['exam-type-comparison-chart']) {
-                chartInstances['exam-type-comparison-chart'].destroy();
+        }
+        
+        // ฟังก์ชันวาดกราฟเปรียบเทียบรูปแบบสอบ (On-site vs Online)
+        function createExamTypeComparisonChart(containerId, gradeData) {
+            const ctx = document.getElementById(containerId).getContext('2d');
+            if (chartInstances[containerId]) {
+                chartInstances[containerId].destroy();
             }
-            chartInstances['exam-type-comparison-chart'] = new Chart(compCtx, {
+
+            // คำนวณค่าเฉลี่ยสำหรับแต่ละแท่ง
+            const avgSpecialOnsite = safeAverage(gradeData.byTypeSpecial['On-site']);
+            const avgSpecialOnline = safeAverage(gradeData.byTypeSpecial['Online']);
+            const avgNormalOnsite = safeAverage(gradeData.byTypeNormal['On-site']);
+            const avgNormalOnline = safeAverage(gradeData.byTypeNormal['Online']);
+            
+            chartInstances[containerId] = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: labels,
+                    labels: ['On-site', 'Online'],
                     datasets: [
                         {
-                            label: 'พิเศษ (On-site)',
-                            data: comparisonData.specialOnsite,
-                            backgroundColor: 'rgba(75, 192, 192, 0.7)'
+                            label: 'พิเศษ',
+                            data: [avgSpecialOnsite, avgSpecialOnline],
+                            backgroundColor: 'rgba(153, 102, 255, 0.7)',
                         },
                         {
-                            label: 'พิเศษ (Online)',
-                            data: comparisonData.specialOnline,
-                            backgroundColor: 'rgba(153, 102, 255, 0.7)'
-                        },
-                        {
-                            label: 'ปกติ (On-site)',
-                            data: comparisonData.normalOnsite,
-                            backgroundColor: 'rgba(255, 159, 64, 0.7)'
-                        },
-                        {
-                            label: 'ปกติ (Online)',
-                            data: comparisonData.normalOnline,
-                            backgroundColor: 'rgba(199, 199, 199, 0.7)'
+                            label: 'ปกติ',
+                            data: [avgNormalOnsite, avgNormalOnline],
+                            backgroundColor: 'rgba(255, 99, 132, 0.7)',
                         }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: true, position: 'bottom', labels: { boxWidth: 12, padding: 10 } } },
-                    scales: { 
-                        y: { beginAtZero: true, title: { display: true, text: 'คะแนนเฉลี่ย' } },
-                        x: { ticks: { font: { size: 10 } } }
-                    }
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'คะแนนเฉลี่ย' } }
+                    },
+                    // Grouped Bar Chart
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
                 }
             });
         }
-        // 🚨 END: CODE EDITED (V6) 🚨
+        
+        // ฟังก์ชันหลักในการวาดกราฟรายระดับชั้น
+        function populateByGradeLevel(byGradeData) {
+            const container = document.getElementById('grade-level-charts-container');
+            if (!container) return;
+            
+            container.innerHTML = `
+                <!-- กราฟแนวโน้ม -->
+                <div class="chart-card">
+                    <h4 class="chart-title text-base">แนวโน้มคะแนนเฉลี่ย (ป.4 → ป.6)</h4>
+                    <div class="chart-container-improved">
+                        <canvas id="grade-trend-chart"></canvas>
+                    </div>
+                </div>
+                <!-- กราฟ ป.4 -->
+                <div class="chart-card">
+                    <h4 class="chart-title text-base">เปรียบเทียบรูปแบบสอบ (ป.4)</h4>
+                    <div class="chart-container-improved">
+                        <canvas id="grade4-comparison-chart"></canvas>
+                    </div>
+                </div>
+                <!-- กราฟ ป.5 -->
+                <div class="chart-card">
+                    <h4 class="chart-title text-base">เปรียบเทียบรูปแบบสอบ (ป.5)</h4>
+                    <div class="chart-container-improved">
+                        <canvas id="grade5-comparison-chart"></canvas>
+                    </div>
+                </div>
+                <!-- กราฟ ป.6 -->
+                <div class="chart-card">
+                    <h4 class="chart-title text-base">เปรียบเทียบรูปแบบสอบ (ป.6)</h4>
+                    <div class="chart-container-improved">
+                        <canvas id="grade6-comparison-chart"></canvas>
+                    </div>
+                </div>
+            `;
+            
+            // วาดกราฟ
+            createTrendChart('grade-trend-chart', byGradeData);
+            createExamTypeComparisonChart('grade4-comparison-chart', byGradeData.grade4);
+            createExamTypeComparisonChart('grade5-comparison-chart', byGradeData.grade5);
+            createExamTypeComparisonChart('grade6-comparison-chart', byGradeData.grade6);
+        }
 
         // --- End of Dashboard Functions ---
 
@@ -1771,7 +1842,6 @@
 
         // ฟังก์ชันตรวจสอบความสอดคล้องของเป้าหมาย
         window.validateTargetSelection = () => {
-            // ฟังก์ชันนี้สามารถเพิ่มการตรวจสอบเพิ่มเติมได้
             return true;
         };
 
@@ -1820,7 +1890,6 @@
                 // ตรวจสอบคะแนนแต่ละวิชา
                 examTypeData.subjects.forEach(subject => {
                     const scoreInput = document.getElementById(`${examType}-${subject.id}`);
-                    // 🚨 FIX: Allow 0 score 🚨
                     if (scoreInput.value === '' || scoreInput.value < 0 || scoreInput.value > subject.maxScore) {
                         document.getElementById(`${examType}-${subject.id}-error`).classList.remove('hidden');
                         scoreInput.classList.add('error');
@@ -1832,46 +1901,23 @@
                 });
             });
             
-            // ตรวจสอบว่ามีการเลือกเป้าหมายที่สอดคล้องกับประเภทการสอบ
-            const hasSpecial = selectedExamTypes.some(type => type.includes('special'));
-            const hasNormal = selectedExamTypes.some(type => type.includes('normal'));
-            
+            // ตรวจสอบว่ามีการเลือกเป้าหมายการสอบเข้าอย่างน้อย 1 รายการ
             const hasSpecialTarget = document.getElementById('target-special-ep').checked || 
-                                   document.getElementById('target-special-smte').checked || 
-                                   document.getElementById('target-special-gm').checked;
+                                  document.getElementById('target-special-smte').checked || 
+                                  document.getElementById('target-special-gm').checked;
             
             const hasNormalTarget = document.getElementById('target-normal-in').checked || 
-                                   document.getElementById('target-normal-out').checked;
+                                  document.getElementById('target-normal-out').checked;
             
-            // 🚨 FIX: Allow no target selection 🚨 (V9 logic was too strict)
-            // If no targets are selected at all, it's ok.
-            // But if they fill special, they must select special, etc.
-            const noTargetsSelected = !hasSpecialTarget && !hasNormalTarget;
-
-            if (noTargetsSelected) {
-                // If they selected no targets, that's fine.
-            } else if (hasSpecial && !hasSpecialTarget) {
-                 // If they filled a special form but only selected a normal target
-                 if(hasNormal && hasNormalTarget) {
-                    // This is OK (they filled both, selected normal)
-                 } else {
-                    showMessage('คุณกรอกคะแนนห้องพิเศษ แต่ยังไม่ได้เลือกเป้าหมายห้องพิเศษค่ะ', 'error');
-                    isValid = false;
-                 }
-            } else if (hasNormal && !hasNormalTarget) {
-                 // If they filled a normal form but only selected a special target
-                 if(hasSpecial && hasSpecialTarget) {
-                    // This is OK (they filled both, selected special)
-                 } else {
-                    showMessage('คุณกรอกคะแนนห้องปกติ แต่ยังไม่ได้เลือกเป้าหมายห้องปกติค่ะ', 'error');
-                    isValid = false;
-                 }
+            if (!hasSpecialTarget && !hasNormalTarget) {
+                showMessage('กรุณาเลือกเป้าหมายการสอบเข้าอย่างน้อย 1 รายการ', 'error');
+                isValid = false;
             }
             
             return isValid;
         }
 
-        // ฟังก์ชันส่งข้อมูลแบบฟอร์ม
+        // ฟังก์ชันส่งข้อมูลแบบฟอร์ม - แก้ไขแล้ว (เปลี่ยนไปหน้า analysis อัตโนมัติ)
         window.validateAndSubmitForm = async function() {
             if (!validateForm()) {
                 showMessage('กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง', 'error');
@@ -1932,12 +1978,12 @@
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
-                // แสดงข้อความสำเร็จ
-                document.getElementById('form-section').classList.add('hidden');
-                document.getElementById('success-message').classList.remove('hidden');
+                // ✅ แก้ไข: เปลี่ยนไปหน้า analysis โดยอัตโนมัติทันที
+                showMessage('บันทึกข้อมูลสำเร็จ! กำลังเปลี่ยนไปหน้าวิเคราะห์...', 'success');
+                isDataFetched = false;
                 
-                showMessage('บันทึกข้อมูลสำเร็จ!', 'success');
-                isDataFetched = false; // บังคับให้โหลดข้อมูลใหม่
+                // เปลี่ยนไปหน้า analysis
+                switchView('analysis');
                 
             } catch (error) {
                 console.error('Error saving to Firebase:', error);
@@ -2039,30 +2085,25 @@
             }
         };
 
-        // 🚨 START: CODE EDITED (Results Tab Fix V4 + forceFetch V5) 🚨
-        // ฟังก์ชันดึงข้อมูลจาก Firebase (แก้ไขจากครั้งก่อน)
+        // ฟังก์ชันดึงข้อมูลจาก Firebase
         async function fetchScoresFromFirebase(renderTable = true, forceFetch = false) {
-            
-            // Only fetch if data is not already present OR if forced
             if (isDataFetched && renderTable && !forceFetch) {
-                // Data is cached, just re-render the table
                 document.getElementById('data-source-info').innerHTML = 
-                    '<i class="fas fa-cloud mr-2"></i>แสดงข้อมูลจาก Cache (' + allScores.length + ' รายการ)';
+                        '<i class="fas fa-cloud mr-2"></i>แสดงข้อมูลจาก Cache (' + allScores.length + ' รายการ) - อัปเดตล่าสุด: ' + new Date().toLocaleTimeString('th-TH');
                 renderScoresTable();
                 return;
             }
             if (isDataFetched && !renderTable && !forceFetch) {
-                 return; // Data already cached, no need to render
+                 return;
             }
 
-            // Show loading indicators
-            if(renderTable) {
-                document.getElementById('loading-indicator').classList.remove('hidden');
-                document.getElementById('results-table-body').innerHTML = '';
-                showMessage('กำลังโหลดข้อมูลจาก Firebase...', 'info');
-            }
-            
             try {
+                if(renderTable) {
+                    document.getElementById('loading-indicator').classList.remove('hidden');
+                    document.getElementById('results-table-body').innerHTML = '';
+                    showMessage('กำลังโหลดข้อมูลจาก Firebase...', 'info');
+                }
+                
                 const querySnapshot = await db.collection('pretestScores')
                     .orderBy('timestamp', 'desc')
                     .get();
@@ -2076,15 +2117,13 @@
                 });
                 
                 allScores = scores;
-                isDataFetched = true; // Set cache flag
+                isDataFetched = true;
                 
                 if(renderTable) {
                     document.getElementById('data-source-info').innerHTML = 
                         '<i class="fas fa-cloud mr-2"></i>แสดงข้อมูลจาก Firebase (' + allScores.length + ' รายการ) - อัปเดตล่าสุด: ' + new Date().toLocaleTimeString('th-TH');
                     
-                    if (forceFetch) {
-                         showMessage('โหลดข้อมูลใหม่จาก Firebase สำเร็จ! (' + allScores.length + ' รายการ)', 'success');
-                    }
+                    showMessage('โหลดข้อมูลจาก Firebase สำเร็จ! (' + allScores.length + ' รายการ)', 'success');
                     renderScoresTable();
                 }
                 
@@ -2103,7 +2142,7 @@
             }
         }
 
-        // ฟังก์ชันแสดงตารางผลลัพธ์ (อัปเดตตรรกะ V4)
+        // ฟังก์ชันแสดงตารางผลลัพธ์
         function renderScoresTable() {
             const tableBody = document.getElementById('results-table-body');
             
@@ -2119,34 +2158,24 @@
             const gradeFilter = document.getElementById('results-filter-grade').value;
             const examTypeFilter = document.getElementById('results-filter-exam-type').value;
             
-            // 1. สร้าง list ของข้อสอบทั้งหมดก่อน (V4 logic)
+            // 1. สร้าง list ของข้อสอบทั้งหมดก่อน
             let allExamScores = [];
-            allScores.forEach(score => { // score is a user document
+            allScores.forEach(score => {
                 
-                // 🚨 V4 FIX: ใช้ Object.entries เพื่ออ่าน Key (สำหรับข้อมูลเก่า) 🚨
-                Object.entries(score.scores || {}).forEach(([examTypeKey, examScore]) => { 
+                Object.entries(score.scores || {}).forEach(([examTypeKey, examScore]) => {
                     
-                    // 2. คาดเดา Curriculum (สำหรับข้อมูลเก่า)
-                    let derivedCurriculum = 'Normal'; // Default
-                    if (examScore.curriculum) {
-                        derivedCurriculum = examScore.curriculum; // ข้อมูลใหม่ (ดีที่สุด)
-                    } else if (examTypeKey.includes('special')) {
-                        derivedCurriculum = 'Special'; // ข้อมูลเก่า (คาดเดา)
-                    }
-
-                    // ตรวจสอบว่ามีข้อมูลคะแนนหรือไม่ (ป้องกัน Error)
                     const scoresData = examScore.scores || {};
 
+                    const curriculum = examScore.curriculum || (examTypeKey.includes('special') ? 'Special' : 'Normal');
+                    const examType = examScore.examType || (examTypeKey.includes('Online') ? 'Online' : 'On-site');
+
                     allExamScores.push({
-                        // Copy user-level data
                         nickname: score.nickname,
                         currentGrade: score.currentGrade,
-                        // Copy exam-level data
-                        examType: examScore.examType,
-                        curriculum: derivedCurriculum, // 🚨 ใช้ค่าที่คาดเดา
+                        examType: examType,
+                        curriculum: curriculum,
                         rank: examScore.rank,
                         totalScore: examScore.totalScore,
-                        // Copy individual scores
                         scores: {
                             math: scoresData.math || 0,
                             science: scoresData.science || 0,
@@ -2158,7 +2187,7 @@
                 });
             });
 
-            // 3. กรอง List ที่สร้างขึ้น
+            // 2. กรอง List ที่สร้างขึ้น
             const filteredExamScores = allExamScores.filter(exam => {
                 const gradeMatch = (gradeFilter === 'all') || (exam.currentGrade === gradeFilter);
                 const curriculumMatch = (curriculumFilter === 'all') || (exam.curriculum === curriculumFilter);
@@ -2170,20 +2199,16 @@
             
             // เรียงลำดับตามอันดับที่สอบได้ (น้อยไปมาก) และหากอันดับเท่ากันให้เรียงตามคะแนนรวม (มากไปน้อย)
             filteredExamScores.sort((a, b) => {
-                // 🚨 FIX: Handle missing rank (e.g., Infinity)
-                const rankA = a.rank || Infinity;
-                const rankB = b.rank || Infinity;
-
-                if (rankA !== rankB) {
-                    return rankA - rankB; // เรียงตามอันดับจากน้อยไปมาก
+                if (a.rank !== b.rank) {
+                    return a.rank - b.rank;
                 } else {
-                    return b.totalScore - a.totalScore; // หากอันดับเท่ากัน เรียงตามคะแนนรวมจากมากไปน้อย
+                    return b.totalScore - a.totalScore;
                 }
             });
             
             let rows = '';
 
-            // 4. แสดงผลตารางจาก List ที่กรองแล้ว
+            // 3. แสดงผลตารางจาก List ที่กรองแล้ว
             if (filteredExamScores.length === 0) {
                  tableBody.innerHTML = '<tr><td colspan="10" class="text-center py-6 text-gray-500">ไม่พบข้อมูลตามตัวกรองที่เลือก</td></tr>';
                  return;
@@ -2194,7 +2219,7 @@
                 
                 rows += `
                     <tr class="bg-white border-b hover:bg-gray-50">
-                        <td class="py-2 px-2 sm:py-3 sm:px-4 font-bold text-gray-900">${examScore.rank || '?'}</td>
+                        <td class="py-2 px-2 sm:py-3 sm:px-4 font-bold text-gray-900">${examScore.rank}</td>
                         <td class="py-2 px-2 sm:py-3 sm:px-4">${examScore.nickname}</td>
                         <td class="py-2 px-2 sm:py-3 sm:px-4">${gradeText}</td>
                         <td class="py-2 px-2 sm:py-3 sm:px-4">
@@ -2214,7 +2239,6 @@
             
             tableBody.innerHTML = rows;
         }
-        // 🚨 END: CODE EDITED (Results Tab Fix V4) 🚨
 
         // ฟังก์ชันแปลงรหัสระดับชั้นเป็นข้อความ
         function getGradeText(gradeCode) {
@@ -2226,210 +2250,260 @@
             return gradeMap[gradeCode] || gradeCode;
         }
 
-        // --- Analysis Functions (V9/V10 Logic) ---
-
-        // 🚨 START: CODE EDITED (V10 - Fatal Error Fix) 🚨
-
-        // ฟังก์ชันดึงคะแนนจากฟอร์ม
-        function getScoresFromForm(examType) {
-            const examTypeData = getExamTypeData(examType);
-            const scores = {};
-            let totalScore = 0;
-
-            examTypeData.subjects.forEach(subject => {
-                const scoreValue = parseFloat(document.getElementById(`${examType}-${subject.id}`).value) || 0;
-                scores[subject.id] = scoreValue;
-                totalScore += scoreValue;
-            });
-            scores.totalScore = totalScore;
-            return scores;
-        }
-
-        // ฟังก์ชันแสดงผลการวิเคราะห์ (V10 - ย้ายตรรกะเข้ามา)
+        // --- ANALYSIS FUNCTIONS ---
+        
+        // ฟังก์ชันแสดงผลการวิเคราะห์
         function renderAnalysis() {
             const container = document.getElementById('analysis-results-container');
-            container.innerHTML = ''; // Clear previous results
-
-            // 1. ดึงประเภทการสอบที่ "กรอก"
+            const tabsContainer = document.getElementById('analysis-tabs');
+            container.innerHTML = '';
+            tabsContainer.innerHTML = '';
+            
+            // 1. รวบรวมประเภทการสอบที่กรอก
             const selectedExamTypes = [
                 'specialOnsite', 'normalOnsite', 'specialOnline', 'normalOnline'
             ].filter(type => document.getElementById(`${type}-checkbox`).checked);
 
-            // 2. ดึงเป้าหมายที่ "เลือก"
-            const selectedTargets = {
-                'EP': document.getElementById('target-special-ep').checked,
-                'SMTE': document.getElementById('target-special-smte').checked,
-                'GM': document.getElementById('target-special-gm').checked,
-                'Normal_In': document.getElementById('target-normal-in').checked,
-                'Normal_Out': document.getElementById('target-normal-out').checked,
-            };
-            
-            let analysisHTML = '';
-            
-            // 3. ตรรกะแบบ Exam-centric (ยึดการกรอกเป็นหลัก)
-            selectedExamTypes.forEach(examType => {
-                const isSpecial = examType.includes('special');
-                const isNormal = examType.includes('normal');
-                
-                // ดึงคะแนน Pre-test จากฟอร์ม
-                const preTestScores = getScoresFromForm(examType);
-
-                // 3a. วิเคราะห์เป้าหมายห้องพิเศษ (ถ้ากรอกฟอร์มพิเศษ)
-                if (isSpecial) {
-                    const specialTargets = [
-                        { target: 'EP', checked: selectedTargets['EP'] },
-                        { target: 'SMTE', checked: selectedTargets['SMTE'] },
-                        { target: 'GM', checked: selectedTargets['GM'] }
-                    ];
-
-                    specialTargets.forEach(t => {
-                        if (t.checked) {
-                            // (ตรรกะที่เคยอยู่ใน analyzeSpecialTarget)
-                            const projectedScore = calculateRealExamScore(preTestScores, t.target, examType);
-                            const stats = comparisonData2024[t.target];
-                            // 🚨 V11 FIX: Pass examType
-                            analysisHTML += createAnalysisCard(stats, projectedScore, t.target, preTestScores.totalScore, preTestScores, examType);
-                        }
-                    });
-                }
-                
-                // 3b. วิเคราะห์เป้าหมายห้องปกติ (ถ้ากรอกฟอร์มปกติ)
-                if (isNormal) {
-                    const normalTargets = [
-                        { target: 'Normal_In', checked: selectedTargets['Normal_In'] },
-                        { target: 'Normal_Out', checked: selectedTargets['Normal_Out'] }
-                    ];
-                    
-                     normalTargets.forEach(t => {
-                        if (t.checked) {
-                            // (ตรรกะที่เคยอยู่ใน analyzeNormalTarget)
-                            const preTestScores = getScoresFromForm(examType);
-                            const projectedScore = calculateRealExamScore(preTestScores, t.target, examType);
-                            const stats = comparisonData2024[t.target];
-                            // 🚨 V11 FIX: Pass examType
-                            analysisHTML += createAnalysisCard(stats, projectedScore, t.target, preTestScores.totalScore, preTestScores, examType);
-                        }
-                    });
-                }
-            });
-
-            // 4. แสดงผลลัพธ์
-            if (analysisHTML === '') {
+            if (selectedExamTypes.length === 0) {
                 container.innerHTML = `
                     <div class="text-center py-6 sm:py-8 text-gray-500">
                         <i class="fas fa-info-circle text-3xl sm:text-4xl mb-4 text-gray-400"></i>
                         <p class="text-base sm:text-lg">ยังไม่มีข้อมูลสำหรับการวิเคราะห์</p>
-                        <p class="text-sm mt-2">กรุณากรอกข้อมูลและเลือกเป้าหมายที่สอดคล้องกัน</p>
+                        <p class="text-sm mt-2">กรุณากรอกข้อมูลและเลือกเป้าหมายในหน้า "กรอกข้อมูล" ก่อน</p>
                     </div>
                 `;
-            } else {
-                container.innerHTML = analysisHTML;
+                return;
             }
+
+            // 2. รวบรวมเป้าหมายที่เลือก
+            const selectedTargets = {
+                Special: [],
+                Normal: []
+            };
+            if (document.getElementById('target-special-ep').checked) selectedTargets.Special.push('EP');
+            if (document.getElementById('target-special-smte').checked) selectedTargets.Special.push('SMTE');
+            if (document.getElementById('target-special-gm').checked) selectedTargets.Special.push('GM');
+            if (document.getElementById('target-normal-in').checked) selectedTargets.Normal.push('Normal_In');
+            if (document.getElementById('target-normal-out').checked) selectedTargets.Normal.push('Normal_Out');
+            
+            // 3. สร้างแท็บตามประเภทการสอบที่เลือก
+            let analysisData = {};
+            let hasAnalysisData = false;
+            
+            selectedExamTypes.forEach(examType => {
+                const examTypeData = getExamTypeData(examType);
+                const preTestTotal = parseFloat(document.getElementById(`${examType}-total-score`).textContent) || 0;
+                
+                // ดึงคะแนนดิบจากฟอร์ม
+                const currentScores = {};
+                examTypeData.subjects.forEach(subject => {
+                    currentScores[subject.id] = parseFloat(document.getElementById(`${examType}-${subject.id}`).value) || 0;
+                });
+                
+                // 4. จับคู่การสอบกับเป้าหมายที่ตรงกัน
+                const targetsToAnalyze = (examTypeData.curriculum === 'Special') ? selectedTargets.Special : selectedTargets.Normal;
+                
+                targetsToAnalyze.forEach(target => {
+                    const stats = comparisonData2024[target];
+                    
+                    if (stats) {
+                        // 5. คำนวณคะแนน
+                        const analysisResult = calculateRealExamScore(currentScores, target, examType);
+                        
+                        // เก็บข้อมูลสำหรับแท็บ
+                        const tabKey = `${examTypeData.curriculum}_${examTypeData.examType}_${target}`;
+                        analysisData[tabKey] = {
+                            stats: stats,
+                            projectedScore: analysisResult.projectedScore,
+                            target: target,
+                            preTestTotal: preTestTotal,
+                            currentScores: currentScores,
+                            examType: examType,
+                            projectedSubjects: analysisResult.projectedSubjects,
+                            curriculum: examTypeData.curriculum,
+                            examMode: examTypeData.examType,
+                            title: `${examTypeData.title} - ${stats.title}`
+                        };
+                        
+                        hasAnalysisData = true;
+                    }
+                });
+            });
+
+            if (!hasAnalysisData) {
+                container.innerHTML = `
+                    <div class="text-center py-6 sm:py-8 text-gray-500">
+                        <i class="fas fa-check-circle text-3xl sm:text-4xl mb-4 text-gray-400"></i>
+                        <p class="text-base sm:text-lg">คุณกรอกข้อมูลเรียบร้อย</p>
+                        <p class="text-sm mt-2">...แต่ยังไม่ได้เลือก "เป้าหมาย" ที่สอดคล้องกับการสอบที่คุณกรอกค่ะ</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // สร้างแท็บ
+            let tabHTML = '';
+            let contentHTML = '';
+            let firstTab = true;
+            
+            Object.keys(analysisData).forEach((key, index) => {
+                const data = analysisData[key];
+                const tabId = `analysis-tab-${index}`;
+                const contentId = `analysis-content-${index}`;
+                
+                tabHTML += `
+                    <button id="${tabId}" class="analysis-tab ${firstTab ? 'active' : ''}" onclick="switchAnalysisTab('${tabId}', '${contentId}')">
+                        ${data.title}
+                    </button>
+                `;
+                
+                contentHTML += `
+                    <div id="${contentId}" class="analysis-tab-content ${firstTab ? 'active' : ''}">
+                        ${createAnalysisCard(
+                            data.stats, 
+                            data.projectedScore, 
+                            data.target, 
+                            data.preTestTotal, 
+                            data.currentScores, 
+                            data.examType,
+                            data.projectedSubjects
+                        )}
+                    </div>
+                `;
+                
+                firstTab = false;
+            });
+            
+            tabsContainer.innerHTML = tabHTML;
+            container.innerHTML = contentHTML;
         }
-        
-        // ฟังก์ชันคำนวณคะแนนสอบจริง (V9 - รับ examType เพิ่ม)
+
+        // ฟังก์ชันสลับแท็บวิเคราะห์
+        window.switchAnalysisTab = (tabId, contentId) => {
+            document.querySelectorAll('.analysis-tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.analysis-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabId).classList.add('active');
+            document.getElementById(contentId).classList.add('active');
+        };
+
+        // ฟังก์ชันคำนวณคะแนนสอบจริง
         function calculateRealExamScore(preTestScores, targetCurriculum, examType) {
             let projectedScore = 0;
-            const isSpecialForm = examType.includes('special'); // (เต็ม 50/30/30)
-            const isNormalForm = examType.includes('normal'); // (เต็ม 30/30/30/30/30)
+            let projectedSubjects = {};
             
-            // ดึงคะแนนดิบ
-            const math = preTestScores.math || 0;
-            const science = preTestScores.science || 0;
-            const english = preTestScores.english || 0;
-            const thai = preTestScores.thai || 0;
-            const social = preTestScores.social || 0;
-
+            const isSpecialForm = examType.includes('special');
+            
+            const mathPre = preTestScores.math || 0;
+            const sciPre = preTestScores.science || 0;
+            const engPre = preTestScores.english || 0;
+            const thaiPre = preTestScores.thai || 0;
+            const socialPre = preTestScores.social || 0;
+            
+            const mathMax = isSpecialForm ? 50 : 30;
+            const sciMax = 30;
+            const engMax = 30;
+            const thaiMax = 30;
+            const socialMax = 30;
+            
             switch (targetCurriculum) {
-                case 'EP': // (50ค, 50ว, 80อ, 20สัม)
-                    if (!isSpecialForm) return 0; // คำนวณไม่ได้ถ้าไม่กรอกฟอร์มพิเศษ
-                    projectedScore = (math / 50 * 50) + // คณิต 50 -> 50
-                                     (science / 30 * 50) + // วิทย์ 30 -> 50
-                                     (english / 30 * 80) + // อังกฤษ 30 -> 80
-                                     20; // สัมภาษณ์
+                case 'EP':
+                    projectedSubjects.math = (mathPre / mathMax) * 50;
+                    projectedSubjects.science = (sciPre / sciMax) * 50;
+                    projectedSubjects.english = (engPre / engMax) * 80;
+                    projectedSubjects.interview = 20;
+                    
+                    projectedScore = projectedSubjects.math + projectedSubjects.science + projectedSubjects.english + projectedSubjects.interview;
                     break;
-                case 'GM': // (50ค, 50ว, 10อ)
-                    if (!isSpecialForm) return 0;
-                    projectedScore = (math / 50 * 50) + 
-                                     (science / 30 * 50) + 
-                                     (english / 30 * 10);
+                case 'GM':
+                    projectedSubjects.math = (mathPre / mathMax) * 50;
+                    projectedSubjects.science = (sciPre / sciMax) * 50;
+                    projectedSubjects.english = (engPre / engMax) * 10;
+                    
+                    projectedScore = projectedSubjects.math + projectedSubjects.science + projectedSubjects.english;
                     break;
-                case 'SMTE': // (50ค, 50ว)
-                    if (!isSpecialForm) return 0;
-                    projectedScore = (math / 50 * 50) + 
-                                     (science / 30 * 50);
+                case 'SMTE':
+                    projectedSubjects.math = (mathPre / mathMax) * 50;
+                    projectedSubjects.science = (sciPre / sciMax) * 50;
+                    
+                    projectedScore = projectedSubjects.math + projectedSubjects.science;
                     break;
                 case 'Normal_In':
-                case 'Normal_Out': // (20ค, 20ว, 20อ, 20ท, 20ส)
-                    if (!isNormalForm) return 0; // คำนวณไม่ได้ถ้าไม่กรอกฟอร์มปกติ
-                    projectedScore = (math / 30 * 20) + 
-                                     (science / 30 * 20) + 
-                                     (english / 30 * 20) + 
-                                     (thai / 30 * 20) + 
-                                     (social / 30 * 20);
+                case 'Normal_Out':
+                    projectedSubjects.math = (mathPre / mathMax) * 20;
+                    projectedSubjects.science = (sciPre / sciMax) * 20;
+                    projectedSubjects.english = (engPre / engMax) * 20;
+                    projectedSubjects.thai = (thaiPre / thaiMax) * 20;
+                    projectedSubjects.social = (socialPre / socialMax) * 20;
+                    
+                    projectedScore = projectedSubjects.math + projectedSubjects.science + projectedSubjects.english + projectedSubjects.thai + projectedSubjects.social;
                     break;
             }
-            return projectedScore;
+            
+            return { projectedScore, projectedSubjects };
         }
 
         // ฟังก์ชันคำนวณโอกาสสอบติด
         function calculateAdmissionChance(projectedScore, stats) {
             const { chanceThresholds } = stats;
             if (projectedScore >= chanceThresholds.high) {
-                return { level: 'high', text: 'สูงมาก', description: 'มีโอกาสสอบติดสูงมาก ควรเตรียมตัวให้พร้อมสำหรับการสัมภาษณ์' };
+                return { level: 'high', text: 'พร้อมมาก', description: 'ยอดเยี่ยมมากค่ะ! ตอนนี้อยู่ในจุดที่พร้อมมากแล้ว ขอแค่รักษาความมุ่งมั่นไว้ ผลสำเร็จอยู่ไม่ไกลแน่นอนนะคะ' };
             } else if (projectedScore >= chanceThresholds.medium) {
-                return { level: 'medium', text: 'ปานกลาง', description: 'มีโอกาสสอบติดในระดับปานกลาง ควรฝึกทำข้อสอบเพิ่มเติม' };
+                return { level: 'medium', text: 'มีลุ้น', description: 'มีโอกาสดีค่ะ! ควรรักษาความตั้งใจและเสริมจุดแข็งอีกเล็กน้อย เพื่อให้ผลออกมาดีที่สุดนะคะ' };
             } else {
-                return { level: 'low', text: 'ต่ำ', description: 'ควรฝึกฝนและเตรียมตัวเพิ่มเติมเพื่อเพิ่มโอกาสในการสอบติด' };
+                return { level: 'low', text: 'ท้าทาย', description: 'มาพยายามด้วยกันอีกนิดนะคะ ถ้าฝึกฝนอย่างสม่ำเสมอ เพิ่มเวลาเตรียมตัวอีกนิด ความสำเร็จอยู่ไม่ไกลแน่นอนค่ะ 🌱' };
             }
         }
 
-        // ฟังก์ชันวิเคราะห์จุดแข็งจุดอ่อน (V9 - รับ examType เพิ่ม)
+        // ฟังก์ชันวิเคราะห์จุดแข็ง/จุดที่ควรเสริม
         function analyzeStrengthsWeaknesses(preTestScores, targetCurriculum, examType) {
             const strengths = [];
             const weaknesses = [];
             const improvements = [];
             
             const isSpecialForm = examType.includes('special');
-            const isNormalForm = examType.includes('normal');
             
-            // วิเคราะห์ตามหลักสูตร
-            if (isSpecialForm && (targetCurriculum === 'EP' || targetCurriculum === 'GM' || targetCurriculum === 'SMTE')) {
-                // วิเคราะห์ห้องเรียนพิเศษ (50/30/30)
-                if (preTestScores.math >= 40) strengths.push('คณิตศาสตร์'); // 80%
-                else if (preTestScores.math <= 25) { // 50%
+            if (targetCurriculum === 'EP' || targetCurriculum === 'GM' || targetCurriculum === 'SMTE') {
+                if (preTestScores.math >= (isSpecialForm ? 40 : 25)) {
+                    strengths.push('คณิตศาสตร์');
+                } else if (preTestScores.math <= (isSpecialForm ? 25 : 15)) {
                     weaknesses.push('คณิตศาสตร์');
                     improvements.push('ฝึกทำโจทย์คณิตศาสตร์ที่ซับซ้อนมากขึ้น');
                 }
                 
-                if (preTestScores.science >= 24) strengths.push('วิทยาศาสตร์'); // 80%
-                else if (preTestScores.science <= 15) { // 50%
+                if (preTestScores.science >= 20) {
+                    strengths.push('วิทยาศาสตร์');
+                } else if (preTestScores.science <= 12) {
                     weaknesses.push('วิทยาศาสตร์');
                     improvements.push('ทบทวนเนื้อหาวิทยาศาสตร์และฝึกทำข้อสอบวิเคราะห์');
                 }
                 
-                if (preTestScores.english >= 24) strengths.push('ภาษาอังกฤษ'); // 80%
-                else if (preTestScores.english <= 15) { // 50%
+                if (preTestScores.english >= 20) {
+                    strengths.push('ภาษาอังกฤษ');
+                } else if (preTestScores.english <= 12) {
                     weaknesses.push('ภาษาอังกฤษ');
                     improvements.push('เพิ่มพูนคำศัพท์และฝึกการอ่าน comprehension');
                 }
-            } 
-            else if (isNormalForm && (targetCurriculum === 'Normal_In' || targetCurriculum === 'Normal_Out')) {
-                // วิเคราะห์ห้องเรียนปกติ (All /30)
+            } else {
                 const subjects = [
-                    { name: 'คณิตศาสตร์', score: preTestScores.math, thresholdHigh: 24, thresholdLow: 15 }, // 80% / 50%
-                    { name: 'วิทยาศาสตร์', score: preTestScores.science, thresholdHigh: 24, thresholdLow: 15 },
-                    { name: 'ภาษาอังกฤษ', score: preTestScores.english, thresholdHigh: 24, thresholdLow: 15 },
-                    { name: 'ภาษาไทย', score: preTestScores.thai, thresholdHigh: 24, thresholdLow: 15 },
-                    { name: 'สังคมศึกษา', score: preTestScores.social, thresholdHigh: 24, thresholdLow: 15 }
+                    { name: 'คณิตศาสตร์', score: preTestScores.math, threshold: 20 },
+                    { name: 'วิทยาศาสตร์', score: preTestScores.science, threshold: 20 },
+                    { name: 'ภาษาอังกฤษ', score: preTestScores.english, threshold: 20 },
+                    { name: 'ภาษาไทย', score: preTestScores.thai, threshold: 20 },
+                    { name: 'สังคมศึกษา', score: preTestScores.social, threshold: 20 }
                 ];
                 
                 subjects.forEach(subject => {
-                    if (subject.score >= subject.thresholdHigh) {
+                    if (subject.score >= subject.threshold) {
                         strengths.push(subject.name);
-                    } else if (subject.score <= subject.thresholdLow) {
+                    } else if (subject.score <= 12) {
                         weaknesses.push(subject.name);
-                        improvements.push(`ทบทวนเนื้อหา ${subject.name} และฝึกทำข้อสอบ`);
+                        improvements.push(`ทบทวนเนื้อหา${subject.name}และฝึกทำข้อสอบนะคะ`);
                     }
                 });
             }
@@ -2437,32 +2511,46 @@
             return { strengths, weaknesses, improvements };
         }
 
-        // 🚨 V11 FIX: Added examType as argument
         // ฟังก์ชันสร้างการ์ดแสดงผลการวิเคราะห์
-        function createAnalysisCard(stats, projectedScore, target, preTestTotal, preTestScores, examType) {
-            if (!stats) return ''; // Guard clause if stats are missing
-            
+        function createAnalysisCard(stats, projectedScore, target, preTestTotal, preTestScores, examType, projectedSubjects) {
             const { title, min, avg, max, fullScore } = stats;
-            const scorePercent = Math.min(100, (projectedScore / fullScore * 100));
+            const scorePercent = Math.min(100, (projectedScore / fullScore * 100)).toFixed(2);
             const minPercent = (min / fullScore * 100);
             const avgPercent = (avg / fullScore * 100);
             const maxPercent = (max / fullScore * 100);
             
-            // วิเคราะห์โอกาสสอบติด
             const chance = calculateAdmissionChance(projectedScore, stats);
-            
-            // วิเคราะห์จุดแข็งจุดอ่อน
-            // 🚨 V11 FIX: Pass examType
             const analysis = analyzeStrengthsWeaknesses(preTestScores, target, examType);
+
+            let subjectTableHTML = '<table class="subject-table">';
+            subjectTableHTML += '<thead><tr><th>วิชา</th><th>คะแนน Pre-test</th><th>คะแนนที่เทียบได้</th></tr></thead><tbody>';
             
-            // 🚨 FIX (V10): Ensure scorePercent is not NaN if fullScore is 0
-            const displayScorePercent = isNaN(scorePercent) ? 0 : scorePercent.toFixed(2);
+            if (projectedSubjects.math !== undefined) {
+                subjectTableHTML += `<tr><td>คณิตศาสตร์</td><td class="score-pretest">${preTestScores.math.toFixed(2)}</td><td class="score-projected">${projectedSubjects.math.toFixed(2)}</td></tr>`;
+            }
+            if (projectedSubjects.science !== undefined) {
+                subjectTableHTML += `<tr><td>วิทยาศาสตร์</td><td class="score-pretest">${preTestScores.science.toFixed(2)}</td><td class="score-projected">${projectedSubjects.science.toFixed(2)}</td></tr>`;
+            }
+            if (projectedSubjects.english !== undefined) {
+                subjectTableHTML += `<tr><td>ภาษาอังกฤษ</td><td class="score-pretest">${preTestScores.english.toFixed(2)}</td><td class="score-projected">${projectedSubjects.english.toFixed(2)}</td></tr>`;
+            }
+            if (projectedSubjects.thai !== undefined) {
+                subjectTableHTML += `<tr><td>ภาษาไทย</td><td class="score-pretest">${preTestScores.thai.toFixed(2)}</td><td class="score-projected">${projectedSubjects.thai.toFixed(2)}</td></tr>`;
+            }
+            if (projectedSubjects.social !== undefined) {
+                subjectTableHTML += `<tr><td>สังคมศึกษา</td><td class="score-pretest">${preTestScores.social.toFixed(2)}</td><td class="score-projected">${projectedSubjects.social.toFixed(2)}</td></tr>`;
+            }
+            if (projectedSubjects.interview !== undefined) {
+                subjectTableHTML += `<tr><td>สัมภาษณ์ (สมมติฐาน)</td><td class="score-pretest">-</td><td class="score-projected">${projectedSubjects.interview.toFixed(2)}</td></tr>`;
+            }
+            subjectTableHTML += '</tbody></table>';
+
             
             return `
-                <div class="border rounded-lg p-4 sm:p-6 shadow-md bg-white">
+                <div class="border rounded-lg p-6 shadow-md bg-white">
                     <h3 class="text-xl font-bold text-gray-800 mb-4">${title}</h3>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-2">
                         <div class="text-center p-4 bg-blue-50 rounded-lg">
                             <p class="text-gray-600">คะแนน Pre-test ของคุณ</p>
                             <p class="text-3xl font-extrabold text-blue-600">${preTestTotal.toFixed(2)}</p>
@@ -2473,6 +2561,9 @@
                             <p class="text-sm text-gray-500">จากเต็ม ${fullScore} คะแนน</p>
                         </div>
                     </div>
+                    
+                    <!-- ตารางเปรียบเทียบรายวิชา -->
+                    ${subjectTableHTML}
                     
                     <!-- แสดงโอกาสสอบติด -->
                     <div class="mb-6 p-4 rounded-lg text-center text-white ${chance.level === 'high' ? 'chance-high' : chance.level === 'medium' ? 'chance-medium' : 'chance-low'}">
@@ -2486,29 +2577,31 @@
                         </div>` : ''
                     }
                     
-                    <div class="relative h-8 bg-gray-200 rounded-full mb-4 w-full mt-10">
+                    <!-- กราฟแท่งเปรียบเทียบ -->
+                    <p class="text-sm font-semibold text-gray-700 mb-2">เปรียบเทียบกับสถิติปี 2568</p>
+                    <div class="relative h-8 bg-gray-200 rounded-full mb-4 w-full" style="margin-top: 2.5rem;">
                         <div class="absolute h-full bg-gradient-to-r from-red-400 via-yellow-400 to-green-400 rounded-full" style="width:100%;"></div>
                         
                         <!-- Min marker -->
-                        <div class="absolute top-0 h-full flex items-center" style="left: ${minPercent.toFixed(2)}%;">
+                        <div class="absolute top-0 h-full flex items-center" style="left: ${minPercent}%;">
                             <div class="w-1 h-10 bg-red-600 -translate-x-1/2"></div>
                             <span class="absolute -top-6 -translate-x-1/2 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">ต่ำสุด</span>
                         </div>
                         
                         <!-- Avg marker -->
-                        <div class="absolute top-0 h-full flex items-center" style="left: ${avgPercent.toFixed(2)}%;">
+                        <div class="absolute top-0 h-full flex items-center" style="left: ${avgPercent}%;">
                             <div class="w-1 h-10 bg-yellow-600 -translate-x-1/2"></div>
                             <span class="absolute -top-6 -translate-x-1/2 bg-yellow-600 text-white text-xs font-bold px-2 py-1 rounded">เฉลี่ย</span>
                         </div>
                         
                         <!-- Max marker -->
-                        <div class="absolute top-0 h-full flex items-center" style="left: ${maxPercent.toFixed(2)}%;">
+                        <div class="absolute top-0 h-full flex items-center" style="left: ${maxPercent}%;">
                             <div class="w-1 h-10 bg-green-600 -translate-x-1/2"></div>
                             <span class="absolute -top-6 -translate-x-1/2 bg-green-600 text-white text-xs font-bold px-2 py-1 rounded">สูงสุด</span>
                         </div>
                         
                         <!-- User score marker -->
-                        <div class="absolute top-0 h-full flex items-center" style="left: ${displayScorePercent}%;">
+                        <div class="absolute top-0 h-full flex items-center" style="left: ${scorePercent}%;">
                             <div class="w-1 h-10 bg-indigo-600 -translate-x-1/2"></div>
                             <span class="absolute -top-6 -translate-x-1/2 bg-indigo-600 text-white text-xs font-bold px-2 py-1 rounded">คุณ</span>
                         </div>
@@ -2547,7 +2640,7 @@
                         
                         ${analysis.weaknesses.length > 0 ? `
                             <div class="weakness-item p-4 rounded-lg">
-                                <h5 class="font-bold text-red-700 mb-2">จุดอ่อน</h5>
+                                <h5 class="font-bold text-yellow-700 mb-2">จุดที่ควรเสริม</h5>
                                 <ul class="text-sm space-y-1">
                                     ${analysis.weaknesses.map(weakness => `<li>✗ ${weakness}</li>`).join('')}
                                 </ul>
@@ -2556,7 +2649,7 @@
                         
                         ${analysis.improvements.length > 0 ? `
                             <div class="improvement-item p-4 rounded-lg">
-                                <h5 class="font-bold text-yellow-700 mb-2">ข้อแนะนำ</h5>
+                                <h5 class="font-bold text-blue-700 mb-2">ข้อแนะนำ</h5>
                                 <ul class="text-sm space-y-1">
                                     ${analysis.improvements.map(improvement => `<li>💡 ${improvement}</li>`).join('')}
                                 </ul>
@@ -2566,10 +2659,6 @@
                 </div>
             `;
         }
-
-        // 🚨 END: CODE EDITED (V10) 🚨
-
-        // --- End of Analysis Functions ---
 
         // --- Admin Functions ---
 
@@ -2594,16 +2683,14 @@
             switchView('dashboard');
         };
 
-        // 🚨 START: CODE EDITED (Added forceFetch) 🚨
         // ฟังก์ชันโหลดข้อมูลสำหรับ Admin
-        async function loadAdminData(forceFetch = false) {
+        async function loadAdminData() {
             try {
                 document.getElementById('admin-loading-indicator').classList.remove('hidden');
                 
-                // Force fetch new data for admin
-                await fetchScoresFromFirebase(false, forceFetch); 
+                isDataFetched = false;
+                await fetchScoresFromFirebase(false, true);
                 
-                // อัพเดทข้อมูลสถิติ
                 document.getElementById('admin-total-records').textContent = allScores.length;
                 
                 if (allScores.length > 0) {
@@ -2626,12 +2713,10 @@
                 document.getElementById('admin-loading-indicator').classList.add('hidden');
             }
         }
-        // 🚨 END: CODE EDITED 🚨
-
 
         // ฟังก์ชันรีเฟรชข้อมูล Admin
         window.refreshAdminData = () => {
-            loadAdminData(true); // Force fetch
+            loadAdminData();
         };
 
         // ฟังก์ชันแสดงตารางข้อมูลสำหรับ Admin
@@ -2653,29 +2738,48 @@
                     new Date(score.timestamp.seconds * 1000).toLocaleTimeString('th-TH') : 
                     'ไม่ทราบวันที่';
                 
-                // 🚨 V4 FIX: ใช้ตรรกะคาดเดาสำหรับ Admin ด้วย
-                const examTypes = Object.entries(score.scores || {}).map(([key, s]) => {
-                    let cur = s.curriculum;
-                    if (!cur) cur = key.includes('special') ? 'Special' : 'Normal';
-                    return `${cur} (${s.examType})`;
-                }).join(', ');
+                const examEntries = Object.entries(score.scores || {});
                 
-                const totalScores = Object.values(score.scores || {}).map(s => s.totalScore.toFixed(2)).join(', ');
-                
-                rows += `
-                    <tr class="bg-white border-b hover:bg-gray-50">
-                        <td class="py-3 px-4">${timestamp}</td>
-                        <td class="py-3 px-4">${score.nickname}</td>
-                        <td class="py-3 px-4">${getGradeText(score.currentGrade)}</td>
-                        <td class="py-3 px-4">${examTypes}</td>
-                        <td class="py-3 px-4 text-right">${totalScores}</td>
-                        <td class="py-3 px-4">
-                            <button onclick="deleteRecord('${score.id}')" class="delete-btn">
-                                <i class="fas fa-trash mr-1"></i> ลบ
-                            </button>
-                        </td>
-                    </tr>
-                `;
+                if (examEntries.length === 0) {
+                     rows += `
+                        <tr class="bg-white border-b hover:bg-gray-50">
+                            <td class="py-3 px-4">${timestamp}</td>
+                            <td class="py-3 px-4">${score.nickname}</td>
+                            <td class="py-3 px-4">${getGradeText(score.currentGrade)}</td>
+                            <td class="py-3 px-4 text-red-500">ไม่มีข้อมูลคะแนน</td>
+                            <td class="py-3 px-4 text-right">-</td>
+                            <td class="py-3 px-4">
+                                <button onclick="deleteRecord('${score.id}')" class="delete-btn">
+                                    <i class="fas fa-trash mr-1"></i> ลบ
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                examEntries.forEach(([examTypeKey, examData], index) => {
+                    const curriculum = examData.curriculum || (examTypeKey.includes('special') ? 'Special' : 'Normal');
+                    const examType = examData.examType || (examTypeKey.includes('Online') ? 'Online' : 'On-site');
+                    
+                    rows += `
+                        <tr class="bg-white border-b hover:bg-gray-50 ${index > 0 ? 'border-t-2 border-gray-300' : ''}">
+                            <td class="py-3 px-4">${index === 0 ? timestamp : ''}</td>
+                            <td class="py-3 px-4">${index === 0 ? score.nickname : ''}</td>
+                            <td class="py-3 px-4">${index === 0 ? getGradeText(score.currentGrade) : ''}</td>
+                            <td class="py-3 px-4">${curriculum} (${examType})</td>
+                            <td class="py-3 px-4 text-right">${(examData.totalScore || 0).toFixed(2)}</td>
+                            <td class="py-3 px-4">
+                                ${index === 0 ? 
+                                    `<button onclick="deleteRecord('${score.id}')" class="delete-btn">
+                                        <i class="fas fa-trash mr-1"></i> ลบ
+                                    </button>` : 
+                                    ''
+                                }
+                            </td>
+                        </tr>
+                    `;
+                });
             });
             
             tableBody.innerHTML = rows;
@@ -2683,7 +2787,7 @@
 
         // ฟังก์ชันลบข้อมูล
         window.deleteRecord = async (recordId) => {
-            if (prompt("หากต้องการลบ ให้พิมพ์ 'DELETE' แล้วกด OK") !== 'DELETE') {
+            if (!confirmDelete("หากต้องการลบ ให้พิมพ์ 'DELETE' แล้วกด OK")) {
                  showMessage('ยกเลิกการลบ', 'info');
                  return;
              }
@@ -2691,14 +2795,62 @@
             try {
                 await db.collection('pretestScores').doc(recordId).delete();
                 showMessage('ลบข้อมูลสำเร็จ', 'success');
-                isDataFetched = false; // บังคับโหลดใหม่
-                loadAdminData(true); // โหลดข้อมูลใหม่หลังจากลบ
+                isDataFetched = false;
+                loadAdminData();
             } catch (error) {
                 console.error('Error deleting record:', error);
                 showMessage('ไม่สามารถลบข้อมูลได้: ' + error.message, 'error');
             }
         };
 
+        function confirmDelete(message) {
+            try {
+                return prompt(message) === 'DELETE';
+            } catch (e) {
+                console.warn("prompt() failed, possibly blocked. Defaulting to 'Cancel'.", e);
+                showMessage("การยืนยันถูกบล็อก กรุณาพิมพ์ 'DELETE' ในช่องที่ปรากฏ (หากมี)", "error");
+                return false;
+            }
+        }
+
+        // ฟังก์ชันแสดง Modal ยืนยันการลบข้อมูลทั้งหมด
+        window.showDeleteAllConfirmation = () => {
+            document.getElementById('delete-all-modal').classList.remove('hidden');
+            document.getElementById('delete-all-confirmation').value = '';
+            document.getElementById('delete-all-confirmation').focus();
+        };
+        
+        // ฟังก์ชันปิด Modal ยืนยันการลบข้อมูลทั้งหมด
+        function closeDeleteAllModal() {
+            document.getElementById('delete-all-modal').classList.add('hidden');
+        }
+        
+        // ฟังก์ชันลบข้อมูลทั้งหมด
+        async function deleteAllRecords() {
+            try {
+                showMessage('กำลังลบข้อมูลทั้งหมด...', 'info');
+                
+                const querySnapshot = await db.collection('pretestScores').get();
+                
+                const deletePromises = [];
+                querySnapshot.forEach((doc) => {
+                    deletePromises.push(db.collection('pretestScores').doc(doc.id).delete());
+                });
+                
+                await Promise.all(deletePromises);
+                
+                showMessage(`ลบข้อมูลทั้งหมด ${deletePromises.length} รายการสำเร็จ`, 'success');
+                isDataFetched = false;
+                loadAdminData();
+                
+            } catch (error) {
+                console.error('Error deleting all records:', error);
+                showMessage('ไม่สามารถลบข้อมูลทั้งหมดได้: ' + error.message, 'error');
+            } finally {
+                closeDeleteAllModal();
+            }
+        }
+        
         // ฟังก์ชันส่งออกข้อมูลเป็น Excel
         window.exportToExcel = () => {
             if (allScores.length === 0) {
@@ -2707,17 +2859,14 @@
             }
             
             try {
-                // เตรียมข้อมูลสำหรับ Excel
                 const excelData = [];
                 
-                // เพิ่มหัวข้อตาราง
                 excelData.push([
-                    'วันที่บันทึก', 'ชื่อ', 'ระดับชั้น', 'ประเภทสอบ', 'หลักสูตร', 'รูปแบบสอบ',
+                    'วันที่บันทึก', 'ชื่อ', 'ระดับชั้น', 'ประเภทสอบ (Key)', 'หลักสูตร (Derived)', 'รูปแบบสอบ (Derived)',
                     'อันดับ', 'คะแนนรวม', 'คณิตศาสตร์', 'วิทยาศาสตร์', 
                     'ภาษาอังกฤษ', 'ภาษาไทย', 'สังคมศึกษา', 'เป้าหมายพิเศษ', 'เป้าหมายปกติ', 'ID'
                 ]);
                 
-                // เพิ่มข้อมูล (V4 FIX - ใช้ตรรกะคาดเดา)
                 allScores.forEach(score => {
                     const timestamp = score.timestamp ? 
                         new Date(score.timestamp.seconds * 1000).toISOString() :
@@ -2725,21 +2874,16 @@
                     
                     Object.entries(score.scores || {}).forEach(([examTypeKey, examData]) => {
                         
-                        // 🚨 V4 FIX: คาดเดา Curriculum สำหรับข้อมูลเก่า
-                        let derivedCurriculum = 'Normal';
-                        if (examData.curriculum) {
-                            derivedCurriculum = examData.curriculum;
-                        } else if (examTypeKey.includes('special')) {
-                            derivedCurriculum = 'Special';
-                        }
-                        
+                        const curriculum = examData.curriculum || (examTypeKey.includes('special') ? 'Special' : 'Normal');
+                        const examType = examData.examType || (examTypeKey.includes('Online') ? 'Online' : 'On-site');
+
                         const row = [
                             timestamp,
                             score.nickname,
                             getGradeText(score.currentGrade),
-                            examTypeKey, // e.g., 'specialOnsite'
-                            derivedCurriculum, // 'Special' or 'Normal'
-                            examData.examType, // 'On-site' or 'Online'
+                            examTypeKey,
+                            curriculum,
+                            examType,
                             examData.rank || '',
                             examData.totalScore || '',
                             examData.scores?.math || '',
@@ -2755,22 +2899,18 @@
                     });
                 });
                 
-                // สร้าง Workbook
                 const wb = XLSX.utils.book_new();
                 const ws = XLSX.utils.aoa_to_sheet(excelData);
                 
-                // ตั้งค่าความกว้างคอลัมน์
                 const colWidths = [
-                    { wch: 20 }, { wch: 15 }, { wch: 10 }, { wch: 15 }, { wch: 10 }, { wch: 10 },
+                    { wch: 20 }, { wch: 15 }, { wch: 10 }, { wch: 15 }, { wch: 15 }, { wch: 15 },
                     { wch: 8 }, { wch: 12 }, { wch: 12 }, { wch: 12 },
                     { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 20 }, { wch: 20 }, { wch: 25 }
                 ];
                 ws['!cols'] = colWidths;
                 
-                // เพิ่ม Worksheet ลงใน Workbook
                 XLSX.utils.book_append_sheet(wb, ws, 'คะแนน Pre-test');
                 
-                // ส่งออกไฟล์
                 const fileName = `satriwit-pretest-data-${new Date().toISOString().split('T')[0]}.xlsx`;
                 XLSX.writeFile(wb, fileName);
                 
@@ -2784,9 +2924,25 @@
 
         // ตั้งค่าเริ่มต้นเมื่อโหลดหน้าเว็บ
         document.addEventListener('DOMContentLoaded', function() {
-            // เริ่มต้นด้วยหน้า Dashboard
             switchView('dashboard');
-            testConnection(); // ทดสอบการเชื่อมต่อเมื่อโหลดหน้า
+            testConnection();
+            
+            document.getElementById('confirm-delete-all').addEventListener('click', function() {
+                const confirmationText = document.getElementById('delete-all-confirmation').value;
+                if (confirmationText === 'DELETE ALL') {
+                    deleteAllRecords();
+                } else {
+                    showMessage('กรุณาพิมพ์ "DELETE ALL" ให้ถูกต้อง', 'error');
+                }
+            });
+            
+            document.getElementById('cancel-delete-all').addEventListener('click', closeDeleteAllModal);
+            
+            document.getElementById('delete-all-modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeDeleteAllModal();
+                }
+            });
         });
     </script>
 </body>
