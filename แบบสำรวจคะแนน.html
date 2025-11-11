@@ -472,6 +472,89 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         }
         
+        /* CSS สำหรับการพิมพ์ - ปรับปรุงใหม่ */
+        @media print {
+            .no-print, 
+            .tab-button, 
+            #back-to-form-btn, 
+            #admin-logout-btn,
+            #save-analysis-btn,
+            #print-analysis-btn,
+            .line-opc-section,
+            footer,
+            .analysis-tab,
+            .btn {
+                display: none !important;
+            }
+            
+            body {
+                background: white !important;
+                font-size: 12pt;
+                line-height: 1.4;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            
+            .header-gradient {
+                background: #3b82f6 !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+            }
+            
+            .dashboard-card, .chart-card, .comparison-card {
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+                break-inside: avoid;
+            }
+            
+            .analysis-tab-content.active {
+                display: block !important;
+                page-break-inside: avoid;
+            }
+            
+            .page-break {
+                page-break-before: always;
+            }
+            
+            /* ปรับปรุงตารางสำหรับการพิมพ์ */
+            .subject-table {
+                width: 100%;
+                font-size: 10pt;
+                border: 1px solid #000;
+            }
+            
+            .subject-table th, .subject-table td {
+                border: 1px solid #000;
+                padding: 4px 6px;
+            }
+            
+            /* ปรับปรุงกราฟแท่งสำหรับการพิมพ์ */
+            .chance-high, .chance-medium, .chance-low {
+                -webkit-print-color-adjust: exact;
+            }
+            
+            /* ปรับปรุงสีสำหรับการพิมพ์ */
+            .score-good {
+                color: #16a34a !important;
+                -webkit-print-color-adjust: exact;
+            }
+            
+            .score-average {
+                color: #d97706 !important;
+                -webkit-print-color-adjust: exact;
+            }
+            
+            .score-low {
+                color: #dc2626 !important;
+                -webkit-print-color-adjust: exact;
+            }
+            
+            .strength-item, .weakness-item, .improvement-item {
+                border: 1px solid #000 !important;
+            }
+        }
+        
         @media (min-width: 640px) {
             body {
                 font-size: 16px;
@@ -501,36 +584,6 @@
             
             .dashboard-grid {
                 grid-template-columns: 1fr;
-            }
-        }
-
-        /* CSS สำหรับการพิมพ์ */
-        @media print {
-            .no-print, 
-            .tab-button, 
-            #back-to-form-btn, 
-            #admin-logout-btn,
-            #save-analysis-btn,
-            #print-analysis-btn,
-            .line-opc-section,
-            footer {
-                display: none !important;
-            }
-            
-            body {
-                background: white !important;
-                font-size: 12pt;
-                line-height: 1.4;
-            }
-            
-            .header-gradient {
-                background: #3b82f6 !important;
-                color: white !important;
-            }
-            
-            .dashboard-card, .chart-card, .comparison-card {
-                box-shadow: none !important;
-                border: 1px solid #ddd !important;
             }
         }
     </style>
@@ -2965,9 +3018,9 @@
             }
         };
 
-        // --- ฟังก์ชันสำหรับบันทึกและพิมพ์หน้าการวิเคราะห์ ---
+        // --- ฟังก์ชันสำหรับบันทึกและพิมพ์หน้าการวิเคราะห์ (แก้ไขใหม่) ---
         
-        // ฟังก์ชันบันทึกการวิเคราะห์เป็น PDF
+        // ฟังก์ชันบันทึกการวิเคราะห์เป็น PDF - แก้ไขใหม่
         window.saveAnalysisAsPDF = async function() {
             try {
                 // แสดงสถานะกำลังบันทึก
@@ -2991,9 +3044,9 @@
                 const headerDiv = document.createElement('div');
                 headerDiv.innerHTML = `
                     <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #3b82f6; padding-bottom: 15px;">
-                        <h1 style="color: #3b82f6; margin: 0;">รายงานการวิเคราะห์คะแนน Pre-test</h1>
-                        <h2 style="color: #6b7280; margin: 5px 0;">โรงเรียนสตรีวิทยา ปีการศึกษา 2569</h2>
-                        <p style="color: #9ca3af;">สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', { 
+                        <h1 style="color: #3b82f6; margin: 0; font-size: 24px;">รายงานการวิเคราะห์คะแนน Pre-test</h1>
+                        <h2 style="color: #6b7280; margin: 5px 0; font-size: 18px;">โรงเรียนสตรีวิทยา ปีการศึกษา 2569</h2>
+                        <p style="color: #9ca3af; font-size: 14px;">สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', { 
                             year: 'numeric', 
                             month: 'long', 
                             day: 'numeric',
@@ -3006,9 +3059,9 @@
                 
                 // เพิ่มข้อมูลผู้ใช้
                 const userInfoDiv = document.createElement('div');
-                userInfoDiv.style.cssText = 'background: #f3f4f6; padding: 15px; border-radius: 8px; margin-bottom: 20px;';
+                userInfoDiv.style.cssText = 'background: #f3f4f6; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;';
                 userInfoDiv.innerHTML = `
-                    <h3 style="margin-top: 0; color: #374151;">ข้อมูลผู้วิเคราะห์</h3>
+                    <h3 style="margin-top: 0; color: #374151; font-size: 16px;">ข้อมูลผู้วิเคราะห์</h3>
                     <p><strong>ชื่อ:</strong> ${document.getElementById('nickname').value || 'ไม่ระบุชื่อ'}</p>
                     <p><strong>ระดับชั้น:</strong> ${document.getElementById('current-grade').options[document.getElementById('current-grade').selectedIndex].text || 'ไม่ระบุ'}</p>
                 `;
@@ -3024,12 +3077,18 @@
                 `;
                 contentClone.appendChild(footerDiv);
                 
+                // ปรับแต่งเนื้อหาให้เหมาะสมสำหรับ PDF
+                contentClone.style.cssText = 'width: 210mm; padding: 20px; font-family: "Noto Sans Thai", sans-serif;';
+                
                 // ใช้ html2canvas เพื่อจับภาพหน้าเว็บ
                 const canvas = await html2canvas(contentClone, {
-                    scale: 2, // เพิ่มความละเอียด
+                    scale: 2,
                     useCORS: true,
                     logging: false,
-                    backgroundColor: '#ffffff'
+                    backgroundColor: '#ffffff',
+                    width: 794, // A4 width in pixels at 96 DPI
+                    height: contentClone.scrollHeight * 2,
+                    windowWidth: 794
                 });
                 
                 // สร้าง PDF
@@ -3039,8 +3098,21 @@
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
                 
-                // เพิ่มภาพลงใน PDF
-                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                // ตรวจสอบความสูงของเนื้อหา
+                let heightLeft = pdfHeight;
+                let position = 0;
+                
+                // เพิ่มหน้าแรก
+                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+                heightLeft -= pdf.internal.pageSize.getHeight();
+                
+                // เพิ่มหน้าต่อไปหากเนื้อหายาวเกิน
+                while (heightLeft >= 0) {
+                    position = heightLeft - pdfHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+                    heightLeft -= pdf.internal.pageSize.getHeight();
+                }
                 
                 // บันทึกไฟล์
                 const fileName = `รายงานวิเคราะห์คะแนน-สตรีวิทยา-${new Date().toISOString().slice(0, 10)}.pdf`;
@@ -3058,7 +3130,7 @@
             }
         };
 
-        // ฟังก์ชันพิมพ์หน้าการวิเคราะห์
+        // ฟังก์ชันพิมพ์หน้าการวิเคราะห์ - แก้ไขใหม่
         window.printAnalysis = function() {
             const activeTabContent = document.querySelector('.analysis-tab-content.active');
             if (!activeTabContent) {
@@ -3076,13 +3148,16 @@
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <title>รายงานการวิเคราะห์คะแนน Pre-test สตรีวิทยา</title>
                     <style>
+                        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap');
+                        
                         body {
                             font-family: 'Noto Sans Thai', sans-serif;
                             line-height: 1.6;
                             color: #333;
-                            max-width: 800px;
+                            max-width: 210mm;
                             margin: 0 auto;
                             padding: 20px;
+                            font-size: 12pt;
                         }
                         .print-header {
                             text-align: center;
@@ -3093,27 +3168,54 @@
                         .print-header h1 {
                             color: #3b82f6;
                             margin: 0;
+                            font-size: 24pt;
                         }
                         .print-header h2 {
                             color: #6b7280;
                             margin: 5px 0;
+                            font-size: 18pt;
                         }
                         .user-info {
                             background: #f3f4f6;
                             padding: 15px;
                             border-radius: 8px;
                             margin-bottom: 20px;
+                            font-size: 11pt;
                         }
                         .print-footer {
                             margin-top: 30px;
                             padding-top: 15px;
                             border-top: 1px solid #e5e7eb;
-                            font-size: 12px;
+                            font-size: 10pt;
                             color: #6b7280;
                         }
+                        .analysis-content {
+                            width: 100%;
+                        }
+                        .analysis-content table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 15px 0;
+                            font-size: 10pt;
+                        }
+                        .analysis-content table, .analysis-content th, .analysis-content td {
+                            border: 1px solid #000;
+                        }
+                        .analysis-content th, .analysis-content td {
+                            padding: 8px;
+                            text-align: center;
+                        }
+                        .analysis-content th {
+                            background-color: #f9fafb;
+                        }
                         @media print {
-                            body { padding: 0; }
+                            body { 
+                                padding: 15px; 
+                                margin: 0;
+                                width: 100%;
+                            }
                             .no-print { display: none !important; }
+                            .page-break { page-break-before: always; }
                         }
                     </style>
                 </head>
@@ -3154,6 +3256,22 @@
                             ปิดหน้าต่าง
                         </button>
                     </div>
+                    
+                    <script>
+                        // ปรับขนาดฟอนต์และตารางให้พอดีกับหน้ากระดาษ
+                        window.onload = function() {
+                            const tables = document.querySelectorAll('table');
+                            tables.forEach(table => {
+                                table.style.fontSize = '10pt';
+                            });
+                            
+                            const containers = document.querySelectorAll('.border.rounded-lg');
+                            containers.forEach(container => {
+                                container.style.border = '1px solid #000 !important';
+                                container.style.boxShadow = 'none !important';
+                            });
+                        };
+                    <\/script>
                 </body>
                 </html>
             `);
