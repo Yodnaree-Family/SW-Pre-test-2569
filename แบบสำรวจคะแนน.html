@@ -33,7 +33,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
-        /* Reset และ Base Styles */
+        /* CSS เดิมทั้งหมด */
         * {
             margin: 0;
             padding: 0;
@@ -48,7 +48,6 @@
             position: relative;
         }
         
-        /* Watermark Styles */
         .watermark {
             position: fixed;
             top: 0;
@@ -70,7 +69,6 @@
             white-space: nowrap;
         }
         
-        /* Custom Styles */
         .header-gradient {
             background: linear-gradient(135deg, #2a2a72 0%, #009ffd 100%);
         }
@@ -249,7 +247,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Dashboard Styles */
         .dashboard-card {
             background: white;
             border-radius: 1rem;
@@ -389,7 +386,6 @@
             background: #b91c1c;
         }
 
-        /* CSS สำหรับการวิเคราะห์ */
         .chance-high { background: linear-gradient(to right, #16a34a, #22c55e); }
         .chance-medium { background: linear-gradient(to right, #d97706, #f59e0b); }
         .chance-low { background: linear-gradient(to right, #f97316, #fb923c); }
@@ -427,7 +423,6 @@
             color: #16a34a;
         }
 
-        /* CSS สำหรับแท็บวิเคราะห์ */
         .analysis-tab {
             padding: 0.75rem 1.5rem;
             border-radius: 0.5rem;
@@ -454,7 +449,6 @@
             display: block;
         }
         
-        /* CSS สำหรับปุ่มลบทั้งหมด */
         .btn-delete-all {
             background: linear-gradient(to right, #dc2626, #ef4444);
             color: white;
@@ -495,7 +489,6 @@
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         }
         
-        /* CSS สำหรับการพิมพ์ - ปรับปรุงใหม่ */
         @media print {
             .no-print, 
             .tab-button, 
@@ -541,7 +534,6 @@
                 page-break-before: always;
             }
             
-            /* ปรับปรุงตารางสำหรับการพิมพ์ */
             .subject-table {
                 width: 100%;
                 font-size: 10pt;
@@ -553,12 +545,10 @@
                 padding: 4px 6px;
             }
             
-            /* ปรับปรุงกราฟแท่งสำหรับการพิมพ์ */
             .chance-high, .chance-medium, .chance-low {
                 -webkit-print-color-adjust: exact;
             }
             
-            /* ปรับปรุงสีสำหรับการพิมพ์ */
             .score-good {
                 color: #16a34a !important;
                 -webkit-print-color-adjust: exact;
@@ -578,7 +568,6 @@
                 border: 1px solid #000 !important;
             }
             
-            /* แสดงลายน้ำในการพิมพ์ */
             .print-watermark {
                 position: fixed;
                 top: 0;
@@ -1157,7 +1146,7 @@
         let currentView = 'dashboard';
         let chartInstances = {};
         let isAdminLoggedIn = false;
-        const ADMIN_PASSWORD = "satriwit2025"; // เปลี่ยนรหัสผ่านตามต้องการ
+        const ADMIN_PASSWORD = "satriwit2025";
 
         // ข้อมูลคะแนนสอบจริงปี 2568 สำหรับการเปรียบเทียบ
         const comparisonData2024 = {
@@ -1823,6 +1812,9 @@
             
             // อัพเดทการแสดงผลส่วนเป้าหมาย
             updateTargetVisibility();
+            
+            // บันทึกข้อมูลอัตโนมัติ
+            autoSaveToLocalStorage();
         };
 
         // ฟังก์ชันอัพเดทการแสดงผลส่วนเป้าหมาย
@@ -1862,6 +1854,9 @@
                 normalSection.style.display = 'block';
                 targetDescription.textContent = 'เลือกหลักสูตรที่ต้องการวิเคราะห์เปรียบเทียบกับคะแนนปี 2568';
             }
+            
+            // บันทึกข้อมูลอัตโนมัติ
+            autoSaveToLocalStorage();
         }
 
         // ฟังก์ชันสร้างฟอร์มกรอกคะแนนตามประเภทที่เลือก
@@ -1888,7 +1883,7 @@
                 </div>
                 <div class="mb-4">
                     <label for="${examType}-rank" class="block text-gray-700 font-semibold mb-2">อันดับที่ได้ <span class="text-red-600">*</span></label>
-                    <input type="number" id="${examType}-rank" class="input-field w-full md:w-48" placeholder="กรอกอันดับ" min="1" required>
+                    <input type="number" id="${examType}-rank" class="input-field w-full md:w-48" placeholder="กรอกอันดับ" min="1" required oninput="autoSaveToLocalStorage()">
                     <div id="${examType}-rank-error" class="text-red-600 text-sm mt-1 hidden">
                         <i class="fas fa-exclamation-circle mr-1"></i>กรุณากรอกอันดับที่ได้
                     </div>
@@ -1899,7 +1894,7 @@
                             <label for="${examType}-${subject.id}" class="block text-gray-700 font-semibold mb-2">${subject.name} <span class="text-red-600">*</span></label>
                             <div class="relative">
                                 <input type="number" id="${examType}-${subject.id}" class="input-field w-full pr-16" 
-                                       placeholder="0.00" min="0" max="${subject.maxScore}" step="0.01" required oninput="calculateTotalScore('${examType}')">
+                                       placeholder="0.00" min="0" max="${subject.maxScore}" step="0.01" required oninput="calculateTotalScore('${examType}'); autoSaveToLocalStorage()">
                                 <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500">/${subject.maxScore}</span>
                             </div>
                             <div id="${examType}-${subject.id}-error" class="text-red-600 text-sm mt-1 hidden">
@@ -1925,6 +1920,9 @@
             if (scoreSection) {
                 scoreSection.remove();
             }
+            
+            // บันทึกข้อมูลอัตโนมัติ
+            autoSaveToLocalStorage();
         }
 
         // ฟังก์ชันคำนวณคะแนนรวม
@@ -1995,6 +1993,8 @@
 
         // ฟังก์ชันตรวจสอบความสอดคล้องของเป้าหมาย
         window.validateTargetSelection = () => {
+            // บันทึกข้อมูลอัตโนมัติ
+            autoSaveToLocalStorage();
             return true;
         };
 
@@ -2136,7 +2136,7 @@
                 isDataFetched = false;
                 
                 // บันทึกข้อมูลลง localStorage ด้วย
-                saveToLocalStorage();
+                autoSaveToLocalStorage();
                 
                 // เปลี่ยนไปหน้า analysis
                 switchView('analysis');
@@ -2182,6 +2182,10 @@
             // รีเซ็ตปุ่ม
             document.getElementById('submit-btn').innerHTML = '<i class="fas fa-paper-plane mr-2"></i> ส่งข้อมูลคะแนน';
             document.getElementById('submit-btn').disabled = false;
+            
+            // ลบข้อมูลใน localStorage
+            localStorage.removeItem('satriwitPretestData');
+            localStorage.removeItem('satriwitPretestTimestamp');
         };
 
         // ฟังก์ชันแสดงข้อความ
@@ -3154,7 +3158,7 @@
                 // สร้าง PDF
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF('p', 'mm', 'a4');
-                const imgData = canvas.toDataURL('image/png');
+                const imgData = canvas.toDataURL('image/jpeg', 0.8); // ใช้ JPEG แทน PNG เพื่อลดขนาดไฟล์
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
                 
@@ -3163,14 +3167,14 @@
                 let position = 0;
                 
                 // เพิ่มหน้าแรก
-                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+                pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
                 heightLeft -= pdf.internal.pageSize.getHeight();
                 
                 // เพิ่มหน้าต่อไปหากเนื้อหายาวเกิน
                 while (heightLeft >= 0) {
                     position = heightLeft - pdfHeight;
                     pdf.addPage();
-                    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
+                    pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
                     heightLeft -= pdf.internal.pageSize.getHeight();
                 }
                 
@@ -3367,8 +3371,8 @@
 
         // --- ฟังก์ชันสำหรับ Local Storage ---
         
-        // ฟังก์ชันบันทึกข้อมูลลง Local Storage
-        window.saveToLocalStorage = function() {
+        // ฟังก์ชันบันทึกข้อมูลลง Local Storage อัตโนมัติ
+        window.autoSaveToLocalStorage = function() {
             try {
                 // รวบรวมข้อมูลจากฟอร์ม
                 const formData = {
@@ -3412,14 +3416,22 @@
                 localStorage.setItem('satriwitPretestData', JSON.stringify(formData));
                 localStorage.setItem('satriwitPretestTimestamp', new Date().toISOString());
                 
-                showMessage('บันทึกข้อมูลลงเครื่องสำเร็จ! คุณสามารถโหลดข้อมูลนี้ในภายหลังได้', 'success');
+                // แสดงข้อความแจ้งเตือนแบบไม่รบกวน
+                const lastSaveTime = localStorage.getItem('satriwitLastSaveNotification');
+                const currentTime = new Date().getTime();
+                
+                // แสดงข้อความแจ้งเตือนทุก 30 วินาทีเท่านั้น
+                if (!lastSaveTime || (currentTime - parseInt(lastSaveTime)) > 30000) {
+                    showMessage('บันทึกข้อมูลอัตโนมัติเรียบร้อย', 'success');
+                    localStorage.setItem('satriwitLastSaveNotification', currentTime.toString());
+                }
                 
             } catch (error) {
-                console.error('Error saving to localStorage:', error);
-                showMessage('เกิดข้อผิดพลาดในการบันทึกข้อมูลลงเครื่อง', 'error');
+                console.error('Error auto-saving to localStorage:', error);
+                // ไม่แสดงข้อความ error เพื่อไม่รบกวนผู้ใช้
             }
         };
-        
+
         // ฟังก์ชันโหลดข้อมูลจาก Local Storage
         window.loadFromLocalStorage = function() {
             try {
@@ -3520,6 +3532,20 @@
             switchView('dashboard');
             testConnection();
             createWatermark();
+            
+            // โหลดข้อมูลจาก Local Storage อัตโนมัติเมื่อเปิดหน้าเว็บ
+            loadFromLocalStorage();
+            
+            // เพิ่ม event listeners สำหรับการบันทึกอัตโนมัติ
+            document.getElementById('nickname').addEventListener('input', autoSaveToLocalStorage);
+            document.getElementById('current-grade').addEventListener('change', autoSaveToLocalStorage);
+            
+            // เพิ่ม event listeners สำหรับเป้าหมาย
+            document.getElementById('target-special-ep').addEventListener('change', autoSaveToLocalStorage);
+            document.getElementById('target-special-smte').addEventListener('change', autoSaveToLocalStorage);
+            document.getElementById('target-special-gm').addEventListener('change', autoSaveToLocalStorage);
+            document.getElementById('target-normal-in').addEventListener('change', autoSaveToLocalStorage);
+            document.getElementById('target-normal-out').addEventListener('change', autoSaveToLocalStorage);
             
             document.getElementById('confirm-delete-all').addEventListener('click', function() {
                 const confirmationText = document.getElementById('delete-all-confirmation').value;
