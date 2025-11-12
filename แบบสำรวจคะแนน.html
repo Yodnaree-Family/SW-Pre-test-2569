@@ -3082,270 +3082,540 @@
             }
         };
 
-        // --- ฟังก์ชันสำหรับบันทึกและพิมพ์หน้าการวิเคราะห์ (แก้ไขใหม่) ---
-        
         // ฟังก์ชันบันทึกการวิเคราะห์เป็น PDF - แก้ไขใหม่
-        window.saveAnalysisAsPDF = async function() {
-            try {
-                // แสดงสถานะกำลังบันทึก
-                document.getElementById('save-analysis-btn').innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> กำลังสร้าง PDF...';
-                document.getElementById('save-analysis-btn').disabled = true;
-                
-                // รับแท็บการวิเคราะห์ที่กำลังแสดงอยู่
-                const activeTabContent = document.querySelector('.analysis-tab-content.active');
-                if (!activeTabContent) {
-                    throw new Error('ไม่พบข้อมูลการวิเคราะห์ที่เลือก');
-                }
-                
-                // สร้างสำเนาของเนื้อหาเพื่อป้องกันการเปลี่ยนแปลงขณะบันทึก
-                const contentClone = activeTabContent.cloneNode(true);
-                
-                // ซ่อนปุ่มต่างๆ ในสำเนา
-                const buttons = contentClone.querySelectorAll('button');
-                buttons.forEach(btn => btn.style.display = 'none');
-                
-                // เพิ่มหัวข้อและวันที่
-                const headerDiv = document.createElement('div');
-                headerDiv.innerHTML = `
-                    <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #3b82f6; padding-bottom: 15px;">
-                        <h1 style="color: #3b82f6; margin: 0; font-size: 24px;">รายงานการวิเคราะห์คะแนน Pre-test</h1>
-                        <h2 style="color: #6b7280; margin: 5px 0; font-size: 18px;">โรงเรียนสตรีวิทยา ปีการศึกษา 2569</h2>
-                        <p style="color: #9ca3af; font-size: 14px;">สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', { 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        })}</p>
-                    </div>
-                `;
-                contentClone.insertBefore(headerDiv, contentClone.firstChild);
-                
-                // เพิ่มข้อมูลผู้ใช้
-                const userInfoDiv = document.createElement('div');
-                userInfoDiv.style.cssText = 'background: #f3f4f6; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;';
-                userInfoDiv.innerHTML = `
-                    <h3 style="margin-top: 0; color: #374151; font-size: 16px;">ข้อมูลผู้วิเคราะห์</h3>
-                    <p><strong>ชื่อ:</strong> ${document.getElementById('nickname').value || 'ไม่ระบุชื่อ'}</p>
-                    <p><strong>ระดับชั้น:</strong> ${document.getElementById('current-grade').options[document.getElementById('current-grade').selectedIndex].text || 'ไม่ระบุ'}</p>
-                `;
-                contentClone.insertBefore(userInfoDiv, headerDiv.nextSibling);
-                
-                // เพิ่มหมายเหตุท้ายรายงาน
-                const footerDiv = document.createElement('div');
-                footerDiv.style.cssText = 'margin-top: 30px; padding-top: 15px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #6b7280;';
-                footerDiv.innerHTML = `
-                    <p><strong>หมายเหตุ:</strong> การวิเคราะห์นี้เป็นการประเมินเบื้องต้นจากคะแนน Pre-test เท่านั้น 
-                    และใช้ข้อมูลคะแนนสอบเข้าปี 2568 เป็นเกณฑ์เปรียบเทียบ</p>
-                    <p>รายงานนี้สร้างโดยระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569</p>
-                `;
-                contentClone.appendChild(footerDiv);
-                
-                // ปรับแต่งเนื้อหาให้เหมาะสมสำหรับ PDF
-                contentClone.style.cssText = 'width: 210mm; padding: 20px; font-family: "Noto Sans Thai", sans-serif;';
-                
-                // ใช้ html2canvas เพื่อจับภาพหน้าเว็บ
-                const canvas = await html2canvas(contentClone, {
-                    scale: 2,
-                    useCORS: true,
-                    logging: false,
-                    backgroundColor: '#ffffff',
-                    width: 794, // A4 width in pixels at 96 DPI
-                    height: contentClone.scrollHeight * 2,
-                    windowWidth: 794
-                });
-                
-                // สร้าง PDF
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                const imgData = canvas.toDataURL('image/jpeg', 0.8); // ใช้ JPEG แทน PNG เพื่อลดขนาดไฟล์
-                const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-                
-                // ตรวจสอบความสูงของเนื้อหา
-                let heightLeft = pdfHeight;
-                let position = 0;
-                
-                // เพิ่มหน้าแรก
-                pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
-                heightLeft -= pdf.internal.pageSize.getHeight();
-                
-                // เพิ่มหน้าต่อไปหากเนื้อหายาวเกิน
-                while (heightLeft >= 0) {
-                    position = heightLeft - pdfHeight;
-                    pdf.addPage();
-                    pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, pdfHeight);
-                    heightLeft -= pdf.internal.pageSize.getHeight();
-                }
-                
-                // บันทึกไฟล์
-                const fileName = `รายงานวิเคราะห์คะแนน-สตรีวิทยา-${new Date().toISOString().slice(0, 10)}.pdf`;
-                pdf.save(fileName);
-                
-                showMessage('บันทึกไฟล์ PDF สำเร็จ!', 'success');
-                
-            } catch (error) {
-                console.error('Error generating PDF:', error);
-                showMessage('เกิดข้อผิดพลาดในการสร้าง PDF: ' + error.message, 'error');
-            } finally {
-                // รีเซ็ตปุ่ม
-                document.getElementById('save-analysis-btn').innerHTML = '<i class="fas fa-download mr-2"></i> บันทึกการวิเคราะห์เป็น PDF';
-                document.getElementById('save-analysis-btn').disabled = false;
-            }
-        };
+window.saveAnalysisAsPDF = async function() {
+    try {
+        // แสดงสถานะกำลังบันทึก
+        document.getElementById('save-analysis-btn').innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> กำลังสร้าง PDF...';
+        document.getElementById('save-analysis-btn').disabled = true;
 
-        // ฟังก์ชันพิมพ์หน้าการวิเคราะห์ - แก้ไขใหม่
-        window.printAnalysis = function() {
-            const activeTabContent = document.querySelector('.analysis-tab-content.active');
-            if (!activeTabContent) {
-                showMessage('ไม่พบข้อมูลการวิเคราะห์ที่เลือก', 'error');
-                return;
+        // รับแท็บการวิเคราะห์ที่กำลังแสดงอยู่
+        const activeTabContent = document.querySelector('.analysis-tab-content.active');
+        if (!activeTabContent) {
+            throw new Error('ไม่พบข้อมูลการวิเคราะห์ที่เลือก');
+        }
+
+        // สร้างเนื้อหาสำหรับ PDF
+        const pdfContent = createPDFContent(activeTabContent);
+        
+        // สร้าง PDF
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        
+        // ตั้งค่าฟอนต์
+        pdf.setFont('helvetica');
+        
+        // เพิ่มหัวข้อ
+        pdf.setFontSize(20);
+        pdf.setTextColor(59, 130, 246); // สีน้ำเงิน
+        pdf.text('รายงานการวิเคราะห์คะแนน Pre-test', 105, 20, { align: 'center' });
+        
+        pdf.setFontSize(14);
+        pdf.setTextColor(107, 114, 128); // สีเทา
+        pdf.text('โรงเรียนสตรีวิทยา ปีการศึกษา 2569', 105, 28, { align: 'center' });
+        
+        pdf.setFontSize(10);
+        pdf.setTextColor(156, 163, 175); // สีเทาอ่อน
+        pdf.text(`สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        })}`, 105, 35, { align: 'center' });
+        
+        // เพิ่มเส้นคั่น
+        pdf.setDrawColor(59, 130, 246);
+        pdf.setLineWidth(0.5);
+        pdf.line(20, 40, 190, 40);
+        
+        // เพิ่มข้อมูลผู้ใช้
+        pdf.setFontSize(12);
+        pdf.setTextColor(0, 0, 0);
+        let yPosition = 50;
+        
+        pdf.setFontSize(14);
+        pdf.setTextColor(55, 65, 81);
+        pdf.text('ข้อมูลผู้วิเคราะห์', 20, yPosition);
+        yPosition += 8;
+        
+        pdf.setFontSize(11);
+        pdf.text(`ชื่อ: ${document.getElementById('nickname').value || 'ไม่ระบุชื่อ'}`, 20, yPosition);
+        yPosition += 6;
+        pdf.text(`ระดับชั้น: ${document.getElementById('current-grade').options[document.getElementById('current-grade').selectedIndex].text || 'ไม่ระบุ'}`, 20, yPosition);
+        yPosition += 10;
+        
+        // เพิ่มข้อมูลการวิเคราะห์แบบข้อความ
+        const analysisText = extractAnalysisText(activeTabContent);
+        
+        // แบ่งเนื้อหาออกเป็นบรรทัดที่พอดีกับหน้ากระดาษ
+        const lines = pdf.splitTextToSize(analysisText, 170);
+        
+        pdf.setFontSize(11);
+        pdf.setTextColor(0, 0, 0);
+        
+        // เพิ่มแต่ละบรรทัด
+        for (let i = 0; i < lines.length; i++) {
+            if (yPosition > 270) { // ใกล้ขอบล่าง
+                pdf.addPage();
+                yPosition = 20;
+            }
+            pdf.text(lines[i], 20, yPosition);
+            yPosition += 6;
+        }
+        
+        yPosition += 10;
+        
+        // เพิ่มตารางคะแนน (ถ้ามี)
+        const tableData = extractTableData(activeTabContent);
+        if (tableData && tableData.length > 0) {
+            if (yPosition > 250) {
+                pdf.addPage();
+                yPosition = 20;
             }
             
-            // สร้างหน้าต่างพิมพ์
-            const printWindow = window.open('', '_blank');
-            printWindow.document.write(`
-                <!DOCTYPE html>
-                <html lang="th">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>รายงานการวิเคราะห์คะแนน Pre-test สตรีวิทยา</title>
-                    <style>
-                        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap');
-                        
-                        body {
-                            font-family: 'Noto Sans Thai', sans-serif;
-                            line-height: 1.6;
-                            color: #333;
-                            max-width: 210mm;
-                            margin: 0 auto;
-                            padding: 20px;
-                            font-size: 12pt;
-                            position: relative;
-                        }
-                        .print-watermark {
-                            position: fixed;
-                            top: 0;
-                            left: 0;
-                            width: 100%;
-                            height: 100%;
-                            pointer-events: none;
-                            z-index: 9999;
-                            opacity: 0.1;
-                            background: transparent;
-                        }
-                        .print-watermark-text {
-                            position: absolute;
-                            color: #6b7280;
-                            font-size: 20px;
-                            font-weight: 500;
-                            transform: rotate(-45deg);
-                            white-space: nowrap;
-                        }
-                        .print-header {
-                            text-align: center;
-                            margin-bottom: 30px;
-                            border-bottom: 2px solid #3b82f6;
-                            padding-bottom: 15px;
-                        }
-                        .print-header h1 {
-                            color: #3b82f6;
-                            margin: 0;
-                            font-size: 24pt;
-                        }
-                        .print-header h2 {
-                            color: #6b7280;
-                            margin: 5px 0;
-                            font-size: 18pt;
-                        }
-                        .user-info {
-                            background: #f3f4f6;
-                            padding: 15px;
-                            border-radius: 8px;
-                            margin-bottom: 20px;
-                            font-size: 11pt;
-                        }
-                        .print-footer {
-                            margin-top: 30px;
-                            padding-top: 15px;
-                            border-top: 1px solid #e5e7eb;
-                            font-size: 10pt;
-                            color: #6b7280;
-                        }
-                        .analysis-content {
-                            width: 100%;
-                        }
-                        .analysis-content table {
-                            width: 100%;
-                            border-collapse: collapse;
-                            margin: 15px 0;
-                            font-size: 10pt;
-                        }
-                        .analysis-content table, .analysis-content th, .analysis-content td {
-                            border: 1px solid #000;
-                        }
-                        .analysis-content th, .analysis-content td {
-                            padding: 8px;
-                            text-align: center;
-                        }
-                        .analysis-content th {
-                            background-color: #f9fafb;
-                        }
-                        @media print {
-                            body { 
-                                padding: 15px; 
-                                margin: 0;
-                                width: 100%;
-                            }
-                            .no-print { display: none !important; }
-                            .page-break { page-break-before: always; }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="print-watermark">
-                        <div class="print-watermark-text" style="top: 30%; left: 10%;">ลุ้นสอวอไปด้วยกันนะ</div>
-                        <div class="print-watermark-text" style="top: 60%; left: 60%;">ลุ้นสอวอไปด้วยกันนะ</div>
-                        <div class="print-watermark-text" style="top: 80%; left: 20%;">ลุ้นสอวอไปด้วยกันนะ</div>
-                    </div>
+            pdf.setFontSize(12);
+            pdf.setTextColor(55, 65, 81);
+            pdf.text('ตารางเปรียบเทียบคะแนน', 20, yPosition);
+            yPosition += 8;
+            
+            // สร้างตาราง
+            pdf.setFontSize(9);
+            pdf.setTextColor(0, 0, 0);
+            
+            // หัวตาราง
+            pdf.setFillColor(249, 250, 251);
+            pdf.rect(20, yPosition, 170, 8, 'F');
+            pdf.text('วิชา', 25, yPosition + 5);
+            pdf.text('คะแนน Pre-test', 80, yPosition + 5);
+            pdf.text('คะแนนที่เทียบได้', 140, yPosition + 5);
+            yPosition += 8;
+            
+            // ข้อมูลตาราง
+            tableData.forEach(row => {
+                if (yPosition > 270) {
+                    pdf.addPage();
+                    yPosition = 20;
+                    // วาดหัวตารางใหม่ในหน้าใหม่
+                    pdf.setFillColor(249, 250, 251);
+                    pdf.rect(20, yPosition, 170, 8, 'F');
+                    pdf.text('วิชา', 25, yPosition + 5);
+                    pdf.text('คะแนน Pre-test', 80, yPosition + 5);
+                    pdf.text('คะแนนที่เทียบได้', 140, yPosition + 5);
+                    yPosition += 8;
+                }
+                
+                pdf.text(row.subject, 25, yPosition + 5);
+                pdf.text(row.pretest, 80, yPosition + 5);
+                pdf.text(row.projected, 140, yPosition + 5);
+                yPosition += 8;
+            });
+            
+            yPosition += 5;
+        }
+        
+        // เพิ่มสถิติเปรียบเทียบ
+        const stats = extractStats(activeTabContent);
+        if (stats) {
+            if (yPosition > 240) {
+                pdf.addPage();
+                yPosition = 20;
+            }
+            
+            pdf.setFontSize(12);
+            pdf.setTextColor(55, 65, 81);
+            pdf.text('สถิติเปรียบเทียบกับปี 2568', 20, yPosition);
+            yPosition += 8;
+            
+            pdf.setFontSize(10);
+            pdf.setTextColor(0, 0, 0);
+            
+            pdf.text(`คะแนนต่ำสุด: ${stats.min}`, 20, yPosition);
+            yPosition += 6;
+            pdf.text(`คะแนนเฉลี่ย: ${stats.avg}`, 20, yPosition);
+            yPosition += 6;
+            pdf.text(`คะแนนสูงสุด: ${stats.max}`, 20, yPosition);
+            yPosition += 6;
+            pdf.text(`คะแนนของคุณ: ${stats.userScore}`, 20, yPosition);
+            yPosition += 10;
+        }
+        
+        // เพิ่มหมายเหตุท้ายรายงาน
+        if (yPosition > 250) {
+            pdf.addPage();
+            yPosition = 20;
+        }
+        
+        pdf.setFontSize(9);
+        pdf.setTextColor(107, 114, 128);
+        pdf.text('หมายเหตุ: การวิเคราะห์นี้เป็นการประเมินเบื้องต้นจากคะแนน Pre-test เท่านั้น', 20, yPosition);
+        yPosition += 5;
+        pdf.text('และใช้ข้อมูลคะแนนสอบเข้าปี 2568 เป็นเกณฑ์เปรียบเทียบ', 20, yPosition);
+        yPosition += 5;
+        pdf.text('รายงานนี้สร้างโดยระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569', 20, yPosition);
+        
+        // บันทึกไฟล์
+        const fileName = `รายงานวิเคราะห์คะแนน-สตรีวิทยา-${new Date().toISOString().slice(0, 10)}.pdf`;
+        pdf.save(fileName);
+        
+        showMessage('บันทึกไฟล์ PDF สำเร็จ!', 'success');
+        
+    } catch (error) {
+        console.error('Error generating PDF:', error);
+        showMessage('เกิดข้อผิดพลาดในการสร้าง PDF: ' + error.message, 'error');
+    } finally {
+        // รีเซ็ตปุ่ม
+        document.getElementById('save-analysis-btn').innerHTML = '<i class="fas fa-download mr-2"></i> บันทึกการวิเคราะห์เป็น PDF';
+        document.getElementById('save-analysis-btn').disabled = false;
+    }
+};
+        // ฟังก์ชันแยกข้อความจากการวิเคราะห์
+function extractAnalysisText(activeTabContent) {
+    let text = '';
+    
+    // หัวข้อหลัก
+    const title = activeTabContent.querySelector('h3');
+    if (title) {
+        text += title.textContent + '\n\n';
+    }
+    
+    // คะแนน Pre-test และคะแนนที่คาดการณ์
+    const scoreDivs = activeTabContent.querySelectorAll('.bg-blue-50, .bg-green-50');
+    scoreDivs.forEach(div => {
+        const paragraphs = div.querySelectorAll('p');
+        paragraphs.forEach(p => {
+            text += p.textContent + ' ';
+        });
+        text += '\n';
+    });
+    
+    // โอกาสสอบติด
+    const chanceDiv = activeTabContent.querySelector('[class*="chance-"]');
+    if (chanceDiv) {
+        const headers = chanceDiv.querySelectorAll('h4, p');
+        headers.forEach(header => {
+            text += header.textContent + '\n';
+        });
+        text += '\n';
+    }
+    
+    // จุดแข็ง จุดอ่อน ข้อแนะนำ
+    const analysisDivs = activeTabContent.querySelectorAll('.strength-item, .weakness-item, .improvement-item');
+    analysisDivs.forEach(div => {
+        const header = div.querySelector('h5');
+        const list = div.querySelector('ul');
+        if (header) text += header.textContent + ':\n';
+        if (list) {
+            const items = list.querySelectorAll('li');
+            items.forEach(item => {
+                text += '• ' + item.textContent + '\n';
+            });
+        }
+        text += '\n';
+    });
+    
+    return text;
+}
+
+// ฟังก์ชันแยกข้อมูลตาราง
+function extractTableData(activeTabContent) {
+    const table = activeTabContent.querySelector('.subject-table');
+    if (!table) return null;
+    
+    const rows = table.querySelectorAll('tbody tr');
+    const data = [];
+    
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length >= 3) {
+            data.push({
+                subject: cells[0].textContent.trim(),
+                pretest: cells[1].textContent.trim(),
+                projected: cells[2].textContent.trim()
+            });
+        }
+    });
+    
+    return data;
+}
+
+// ฟังก์ชันแยกสถิติ
+function extractStats(activeTabContent) {
+    const statDivs = activeTabContent.querySelectorAll('.bg-red-50, .bg-yellow-50, .bg-green-50');
+    if (statDivs.length < 3) return null;
+    
+    const stats = {
+        min: statDivs[0].querySelector('.text-2xl')?.textContent || 'N/A',
+        avg: statDivs[1].querySelector('.text-2xl')?.textContent || 'N/A',
+        max: statDivs[2].querySelector('.text-2xl')?.textContent || 'N/A'
+    };
+    
+    // หาคะแนนของผู้ใช้
+    const userScoreDiv = activeTabContent.querySelector('.bg-green-50');
+    if (userScoreDiv) {
+        const scoreText = userScoreDiv.querySelector('.text-3xl');
+        if (scoreText) {
+            stats.userScore = scoreText.textContent;
+        }
+    }
+    
+    return stats;
+}
+
+// ฟังก์ชันสร้างเนื้อหา PDF (สำรอง)
+function createPDFContent(activeTabContent) {
+    const clone = activeTabContent.cloneNode(true);
+    
+    // ลบองค์ประกอบที่ไม่จำเป็น
+    const elementsToRemove = clone.querySelectorAll('button, .no-print, [onclick]');
+    elementsToRemove.forEach(el => el.remove());
+    
+    // เพิ่มสไตล์สำหรับการพิมพ์
+    clone.style.cssText = `
+        font-family: 'Noto Sans Thai', sans-serif;
+        font-size: 12pt;
+        line-height: 1.4;
+        color: #000;
+        padding: 20px;
+        max-width: 210mm;
+        margin: 0 auto;
+    `;
+    
+    // เพิ่มหัวข้อ
+    const header = document.createElement('div');
+    header.innerHTML = `
+        <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #3b82f6; padding-bottom: 15px;">
+            <h1 style="color: #3b82f6; margin: 0; font-size: 24pt;">รายงานการวิเคราะห์คะแนน Pre-test</h1>
+            <h2 style="color: #6b7280; margin: 5px 0; font-size: 18pt;">โรงเรียนสตรีวิทยา ปีการศึกษา 2569</h2>
+            <p style="color: #9ca3af; font-size: 14pt;">สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH')}</p>
+        </div>
+        <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <h3 style="margin-top: 0; color: #374151;">ข้อมูลผู้วิเคราะห์</h3>
+            <p><strong>ชื่อ:</strong> ${document.getElementById('nickname').value || 'ไม่ระบุชื่อ'}</p>
+            <p><strong>ระดับชั้น:</strong> ${document.getElementById('current-grade').options[document.getElementById('current-grade').selectedIndex].text || 'ไม่ระบุ'}</p>
+        </div>
+    `;
+    
+    clone.insertBefore(header, clone.firstChild);
+    
+    // เพิ่มท้ายรายงาน
+    const footer = document.createElement('div');
+    footer.innerHTML = `
+        <div style="margin-top: 30px; padding-top: 15px; border-top: 1px solid #e5e7eb; font-size: 10pt; color: #6b7280;">
+            <p><strong>หมายเหตุ:</strong> การวิเคราะห์นี้เป็นการประเมินเบื้องต้นจากคะแนน Pre-test เท่านั้น 
+            และใช้ข้อมูลคะแนนสอบเข้าปี 2568 เป็นเกณฑ์เปรียบเทียบ</p>
+            <p>รายงานนี้สร้างโดยระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569</p>
+        </div>
+    `;
+    
+    clone.appendChild(footer);
+    
+    return clone;
+}
+        // ฟังก์ชันพิมพ์หน้าการวิเคราะห์ - แก้ไขใหม่
+window.printAnalysis = function() {
+    const activeTabContent = document.querySelector('.analysis-tab-content.active');
+    if (!activeTabContent) {
+        showMessage('ไม่พบข้อมูลการวิเคราะห์ที่เลือก', 'error');
+        return;
+    }
+    
+    // สร้างหน้าต่างพิมพ์
+    const printWindow = window.open('', '_blank');
+    
+    // สร้างเนื้อหาสำหรับพิมพ์
+    const printContent = createPrintContent(activeTabContent);
+    
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    
+    // รอให้เนื้อหาโหลดเสร็จก่อนพิมพ์
+    setTimeout(() => {
+        printWindow.print();
+        // printWindow.close(); // ไม่ปิดอัตโนมัติ ให้ผู้ใช้ตัดสินใจ
+    }, 500);
+};
+
+// ฟังก์ชันสร้างเนื้อหาสำหรับพิมพ์
+function createPrintContent(activeTabContent) {
+    const clone = activeTabContent.cloneNode(true);
+    
+    // ลบองค์ประกอบที่ไม่จำเป็นสำหรับการพิมพ์
+    const elementsToRemove = clone.querySelectorAll('button, .no-print, [onclick]');
+    elementsToRemove.forEach(el => el.remove());
+    
+    // แปลงกราฟแท่งเป็นข้อความ (ถ้ามี)
+    const barGraph = clone.querySelector('.relative.h-8');
+    if (barGraph) {
+        const markers = barGraph.querySelectorAll('[style*="left:"]');
+        let graphText = '<div style="margin: 15px 0; padding: 10px; background: #f9fafb; border-radius: 5px;">';
+        graphText += '<p style="margin: 0 0 5px 0; font-weight: bold;">แผนภาพเปรียบเทียบคะแนน:</p>';
+        
+        markers.forEach(marker => {
+            const label = marker.querySelector('span');
+            if (label) {
+                graphText += `<p style="margin: 2px 0;">${label.textContent}</p>`;
+            }
+        });
+        
+        graphText += '</div>';
+        barGraph.outerHTML = graphText;
+    }
+    
+    return `
+        <!DOCTYPE html>
+        <html lang="th">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>รายงานการวิเคราะห์คะแนน Pre-test สตรีวิทยา</title>
+            <style>
+                @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap');
+                
+                body {
+                    font-family: 'Noto Sans Thai', sans-serif;
+                    line-height: 1.4;
+                    color: #000;
+                    max-width: 210mm;
+                    margin: 0 auto;
+                    padding: 20px;
+                    font-size: 11pt;
+                    background: white;
+                }
+                
+                .print-header {
+                    text-align: center;
+                    margin-bottom: 25px;
+                    border-bottom: 2px solid #3b82f6;
+                    padding-bottom: 15px;
+                }
+                
+                .print-header h1 {
+                    color: #3b82f6;
+                    margin: 0;
+                    font-size: 18pt;
+                }
+                
+                .print-header h2 {
+                    color: #6b7280;
+                    margin: 5px 0;
+                    font-size: 14pt;
+                }
+                
+                .user-info {
+                    background: #f3f4f6;
+                    padding: 12px;
+                    border-radius: 6px;
+                    margin-bottom: 20px;
+                    font-size: 10pt;
+                }
+                
+                .print-footer {
+                    margin-top: 25px;
+                    padding-top: 12px;
+                    border-top: 1px solid #e5e7eb;
+                    font-size: 9pt;
+                    color: #6b7280;
+                }
+                
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 12px 0;
+                    font-size: 9pt;
+                }
+                
+                table, th, td {
+                    border: 1px solid #000;
+                }
+                
+                th, td {
+                    padding: 6px 8px;
+                    text-align: center;
+                }
+                
+                th {
+                    background-color: #f9fafb;
+                    font-weight: 600;
+                }
+                
+                .score-section {
+                    margin: 15px 0;
+                    padding: 12px;
+                    border-radius: 6px;
+                }
+                
+                .bg-blue-50 { background: #eff6ff; }
+                .bg-green-50 { background: #f0fdf4; }
+                .bg-red-50 { background: #fef2f2; }
+                .bg-yellow-50 { background: #fefce8; }
+                
+                @media print {
+                    body { 
+                        padding: 15px; 
+                        margin: 0;
+                        width: 100%;
+                    }
                     
-                    <div class="print-header">
-                        <h1>รายงานการวิเคราะห์คะแนน Pre-test</h1>
-                        <h2>โรงเรียนสตรีวิทยา ปีการศึกษา 2569</h2>
-                        <p>สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', { 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        })}</p>
-                    </div>
+                    .no-print { 
+                        display: none !important; 
+                    }
                     
-                    <div class="user-info">
-                        <h3>ข้อมูลผู้วิเคราะห์</h3>
-                        <p><strong>ชื่อ:</strong> ${document.getElementById('nickname').value || 'ไม่ระบุชื่อ'}</p>
-                        <p><strong>ระดับชั้น:</strong> ${document.getElementById('current-grade').options[document.getElementById('current-grade').selectedIndex].text || 'ไม่ระบุ'}</p>
-                    </div>
+                    .page-break { 
+                        page-break-before: always; 
+                    }
                     
-                    <div class="analysis-content">
-                        ${activeTabContent.innerHTML}
-                    </div>
+                    table {
+                        page-break-inside: avoid;
+                    }
                     
-                    <div class="print-footer">
-                        <p><strong>หมายเหตุ:</strong> การวิเคราะห์นี้เป็นการประเมินเบื้องต้นจากคะแนน Pre-test เท่านั้น 
-                        และใช้ข้อมูลคะแนนสอบเข้าปี 2568 เป็นเกณฑ์เปรียบเทียบ</p>
-                        <p>รายงานนี้สร้างโดยระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569</p>
-                    </div>
-                    
-                    <div class="no-print" style="margin-top: 20px; text-align: center;">
-                        <button onclick="window.print()" style="padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                            พิมพ์หน้านี้
-                        </button>
-                        <button onclick="window.close()" style="padding: 10px 20px; background: #6b7280; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">
-                            ปิดหน้าต่าง
-                        </button>
-                    </div>
+                    .score-section {
+                        page-break-inside: avoid;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="print-header">
+                <h1>รายงานการวิเคราะห์คะแนน Pre-test</h1>
+                <h2>โรงเรียนสตรีวิทยา ปีการศึกษา 2569</h2>
+                <p>สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })}</p>
+            </div>
+            
+            <div class="user-info">
+                <h3>ข้อมูลผู้วิเคราะห์</h3>
+                <p><strong>ชื่อ:</strong> ${document.getElementById('nickname').value || 'ไม่ระบุชื่อ'}</p>
+                <p><strong>ระดับชั้น:</strong> ${document.getElementById('current-grade').options[document.getElementById('current-grade').selectedIndex].text || 'ไม่ระบุ'}</p>
+            </div>
+            
+            <div class="analysis-content">
+                ${clone.innerHTML}
+            </div>
+            
+            <div class="print-footer">
+                <p><strong>หมายเหตุ:</strong> การวิเคราะห์นี้เป็นการประเมินเบื้องต้นจากคะแนน Pre-test เท่านั้น 
+                และใช้ข้อมูลคะแนนสอบเข้าปี 2568 เป็นเกณฑ์เปรียบเทียบ</p>
+                <p>รายงานนี้สร้างโดยระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569</p>
+            </div>
+            
+            <div class="no-print" style="margin-top: 20px; text-align: center;">
+                <button onclick="window.print()" style="padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 5px; cursor: pointer; font-family: 'Noto Sans Thai', sans-serif;">
+                    พิมพ์หน้านี้
+                </button>
+                <button onclick="window.close()" style="padding: 10px 20px; background: #6b7280; color: white; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px; font-family: 'Noto Sans Thai', sans-serif;">
+                    ปิดหน้าต่าง
+                </button>
+            </div>
+        </body>
+        </html>
+    `;
+}
                     
                     <script>
                         // ปรับขนาดฟอนต์และตารางให้พอดีกับหน้ากระดาษ
