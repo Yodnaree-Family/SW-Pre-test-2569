@@ -48,7 +48,7 @@
             position: relative;
         }
         
-        /* ลายน้ำ */
+        /* Watermark Styles */
         .watermark {
             position: fixed;
             top: 0;
@@ -57,13 +57,15 @@
             height: 100%;
             pointer-events: none;
             z-index: 9999;
-            opacity: 0.03;
+            opacity: 0.1;
+            background: transparent;
         }
         
         .watermark-text {
             position: absolute;
-            font-size: 24px;
-            color: #888;
+            color: #6b7280;
+            font-size: 20px;
+            font-weight: 500;
             transform: rotate(-45deg);
             white-space: nowrap;
         }
@@ -576,10 +578,26 @@
                 border: 1px solid #000 !important;
             }
             
-            /* ปรับปรุงกราฟสำหรับการพิมพ์ */
-            canvas {
-                max-width: 100% !important;
-                height: auto !important;
+            /* แสดงลายน้ำในการพิมพ์ */
+            .print-watermark {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: 9999;
+                opacity: 0.1;
+                background: transparent;
+            }
+            
+            .print-watermark-text {
+                position: absolute;
+                color: #6b7280;
+                font-size: 20px;
+                font-weight: 500;
+                transform: rotate(-45deg);
+                white-space: nowrap;
             }
         }
         
@@ -614,28 +632,12 @@
                 grid-template-columns: 1fr;
             }
         }
-        
-        /* สไตล์สำหรับปุ่มบันทึกและโหลดข้อมูล */
-        .save-load-section {
-            background: #f0f9ff;
-            border: 1px solid #bae6fd;
-            border-radius: 0.75rem;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .save-load-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
     </style>
 </head>
 <body class="p-4 sm:p-6">
-    <!-- ลายน้ำ -->
+    <!-- Watermark -->
     <div class="watermark" id="watermark">
-        <!-- ลายน้ำจะถูกเพิ่มโดย JavaScript -->
+        <!-- Watermark text will be added by JavaScript -->
     </div>
     
     <!-- Message Box -->
@@ -778,21 +780,6 @@
                     <span>กรุณากรอกข้อมูลตามความเป็นจริงเพื่อประโยชน์ในการวิเคราะห์คะแนน</span>
                 </div>
                 
-                <!-- ส่วนบันทึกและโหลดข้อมูล -->
-                <div class="save-load-section">
-                    <h3 class="text-lg font-bold text-gray-800 mb-2">บันทึกและโหลดข้อมูล</h3>
-                    <p class="text-gray-600 text-sm mb-3">คุณสามารถบันทึกข้อมูลที่กรอกไว้และโหลดกลับมาในภายหลังได้</p>
-                    <div class="save-load-buttons">
-                        <button onclick="saveUserData()" class="btn btn-primary">
-                            <i class="fas fa-save mr-2"></i> บันทึกข้อมูลของฉัน
-                        </button>
-                        <button onclick="loadUserData()" class="btn btn-secondary">
-                            <i class="fas fa-upload mr-2"></i> โหลดข้อมูลที่บันทึกไว้
-                        </button>
-                        <input type="file" id="user-data-file" class="hidden" accept=".json" onchange="handleFileUpload(event)">
-                    </div>
-                </div>
-                
                 <!-- ข้อมูลพื้นฐาน -->
                 <div class="bg-white rounded-xl shadow-md p-4 sm:p-6 mb-6">
                     <h2 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">ข้อมูลพื้นฐาน</h2>
@@ -930,6 +917,12 @@
                 <div class="text-center mt-6 sm:mt-8">
                     <button id="submit-btn" class="btn btn-success" onclick="validateAndSubmitForm()">
                         <i class="fas fa-paper-plane mr-2"></i> ส่งข้อมูลคะแนน
+                    </button>
+                    <button id="save-local-btn" class="btn btn-secondary ml-2" onclick="saveToLocalStorage()">
+                        <i class="fas fa-save mr-2"></i> บันทึกลงเครื่อง
+                    </button>
+                    <button id="load-local-btn" class="btn btn-primary ml-2" onclick="loadFromLocalStorage()">
+                        <i class="fas fa-folder-open mr-2"></i> โหลดข้อมูลที่บันทึกไว้
                     </button>
                 </div>
             </div>
@@ -2142,6 +2135,9 @@
                 showMessage('บันทึกข้อมูลสำเร็จ! กำลังเปลี่ยนไปหน้าวิเคราะห์...', 'success');
                 isDataFetched = false;
                 
+                // บันทึกข้อมูลลง localStorage ด้วย
+                saveToLocalStorage();
+                
                 // เปลี่ยนไปหน้า analysis
                 switchView('analysis');
                 
@@ -3222,6 +3218,26 @@
                             margin: 0 auto;
                             padding: 20px;
                             font-size: 12pt;
+                            position: relative;
+                        }
+                        .print-watermark {
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            pointer-events: none;
+                            z-index: 9999;
+                            opacity: 0.1;
+                            background: transparent;
+                        }
+                        .print-watermark-text {
+                            position: absolute;
+                            color: #6b7280;
+                            font-size: 20px;
+                            font-weight: 500;
+                            transform: rotate(-45deg);
+                            white-space: nowrap;
                         }
                         .print-header {
                             text-align: center;
@@ -3284,6 +3300,12 @@
                     </style>
                 </head>
                 <body>
+                    <div class="print-watermark">
+                        <div class="print-watermark-text" style="top: 30%; left: 10%;">ลุ้นสอวอไปด้วยกันนะ</div>
+                        <div class="print-watermark-text" style="top: 60%; left: 60%;">ลุ้นสอวอไปด้วยกันนะ</div>
+                        <div class="print-watermark-text" style="top: 80%; left: 20%;">ลุ้นสอวอไปด้วยกันนะ</div>
+                    </div>
+                    
                     <div class="print-header">
                         <h1>รายงานการวิเคราะห์คะแนน Pre-test</h1>
                         <h2>โรงเรียนสตรีวิทยา ปีการศึกษา 2569</h2>
@@ -3343,133 +3365,97 @@
             printWindow.document.close();
         };
 
-        // --- ฟังก์ชันสำหรับบันทึกและโหลดข้อมูลผู้ใช้ ---
+        // --- ฟังก์ชันสำหรับ Local Storage ---
         
-        // ฟังก์ชันบันทึกข้อมูลผู้ใช้เป็นไฟล์ JSON
-        window.saveUserData = function() {
-            // รวบรวมข้อมูลจากฟอร์ม
-            const userData = {
-                nickname: document.getElementById('nickname').value,
-                currentGrade: document.getElementById('current-grade').value,
-                selectedExamTypes: {},
-                scores: {},
-                targets: {
-                    special: [],
-                    normal: []
-                }
-            };
-            
-            // รวบรวมประเภทการสอบที่เลือก
-            ['specialOnsite', 'normalOnsite', 'specialOnline', 'normalOnline'].forEach(type => {
-                const checkbox = document.getElementById(`${type}-checkbox`);
-                if (checkbox && checkbox.checked) {
-                    userData.selectedExamTypes[type] = true;
-                    
-                    // รวบรวมคะแนน
-                    const examTypeData = getExamTypeData(type);
-                    const scores = {};
-                    examTypeData.subjects.forEach(subject => {
-                        const scoreInput = document.getElementById(`${type}-${subject.id}`);
-                        if (scoreInput) {
-                            scores[subject.id] = scoreInput.value;
-                        }
-                    });
-                    
-                    const rankInput = document.getElementById(`${type}-rank`);
-                    if (rankInput) {
-                        scores.rank = rankInput.value;
+        // ฟังก์ชันบันทึกข้อมูลลง Local Storage
+        window.saveToLocalStorage = function() {
+            try {
+                // รวบรวมข้อมูลจากฟอร์ม
+                const formData = {
+                    nickname: document.getElementById('nickname').value,
+                    currentGrade: document.getElementById('current-grade').value,
+                    selectedExamTypes: [],
+                    scores: {},
+                    targets: {
+                        special: [],
+                        normal: []
                     }
+                };
+                
+                // รวบรวมประเภทการสอบที่เลือก
+                ['specialOnsite', 'normalOnsite', 'specialOnline', 'normalOnline'].forEach(type => {
+                    if (document.getElementById(`${type}-checkbox`).checked) {
+                        formData.selectedExamTypes.push(type);
+                        
+                        // รวบรวมคะแนน
+                        const examTypeData = getExamTypeData(type);
+                        formData.scores[type] = {
+                            rank: document.getElementById(`${type}-rank`).value,
+                            subjects: {}
+                        };
+                        
+                        examTypeData.subjects.forEach(subject => {
+                            formData.scores[type].subjects[subject.id] = 
+                                document.getElementById(`${type}-${subject.id}`).value;
+                        });
+                    }
+                });
+                
+                // รวบรวมเป้าหมาย
+                if (document.getElementById('target-special-ep').checked) formData.targets.special.push('EP');
+                if (document.getElementById('target-special-smte').checked) formData.targets.special.push('SMTE');
+                if (document.getElementById('target-special-gm').checked) formData.targets.special.push('GM');
+                if (document.getElementById('target-normal-in').checked) formData.targets.normal.push('Normal_In');
+                if (document.getElementById('target-normal-out').checked) formData.targets.normal.push('Normal_Out');
+                
+                // บันทึกลง Local Storage
+                localStorage.setItem('satriwitPretestData', JSON.stringify(formData));
+                localStorage.setItem('satriwitPretestTimestamp', new Date().toISOString());
+                
+                showMessage('บันทึกข้อมูลลงเครื่องสำเร็จ! คุณสามารถโหลดข้อมูลนี้ในภายหลังได้', 'success');
+                
+            } catch (error) {
+                console.error('Error saving to localStorage:', error);
+                showMessage('เกิดข้อผิดพลาดในการบันทึกข้อมูลลงเครื่อง', 'error');
+            }
+        };
+        
+        // ฟังก์ชันโหลดข้อมูลจาก Local Storage
+        window.loadFromLocalStorage = function() {
+            try {
+                const savedData = localStorage.getItem('satriwitPretestData');
+                const savedTimestamp = localStorage.getItem('satriwitPretestTimestamp');
+                
+                if (!savedData) {
+                    showMessage('ไม่พบข้อมูลที่บันทึกไว้ในเครื่อง', 'info');
+                    return;
+                }
+                
+                const formData = JSON.parse(savedData);
+                
+                // โหลดข้อมูลพื้นฐาน
+                document.getElementById('nickname').value = formData.nickname || '';
+                document.getElementById('current-grade').value = formData.currentGrade || '';
+                
+                // โหลดประเภทการสอบ
+                ['specialOnsite', 'normalOnsite', 'specialOnline', 'normalOnline'].forEach(type => {
+                    const checkbox = document.getElementById(`${type}-checkbox`);
+                    const card = checkbox.closest('.exam-type-card');
                     
-                    userData.scores[type] = scores;
-                }
-            });
-            
-            // รวบรวมเป้าหมายที่เลือก
-            if (document.getElementById('target-special-ep').checked) userData.targets.special.push('EP');
-            if (document.getElementById('target-special-smte').checked) userData.targets.special.push('SMTE');
-            if (document.getElementById('target-special-gm').checked) userData.targets.special.push('GM');
-            if (document.getElementById('target-normal-in').checked) userData.targets.normal.push('Normal_In');
-            if (document.getElementById('target-normal-out').checked) userData.targets.normal.push('Normal_Out');
-            
-            // สร้างไฟล์ JSON
-            const dataStr = JSON.stringify(userData, null, 2);
-            const dataBlob = new Blob([dataStr], {type: 'application/json'});
-            
-            // สร้าง URL สำหรับดาวน์โหลด
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `satriwit-user-data-${new Date().toISOString().slice(0, 10)}.json`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-            
-            showMessage('บันทึกข้อมูลสำเร็จ! คุณสามารถโหลดข้อมูลนี้กลับมาในภายหลังได้', 'success');
-        };
-        
-        // ฟังก์ชันโหลดข้อมูลผู้ใช้จากไฟล์
-        window.loadUserData = function() {
-            document.getElementById('user-data-file').click();
-        };
-        
-        // ฟังก์ชันจัดการการอัปโหลดไฟล์
-        window.handleFileUpload = function(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const userData = JSON.parse(e.target.result);
-                    loadUserDataIntoForm(userData);
-                    showMessage('โหลดข้อมูลสำเร็จ!', 'success');
-                } catch (error) {
-                    console.error('Error parsing user data:', error);
-                    showMessage('ไม่สามารถโหลดข้อมูลได้: ไฟล์ไม่ถูกต้อง', 'error');
-                }
-            };
-            reader.readAsText(file);
-            
-            // รีเซ็ต input file
-            event.target.value = '';
-        };
-        
-        // ฟังก์ชันโหลดข้อมูลลงในฟอร์ม
-        function loadUserDataIntoForm(userData) {
-            // โหลดข้อมูลพื้นฐาน
-            if (userData.nickname) {
-                document.getElementById('nickname').value = userData.nickname;
-            }
-            
-            if (userData.currentGrade) {
-                document.getElementById('current-grade').value = userData.currentGrade;
-            }
-            
-            // โหลดประเภทการสอบ
-            ['specialOnsite', 'normalOnsite', 'specialOnline', 'normalOnline'].forEach(type => {
-                const checkbox = document.getElementById(`${type}-checkbox`);
-                if (checkbox) {
-                    if (userData.selectedExamTypes[type]) {
+                    if (formData.selectedExamTypes.includes(type)) {
                         checkbox.checked = true;
-                        checkbox.closest('.exam-type-card').classList.add('selected');
+                        card.classList.add('selected');
                         createScoreInputs(type);
                         
                         // โหลดคะแนน
-                        if (userData.scores[type]) {
+                        if (formData.scores[type]) {
+                            document.getElementById(`${type}-rank`).value = formData.scores[type].rank || '';
+                            
                             const examTypeData = getExamTypeData(type);
-                            
-                            // โหลดอันดับ
-                            const rankInput = document.getElementById(`${type}-rank`);
-                            if (rankInput && userData.scores[type].rank) {
-                                rankInput.value = userData.scores[type].rank;
-                            }
-                            
-                            // โหลดคะแนนวิชาต่างๆ
                             examTypeData.subjects.forEach(subject => {
-                                const scoreInput = document.getElementById(`${type}-${subject.id}`);
-                                if (scoreInput && userData.scores[type][subject.id]) {
-                                    scoreInput.value = userData.scores[type][subject.id];
+                                const input = document.getElementById(`${type}-${subject.id}`);
+                                if (input && formData.scores[type].subjects[subject.id]) {
+                                    input.value = formData.scores[type].subjects[subject.id];
                                 }
                             });
                             
@@ -3478,49 +3464,54 @@
                         }
                     } else {
                         checkbox.checked = false;
-                        checkbox.closest('.exam-type-card').classList.remove('selected');
+                        card.classList.remove('selected');
                         removeScoreInputs(type);
                     }
-                }
-            });
-            
-            // โหลดเป้าหมาย
-            document.getElementById('target-special-ep').checked = userData.targets.special.includes('EP');
-            document.getElementById('target-special-smte').checked = userData.targets.special.includes('SMTE');
-            document.getElementById('target-special-gm').checked = userData.targets.special.includes('GM');
-            document.getElementById('target-normal-in').checked = userData.targets.normal.includes('Normal_In');
-            document.getElementById('target-normal-out').checked = userData.targets.normal.includes('Normal_Out');
-            
-            // อัพเดทการแสดงผลส่วนเป้าหมาย
-            updateTargetVisibility();
-            
-            showMessage('โหลดข้อมูลสำเร็จ! คุณสามารถแก้ไขข้อมูลหรือส่งข้อมูลใหม่ได้', 'success');
-        }
-        
+                });
+                
+                // โหลดเป้าหมาย
+                document.getElementById('target-special-ep').checked = formData.targets.special.includes('EP');
+                document.getElementById('target-special-smte').checked = formData.targets.special.includes('SMTE');
+                document.getElementById('target-special-gm').checked = formData.targets.special.includes('GM');
+                document.getElementById('target-normal-in').checked = formData.targets.normal.includes('Normal_In');
+                document.getElementById('target-normal-out').checked = formData.targets.normal.includes('Normal_Out');
+                
+                // อัพเดทการแสดงผลส่วนเป้าหมาย
+                updateTargetVisibility();
+                
+                const timestamp = savedTimestamp ? new Date(savedTimestamp).toLocaleString('th-TH') : 'ไม่ทราบเวลา';
+                showMessage(`โหลดข้อมูลสำเร็จ! (บันทึกเมื่อ: ${timestamp})`, 'success');
+                
+            } catch (error) {
+                console.error('Error loading from localStorage:', error);
+                showMessage('เกิดข้อผิดพลาดในการโหลดข้อมูลจากเครื่อง', 'error');
+            }
+        };
+
         // ฟังก์ชันสร้างลายน้ำ
         function createWatermark() {
             const watermark = document.getElementById('watermark');
             if (!watermark) return;
             
-            // ลบลายน้ำเดิม
+            // ล้างลายน้ำเดิม
             watermark.innerHTML = '';
             
             // สร้างลายน้ำหลายตำแหน่ง
             const positions = [
-                { top: '10%', left: '10%' },
-                { top: '30%', left: '70%' },
-                { top: '50%', left: '20%' },
-                { top: '70%', left: '80%' },
-                { top: '90%', left: '40%' }
+                { top: '20%', left: '10%' },
+                { top: '40%', left: '60%' },
+                { top: '70%', left: '30%' },
+                { top: '80%', left: '70%' },
+                { top: '30%', left: '80%' }
             ];
             
             positions.forEach(pos => {
-                const text = document.createElement('div');
-                text.className = 'watermark-text';
-                text.textContent = 'ลุ้นสอวอไปด้วยกันนะ';
-                text.style.top = pos.top;
-                text.style.left = pos.left;
-                watermark.appendChild(text);
+                const watermarkText = document.createElement('div');
+                watermarkText.className = 'watermark-text';
+                watermarkText.style.top = pos.top;
+                watermarkText.style.left = pos.left;
+                watermarkText.textContent = 'ลุ้นสอวอไปด้วยกันนะ';
+                watermark.appendChild(watermarkText);
             });
         }
 
