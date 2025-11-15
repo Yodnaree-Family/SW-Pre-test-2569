@@ -675,23 +675,13 @@
                 <!-- Hero Section -->
                 <div class="relative bg-gradient-to-b from-indigo-50 via-white to-gray-50 pt-12 pb-16 lg:pt-16 lg:pb-20 rounded-xl mb-8">
                     <div class="container mx-auto px-6 text-center">
-                        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-indigo-900 text-shadow-custom">
-                            ระบบสำรวจและวิเคราะห์คะแนน Pre-test สตรีวิทยา
-                        </h1>
-                        <p class="mt-4 text-2xl lg:text-3xl font-bold text-gray-700">ปีการศึกษา 2569</p>
-                        
                         <h2 class="mt-12 text-2xl lg:text-3xl font-semibold text-gray-800">
-                            ยินดีต้อนรับเข้าสู่ "ระบบสำรวจคะแนนสอบ Pre-Test 2569"
+                            ยินดีต้อนรับเข้าสู่ "ระบบสำรวจคะแนน"
                         </h2>
                         
                         <p class="mt-6 text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
                             ผู้ปกครองโปรดกรอกข้อมูลตามความจริง เพื่อเป็นฐานข้อมูลสำหรับวิเคราะห์แนวโน้มผลการสอบ และเก็บเป็นสถิติ ข้อมูลนี้จะช่วยให้น้อง ๆ ที่กำลังเตรียมสอบเข้า ม.1 ได้เห็นแนวทางมากขึ้นค่ะ
                         </p>
-                        
-                        <!-- ปุ่ม Call to Action -->
-                        <button onclick="switchView('form')" class="mt-10 inline-block bg-green-500 text-white font-bold text-xl px-10 py-4 rounded-lg shadow-lg hover:bg-green-600 transition-all duration-300 transform hover:scale-105">
-                            เริ่มกรอกข้อมูล
-                        </button>
                     </div>
                 </div>
 
@@ -1120,13 +1110,7 @@
                     <div class="print-header bg-indigo-50 p-6 rounded-lg mb-6 text-center">
                         <h1 class="text-2xl font-bold text-indigo-800">รายงานการวิเคราะห์คะแนน Pre-test</h1>
                         <h2 class="text-xl text-indigo-600 mt-2">โรงเรียนสตรีวิทยา ปีการศึกษา 2569</h2>
-                        <p class="text-gray-600 mt-2">สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', { 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        })}</p>
+                        <p class="text-gray-600 mt-2">สร้างเมื่อ: <span id="analysis-date"></span></p>
                     </div>
                     
                     <!-- ข้อมูลผู้วิเคราะห์ -->
@@ -2676,6 +2660,16 @@
             document.getElementById('analysis-nickname').textContent = document.getElementById('nickname').value || 'ไม่ระบุชื่อ';
             document.getElementById('analysis-grade').textContent = document.getElementById('current-grade').options[document.getElementById('current-grade').selectedIndex].text || 'ไม่ระบุ';
             
+            // อัพเดทวันที่ในหน้าแสดงผลการวิเคราะห์
+            const now = new Date();
+            document.getElementById('analysis-date').textContent = now.toLocaleDateString('th-TH', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
             // 1. รวบรวมประเภทการสอบที่กรอก
             const selectedExamTypes = [
                 'specialOnsite', 'normalOnsite', 'specialOnline', 'normalOnline'
@@ -3126,12 +3120,12 @@
                 
                 // สร้าง HTML สำหรับ PDF พร้อมหัวและท้าย
                 const pdfContent = `
-                    <div style="font-family: 'Sarabun', sans-serif; padding: 20px;">
+                    <div style="font-family: 'Sarabun', sans-serif; padding: 10px;">
                         <!-- ส่วนหัว -->
-                        <div class="print-header" style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #2a2a72; padding-bottom: 20px;">
-                            <h1 style="color: #2a2a72; margin-bottom: 10px; font-size: 24px;">รายงานการวิเคราะห์คะแนน Pre-test</h1>
-                            <h2 style="color: #009ffd; margin-top: 0; font-size: 18px;">โรงเรียนสตรีวิทยา ปีการศึกษา 2569</h2>
-                            <p style="color: #666; font-size: 14px;">สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', { 
+                        <div class="print-header" style="text-align: center; margin-bottom: 15px; border-bottom: 2px solid #2a2a72; padding-bottom: 10px;">
+                            <h1 style="color: #2a2a72; margin-bottom: 5px; font-size: 20px;">รายงานการวิเคราะห์คะแนน Pre-test</h1>
+                            <h2 style="color: #009ffd; margin-top: 0; font-size: 16px;">โรงเรียนสตรีวิทยา ปีการศึกษา 2569</h2>
+                            <p style="color: #666; font-size: 12px;">สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', { 
                                 year: 'numeric', 
                                 month: 'long', 
                                 day: 'numeric',
@@ -3141,10 +3135,10 @@
                         </div>
                         
                         <!-- ข้อมูลผู้วิเคราะห์ -->
-                        <div class="user-info" style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                            <h3 style="color: #2a2a72; margin-top: 0; margin-bottom: 10px;">ข้อมูลผู้วิเคราะห์</h3>
-                            <p style="margin: 5px 0;"><strong>ชื่อ:</strong> ${document.getElementById('nickname').value || 'ไม่ระบุชื่อ'}</p>
-                            <p style="margin: 5px 0;"><strong>ระดับชั้น:</strong> ${document.getElementById('current-grade').options[document.getElementById('current-grade').selectedIndex].text || 'ไม่ระบุ'}</p>
+                        <div class="user-info" style="background: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                            <h3 style="color: #2a2a72; margin-top: 0; margin-bottom: 5px;">ข้อมูลผู้วิเคราะห์</h3>
+                            <p style="margin: 3px 0;"><strong>ชื่อ:</strong> ${document.getElementById('nickname').value || 'ไม่ระบุชื่อ'}</p>
+                            <p style="margin: 3px 0;"><strong>ระดับชั้น:</strong> ${document.getElementById('current-grade').options[document.getElementById('current-grade').selectedIndex].text || 'ไม่ระบุ'}</p>
                         </div>
                         
                         <!-- เนื้อหาการวิเคราะห์ -->
@@ -3153,18 +3147,18 @@
                         </div>
                         
                         <!-- ส่วนท้าย -->
-                        <div class="print-footer" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #666;">
-                            <p style="margin: 5px 0;"><strong>หมายเหตุ:</strong> การวิเคราะห์นี้เป็นการประเมินเบื้องต้นจากคะแนน Pre-test เท่านั้น 
+                        <div class="print-footer" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 10px; color: #666;">
+                            <p style="margin: 3px 0;"><strong>หมายเหตุ:</strong> การวิเคราะห์นี้เป็นการประเมินเบื้องต้นจากคะแนน Pre-test เท่านั้น 
                             และใช้ข้อมูลจากการสำรวจคะแนนสอบเข้าปี 2568 เป็นเกณฑ์เปรียบเทียบ</p>
-                            <p style="margin: 5px 0;">รายงานนี้สร้างโดยระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569</p>
-                            <p style="margin: 5px 0;">ออกแบบและสรุปผลโดย Line OPC : ครอบครัวยอดนารี❤️สตรีวิทยา</p>
+                            <p style="margin: 3px 0;">รายงานนี้สร้างโดยระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569</p>
+                            <p style="margin: 3px 0;">ออกแบบและสรุปผลโดย Line OPC : ครอบครัวยอดนารี❤️สตรีวิทยา</p>
                         </div>
                     </div>
                 `;
                 
                 // ตั้งค่าสำหรับ PDF
                 const opt = {
-                    margin: 10,
+                    margin: 5,
                     filename: `satriwit-analysis-${new Date().toISOString().split('T')[0]}.pdf`,
                     image: { type: 'jpeg', quality: 0.98 },
                     html2canvas: { scale: 2 },
