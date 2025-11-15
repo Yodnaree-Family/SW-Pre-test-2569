@@ -3156,64 +3156,104 @@
                     showMessage('ไม่พบข้อมูลการวิเคราะห์ที่เลือก', 'error');
                     return;
                 }
-                  // สร้าง HTML สำหรับ PDF พร้อมหัวและท้าย
-                const pdfContent = `
-                    <div class="print-section" style="font-family: 'Sarabun', sans-serif; padding: 15px; max-width: 100%;">
-                        <!-- ส่วนหัว -->
-                        <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid #2a2a72; padding-bottom: 15px;">
-                            <h1 style="color: #2a2a72; margin-bottom: 5px; font-size: 24px;">รายงานการวิเคราะห์คะแนน Pre-test</h1>
-                            <h2 style="color: #009ffd; margin-top: 0; font-size: 18px;">โรงเรียนสตรีวิทยา ปีการศึกษา 2569</h2>
-                            <p style="color: #666; font-size: 14px;">สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', { 
-                                year: 'numeric', 
-                                month: 'long', 
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                            })}</p>
-                        </div>
-                        
-                        <!-- ข้อมูลผู้วิเคราะห์ -->
-                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                            <h3 style="color: #2a2a72; margin-top: 0; margin-bottom: 10px;">ข้อมูลผู้วิเคราะห์</h3>
-                            <p style="margin: 5px 0;"><strong>ชื่อ:</strong> ${document.getElementById('nickname').value || 'ไม่ระบุชื่อ'}</p>
-                            <p style="margin: 5px 0;"><strong>ระดับชั้น:</strong> ${document.getElementById('current-grade').options[document.getElementById('current-grade').selectedIndex].text || 'ไม่ระบุ'}</p>
-                        </div>
-                        
-                        <!-- เนื้อหาการวิเคราะห์ -->
-                        <div class="analysis-content">
-                            ${activeTabContent.innerHTML}
-                        </div>
-                        
-                        <!-- ส่วนท้าย -->
-                        <div style="margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 12px; color: #666;">
-                            <p style="margin: 5px 0;"><strong>หมายเหตุ:</strong> การวิเคราะห์นี้เป็นการประเมินเบื้องต้นจากคะแนน Pre-test เท่านั้น 
-                            และใช้ข้อมูลจากการสำรวจคะแนนสอบเข้าปี 2568 เป็นเกณฑ์เปรียบเทียบ</p>
-                            <p style="margin: 5px 0;">รายงานนี้สร้างโดยระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569</p>
-                            <p style="margin: 5px 0;">ออกแบบและสรุปผลโดย Line OPC : ครอบครัวยอดนารี❤️สตรีวิทยา</p>
-                        </div>
-                    </div>
-                `;
-                
-                // ตั้งค่าสำหรับ PDF
-                const opt = {
-                    margin: 10,
-                    filename: `satriwit-analysis-${new Date().toISOString().split('T')[0]}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { 
-                        scale: 2,
-                        useCORS: true,
-                        logging: true,
-                        scrollX: 0,
-                        scrollY: 0,
-                        width: 794, // A4 width in pixels at 96 DPI
-                        windowWidth: 794
-                    },
-                    jsPDF: { 
-                        unit: 'mm', 
-                        format: 'a4', 
-                        orientation: 'portrait' 
-                    }
-                };
+                  // สร้าง HTML สำหรับ PDF พร้อมหัวและท้าย (เวอร์ชันปรับปรุง)
+const createPDFContent = () => {
+    const analysisContent = activeTabContent.cloneNode(true);
+    
+    // ปรับขนาดฟอนต์และระยะห่างทั้งหมด
+    const allElements = analysisContent.querySelectorAll('*');
+    allElements.forEach(el => {
+        // ปรับขนาดฟอนต์
+        if (el.style.fontSize) {
+            const currentSize = parseInt(el.style.fontSize);
+            if (currentSize > 12) el.style.fontSize = '11px';
+            else if (currentSize > 10) el.style.fontSize = '10px';
+            else el.style.fontSize = '9px';
+        }
+        
+        // ปรับ padding และ margin
+        if (el.style.padding) el.style.padding = '3px';
+        if (el.style.margin) el.style.margin = '2px';
+        
+        // ปรับ line-height
+        el.style.lineHeight = '1.2';
+        
+        // สำหรับตารางภาษาอังกฤษ
+        if (el.tagName === 'TABLE') {
+            el.style.width = '100%';
+            el.style.tableLayout = 'fixed';
+            el.style.wordWrap = 'break-word';
+        }
+        
+        if (el.tagName === 'TD' || el.tagName === 'TH') {
+            el.style.padding = '2px';
+            el.style.wordBreak = 'break-word';
+            el.style.fontSize = '9px';
+            el.style.verticalAlign = 'top';
+        }
+    });
+
+    return `
+        <div class="print-section" style="font-family: 'Sarabun', sans-serif; padding: 8px; max-width: 100%; box-sizing: border-box;">
+            <!-- ส่วนหัว -->
+            <div style="text-align: center; margin-bottom: 12px; border-bottom: 1px solid #2a2a72; padding-bottom: 8px;">
+                <h1 style="color: #2a2a72; margin: 0 0 4px 0; font-size: 18px; line-height: 1.1;">รายงานการวิเคราะห์คะแนน Pre-test</h1>
+                <h2 style="color: #009ffd; margin: 0 0 4px 0; font-size: 14px; line-height: 1.1;">โรงเรียนสตรีวิทยา ปีการศึกษา 2569</h2>
+                <p style="color: #666; font-size: 11px; margin: 0; line-height: 1.1;">สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                })}</p>
+            </div>
+            
+            <!-- ข้อมูลผู้วิเคราะห์ -->
+            <div style="background: #f8f9fa; padding: 8px; border-radius: 4px; margin-bottom: 12px; font-size: 11px;">
+                <h3 style="color: #2a2a72; margin: 0 0 6px 0; font-size: 12px;">ข้อมูลผู้วิเคราะห์</h3>
+                <p style="margin: 2px 0; line-height: 1.2;"><strong>ชื่อ:</strong> ${document.getElementById('nickname').value || 'ไม่ระบุชื่อ'}</p>
+                <p style="margin: 2px 0; line-height: 1.2;"><strong>ระดับชั้น:</strong> ${document.getElementById('current-grade').options[document.getElementById('current-grade').selectedIndex].text || 'ไม่ระบุ'}</p>
+            </div>
+            
+            <!-- เนื้อหาการวิเคราะห์ -->
+            <div class="analysis-content" style="font-size: 10px; line-height: 1.2;">
+                ${analysisContent.innerHTML}
+            </div>
+            
+            <!-- ส่วนท้าย -->
+            <div style="margin-top: 15px; padding-top: 8px; border-top: 1px solid #ddd; font-size: 9px; color: #666; line-height: 1.1;">
+                <p style="margin: 2px 0;"><strong>หมายเหตุ:</strong> การวิเคราะห์นี้เป็นการประเมินเบื้องต้นจากคะแนน Pre-test เท่านั้น</p>
+                <p style="margin: 2px 0;">รายงานนี้สร้างโดยระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569</p>
+                <p style="margin: 2px 0;">ออกแบบและสรุปผลโดย Line OPC : ครอบครัวยอดนารี❤️สตรีวิทยา</p>
+            </div>
+        </div>
+    `;
+};
+
+const pdfContent = createPDFContent();
+
+// ตั้งค่าสำหรับ PDF
+const opt = {
+    margin: [3, 3, 3, 3], // margin น้อยลง
+    filename: `satriwit-analysis-${new Date().toISOString().split('T')[0]}.pdf`,
+    image: { type: 'jpeg', quality: 0.95 },
+    html2canvas: { 
+        scale: 1.5, // ลด scale ลงเล็กน้อย
+        useCORS: true,
+        logging: false,
+        scrollX: 0,
+        scrollY: 0,
+        width: 794,
+        height: 1123, // ความสูง A4 ใน pixels
+        windowWidth: 794
+    },
+    jsPDF: { 
+        unit: 'mm', 
+        format: 'a4', 
+        orientation: 'portrait',
+        compress: true
+    }
+};
                 
                 // สร้าง PDF
                 await html2pdf().set(opt).from(pdfContent).save();
