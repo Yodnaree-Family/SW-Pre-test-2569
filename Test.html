@@ -3087,21 +3087,21 @@
                     strengths.push('คณิตศาสตร์');
                 } else if (preTestScores.math <= (isSpecialForm ? 25 : 15)) {
                     weaknesses.push('คณิตศาสตร์');
-                    improvements.push('ฝึกทำโจทย์คณิตศาสตร์ที่ซับซ้อนมากขึ้น');
+                    improvements.push('ฝึกทำโจทย์คณิตศาสตร์ที่ซับซ้อนมากขึ้นรับรองว่าทำโจทย์ได้คล่องขึ้นแน่นอนค่ะ');
                 }
                 
                 if (preTestScores.science >= 20) {
                     strengths.push('วิทยาศาสตร์');
                 } else if (preTestScores.science <= 12) {
                     weaknesses.push('วิทยาศาสตร์');
-                    improvements.push('ทบทวนเนื้อหาวิทยาศาสตร์และฝึกทำข้อสอบวิเคราะห์');
+                    improvements.push('ทบทวนเนื้อหาวิทยาศาสตร์ และฝึกทำข้อสอบวิเคราะห์ โจทย์แนวแข่งขันเพิ่มขึ้นนะคะ');
                 }
                 
                 if (preTestScores.english >= 20) {
                     strengths.push('ภาษาอังกฤษ');
                 } else if (preTestScores.english <= 12) {
                     weaknesses.push('ภาษาอังกฤษ');
-                    improvements.push('เพิ่มพูนคำศัพท์และฝึกการอ่าน comprehension');
+                    improvements.push('เน้นการอ่านจับใจความและเพิ่มคลังคำศัพท์ให้มากขึ้น จะช่วยให้เราเข้าใจโจทย์ได้แม่นยำขึ้นมากเลยค่ะ');
                 }
             } else {
                 // วิเคราะห์ห้องเรียนปกติ (Math 30, Sci 30, Eng 30, Thai 30, Social 30)
@@ -3118,7 +3118,7 @@
                         strengths.push(subject.name);
                     } else if (subject.score <= 12) { // เกณฑ์ 12/30
                         weaknesses.push(subject.name);
-                        improvements.push(`ทบทวนเนื้อหา${subject.name}และฝึกทำข้อสอบนะคะ`);
+                        improvements.push(`ทบทวนเนื้อหา${subject.name}และฝึกทำข้อสอบเพิ่มขึ้นอีกนิดนะคะ อย่าลืมจับเวลาในการทำข้อสอบด้วยนะคะ✌️✌️`);
                     }
                 });
             }
@@ -3294,103 +3294,51 @@
 
         // ฟังก์ชันสร้างตารางคำแนะนำรายวิชา
         function createSubjectAdviceTable(target, preTestScores, examType) {
-            let tableHTML = '';
-            
-            // ตรวจสอบว่าเป็นฟอร์มห้องพิเศษ (เต็ม 50/30) หรือปกติ (เต็ม 30/30)
-            const isSpecialForm = examType.includes('special');
-            
-            // เกณฑ์คะแนนต่ำ/สูง สำหรับแต่ละหลักสูตร
-            const thresholds = {
-                'EP': {
-                    math: { low: isSpecialForm ? 25 : 15, high: isSpecialForm ? 40 : 25 },
-                    science: { low: 12, high: 20 },
-                    english: { low: 12, high: 20 }
-                },
-                'GM': {
-                    math: { low: isSpecialForm ? 25 : 15, high: isSpecialForm ? 40 : 25 },
-                    science: { low: 12, high: 20 },
-                    english: { low: 12, high: 20 }
-                },
-                'SMTE': {
-                    math: { low: isSpecialForm ? 25 : 15, high: isSpecialForm ? 40 : 25 },
-                    science: { low: 12, high: 20 }
-                },
-                'Normal_In': {
-                    math: { low: 12, high: 20 },
-                    science: { low: 12, high: 20 },
-                    english: { low: 12, high: 20 },
-                    thai: { low: 12, high: 20 },
-                    social: { low: 12, high: 20 }
-                },
-                'Normal_Out': {
-                    math: { low: 12, high: 20 },
-                    science: { low: 12, high: 20 },
-                    english: { low: 12, high: 20 },
-                    thai: { low: 12, high: 20 },
-                    social: { low: 12, high: 20 }
-                }
-            };
-            
-            // ข้อมูลคำแนะนำสำหรับแต่ละหลักสูตร
-            const adviceData = {
-                'EP': {
-                    math: {
-                        low: 'ฝึกคำนวณและอ่านโจทย์ภาษาอังกฤษ',
-                        high: 'ทำโจทย์ประยุกต์ภาษาอังกฤษ'
-                    },
-                    science: {
-                        low: 'ทบทวนหลักการ + ศัพท์วิทยาศาสตร์',
-                        high: 'ฝึกโจทย์ระดับยาก ภาษาอังกฤษ'
-                    },
-                    english: {
-                        low: 'เสริมคำศัพท์ + ฝึกอ่านจับใจความ',
-                        high: 'ฝึกบทอ่านยาวและโจทย์วิเคราะห์'
-                    }
                 },
                 'GM': {
                     math: {
-                        low: 'เสริมพื้นฐาน + โจทย์หลายขั้นตอน',
-                        high: 'ฝึกโจทย์แข่งขัน/โอลิมปิก'
+                        low: 'แนะนำใหทบทวนพื้นฐานให้แน่นปึ้กอีกนิดนะคะ แล้วมาลุยฝึกโจทย์วิเคราะห์ที่ซับซ้อน (หลายขั้นตอน) เพิ่มเติม จะช่วยให้แก้โจทย์ยากๆ ได้อย่างมั่นใจค่ะ',
+                        high: 'น้องมีศักยภาพสูงมาก! แสดงให้เห็นทักษะด้านคณิตศาสตร์ที่ยอดเยี่ยม พร้อมที่จะไปต่อในระดับที่สูงขึ้นแล้ว แนะนำให้ลองหาโจทย์แนวแข่งขันมาฝึกฝีมือได้เลยค่ะ'
                     },
                     science: {
-                        low: 'เสริมการวิเคราะห์ข้อมูล',
-                        high: 'ฝึกโจทย์เชิงทดลอง/เชิงลึก'
+                        low: 'น้องลองฝึกฝนทักษะการวิเคราะห์ข้อมูล (จากตาราง/กราฟ) และการเชื่อมโยงเหตุผลทางวิทยาศาสตร์ แค่เพิ่มจุดนี้อีกนิดก็จะเก่งขึ้นมากค่ะ',
+                        high: 'ยอดเยี่ยมมากค่ะ! เข้าใจหลักการทางวิทยาศาสตร์ได้เป็นอย่างดี แนะนำให้ลองต่อยอดด้วยโจทย์แนววิเคราะห์การทดลอง หรือโจทย์เชิงลึกที่ต้องประยุกต์หลายๆ ความรู้เข้าด้วยกันค่ะ'
                     },
                     english: {
-                        low: 'ฝึกตีความ + ศัพท์วิเคราะห์',
-                        high: 'ฝึกชุด reasoning ระดับสูง'
+                        low: 'เน้นฝึกการตีความบทความ (Reading Comprehension) และเพิ่มคลังคำศัพท์เชิงวิเคราะห์ (Analytical Vocabulary) อีกหน่อย จะช่วยให้จับประเด็นได้เฉียบคมขึ้นค่ะ',
+                        high: 'น้องมีทักษะการวิเคราะห์ภาษาอังกฤษที่เฉียบคมมากค่ะ สามารถและควรอย่างยิ่งที่จะลองทำชุดทดสอบแนว Reasoning หรือ Critical Thinking ในระดับที่สูงขึ้น เพื่อเตรียมความพร้อมสู่สนามจริงค่ะ'
                     }
                 },
                 'SMTE': {
                     math: {
-                        low: 'ทบทวนสูตร + ฝึกคำนวณเป็นขั้นตอน',
-                        high: 'โจทย์ประยุกต์/ระดับลึก'
+                        low: 'เรามาเพิ่มความเข้าใจที่มาของสูตรอีกนิดนะคะ (ไม่ใช่แค่ท่องจำ) และฝึกคำนวณอย่างเป็นขั้นตอนให้แม่นยำขึ้นอีกนิด ฝึกจับเวลาในการทำข้อสอบ รับรองว่าทำโจทย์ได้คล่องขึ้นแน่นอนค่ะ',
+                        high: 'น้องทำได้ดีมากค่ะ! มีความเข้าใจและทักษะการคำนวณที่ดี แนะนำให้ต่อยอดด้วยโจทย์คณิตประยุกต์ หรือลองศึกษาเนื้อหาที่ลึกขึ้นกว่าในระดับชั้นได้เลยค่ะ'
                     },
                     science: {
-                        low: 'ทบทวนเนื้อหา + ฝึกอ่านโจทย์ข้อมูลเยอะ',
-                        high: 'โจทย์สถานการณ์จริง/แนวแข่งขัน'
+                        low: 'คะแนนส่วนนี้เก็บเพิ่มได้ไม่ยากค่ะ แนะนำให้ทบทวนเนื้อหาพื้นฐานให้แม่นยำ และฝึกทำความคุ้นเคยกับโจทย์ที่ให้ข้อมูลหรือสถานการณ์มาเยอะๆ (โจทย์ยาว) จะช่วยให้เราจับจุดได้เร็วขึ้นค่ะ',
+                        high: 'มีพื้นฐานวิทย์ที่ดีมากค่ะ แสดงว่ามีความเข้าใจในหลักการ แนะนำให้ท้าทายความสามารถต่อด้วยโจทย์แนวแข่งขันสสวท. TEDET ได้เลยค่ะ'
                     }
                 },
                 'Normal_In': {
                     math: {
-                        low: 'ทบทวนสูตรพื้นฐาน',
-                        high: 'ฝึกโจทย์ประยุกต์'
+                        low: 'ความพยายามอยู่ที่ไหน ความสำเร็จอยู่ที่นั่นค่ะ แนะนำให้ทบทวนสูตรพื้นฐานให้แม่นยำ และ ‘ฝึก’ ทำโจทย์ซ้ำๆ บ่อยๆ ให้เกิดความชำนาญ แค่นี้ก็เก่งขึ้นได้แล้วค่ะ',
+                        high: 'เยี่ยมเลยค่ะ! มีความแม่นยำในการคำนวณที่ดี แนะนำให้ลองฝึกโจทย์คำนวณประยุกต์ (โจทย์ปัญหา) ที่ท้าทายมากขึ้นได้เลยค่ะ'
                     },
                     science: {
-                        low: 'ทบทวนหลักการสำคัญ',
-                        high: 'ฝึกโจทย์วิเคราะห์'
+                        low: 'วิชาวิทย์เริ่มจากความเข้าใจค่ะ แนะนำให้กลับไปทบทวนหลักการพื้นฐาน และทำความเข้าใจแนวคิดสำคัญของแต่ละบทให้ชัดเจนก่อน จะเป็นฐานที่ดีในการทำข้อสอบค่ะ',
+                        high: 'ทำได้ดีค่ะ แสดงว่ามีความเข้าใจในเนื้อหา แนะนำให้ต่อยอดด้วยการฝึกทำโจทย์เชิงเหตุผล หรือฝึกโจทย์วิเคราะห์นะคะ'
                     },
                     english: {
-                        low: 'เสริมคำศัพท์พื้นฐาน',
-                        high: 'ไวยากรณ์ + บทอ่านยากขึ้น'
+                        low: 'ค่อยๆ ไปทีละขั้นนะคะ แนะนำให้เริ่มจากสร้างคลังคำศัพท์พื้นฐานที่ต้องใช้บ่อยๆ และฝึกอ่านบทความสั้นๆ ให้คล่องก่อน พอเรามั่นใจขึ้น คะแนนก็จะตามมาเองค่ะ',
+                        high: 'ทำได้ดีมากค่ะ พื้นฐานภาษาอังกฤษดีเลย แนะนำให้ต่อยอดด้วยบทอ่านที่ยาวขึ้น และลองศึกษาโครงสร้างไวยากรณ์ (Grammar) ที่ซับซ้อนขึ้นได้เลยค่ะ'
                     },
                     thai: {
-                        low: 'ฝึกอ่านจับใจความ',
-                        high: 'บทอ่านวิเคราะห์ยาวขึ้น'
+                        low: 'น้องลองฝึกอ่านจับใจความและวิเคราะห์บทความ พร้อมฝึกตัดตัวเลือกที่ไม่เกี่ยวข้อง จะช่วยให้น้องทำคะแนนได้ดีขึ้นค่ะ',
+                        high: 'ยอดเยี่ยมค่ะ! มีทักษะการอ่านที่ดี แนะนำให้ต่อยอดด้วยการฝึกอ่านบทวิเคราะห์หรือบทความที่ยาวและซับซ้อนขึ้นค่ะ'
                     },
                     social: {
-                        low: 'อ่านสรุป + คำสำคัญ',
-                        high: 'ฝึกโจทย์ข้อมูลและกราฟ'
+                        low: 'วิชานี้เนื้อหาค่อนข้างเยอะ แต่เราสู้ได้ค่ะ! แนะนำให้อ่านสรุปเนื้อหา และเน้นทบทวน ‘Keywords" ของโจทย์ ใช้วิธีตัดตัวเลือก จะช่วยให้จับประเด็นข้อสอบได้ง่ายขึ้นค่ะ',
+                        high: 'ยอดเยี่ยมมากค่ะ! แสดงว่ามีจุดแข็งที่ชัดเจนคือ 'ความเข้าใจและการจดจำเนื้อหา' ได้อย่างแม่นยำ ติดตามข่าวสารสำคัญๆ ที่เกิดขึ้นในแต่ละปี (เช่น สถานการณ์เศรษฐกิจ, ปัญหาสิ่งแวดล้อม, หรือเหตุการณ์การเมือง) สม่ำเสมอนะคะ'
                     }
                 },
                 'Normal_Out': {
@@ -3553,7 +3501,36 @@
                 
                 // สร้าง element ชั่วคราวเพื่อเก็บเนื้อหาทั้งหมด
                 const tempContainer = document.createElement('div');
-                tempContainer.innerHTML = activeTabContent.innerHTML;
+                tempContainer.className = 'print-section';
+                tempContainer.style.width = '100%';
+                tempContainer.style.fontFamily = "'Sarabun', sans-serif";
+                tempContainer.style.fontSize = '12px';
+                tempContainer.style.lineHeight = '1.4';
+                tempContainer.style.color = '#333';
+                
+                // เพิ่มส่วนหัวสำหรับ PDF
+                const headerHTML = `
+                    <div style="text-align: center; margin-bottom: 15px; border-bottom: 2px solid #2a2a72; padding-bottom: 10px;">
+                        <h1 style="color: #2a2a72; margin: 0 0 5px 0; font-size: 20px; font-weight: bold;">รายงานการวิเคราะห์คะแนน Pre-test</h1>
+                        <h2 style="color: #009ffd; margin: 0 0 5px 0; font-size: 16px;">โรงเรียนสตรีวิทยา ปีการศึกษา 2569</h2>
+                        <p style="color: #666; font-size: 12px; margin: 0;">สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        })}</p>
+                    </div>
+                    
+                    <div style="background: #f8f9fa; padding: 8px; border-radius: 3px; margin-bottom: 10px; font-size: 11px; border: 1px solid #e0e0e0;">
+                        <h3 style="color: #2a2a72; margin: 0 0 5px 0; font-size: 13px; font-weight: bold;">ข้อมูลผู้วิเคราะห์</h3>
+                        <p style="margin: 3px 0;"><strong>ชื่อ:</strong> ${document.getElementById('nickname').value || 'ไม่ระบุชื่อ'}</p>
+                        <p style="margin: 3px 0;"><strong>ระดับชั้น:</strong> ${document.getElementById('current-grade').options[document.getElementById('current-grade').selectedIndex].text || 'ไม่ระบุ'}</p>
+                    </div>
+                `;
+                
+                // คัดลอกเนื้อหาการวิเคราะห์
+                const analysisContent = activeTabContent.cloneNode(true);
                 
                 // ปรับแต่งเนื้อหาให้เหมาะสำหรับ PDF
                 const adjustContentForPDF = (element) => {
@@ -3666,52 +3643,28 @@
                     }
                 };
 
-                // ปรับแต่งทุก element
-                const allElements = tempContainer.querySelectorAll('*');
+                // ปรับแต่งทุก element ใน analysisContent
+                const allElements = analysisContent.querySelectorAll('*');
                 allElements.forEach(el => adjustContentForPDF(el));
                 
-                // ปรับแต่ง element หลัก
-                adjustContentForPDF(tempContainer);
+                // ปรับแต่ง analysisContent หลัก
+                adjustContentForPDF(analysisContent);
 
-                const pdfContent = `
-                    <div style="width: 100%; min-height: 270mm; font-family: 'Sarabun', sans-serif; padding: 10mm; margin: 0 auto; box-sizing: border-box; background: white;">
-                        <!-- ส่วนหัว -->
-                        <div style="text-align: center; margin-bottom: 8mm; border-bottom: 1px solid #2a2a72; padding-bottom: 4mm;">
-                            <h1 style="color: #2a2a72; margin: 0 0 3mm 0; font-size: 18px; line-height: 1.2; font-weight: bold;">รายงานการวิเคราะห์คะแนน Pre-test</h1>
-                            <h2 style="color: #009ffd; margin: 0 0 3mm 0; font-size: 15px; line-height: 1.2;">โรงเรียนสตรีวิทยา ปีการศึกษา 2569</h2>
-                            <p style="color: #666; font-size: 11px; margin: 0; line-height: 1.2;">สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', { 
-                                year: 'numeric', 
-                                month: 'long', 
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                            })}</p>
-                        </div>
-                        
-                        <!-- ข้อมูลผู้วิเคราะห์ -->
-                        <div style="background: #f8f9fa; padding: 4mm; border-radius: 3px; margin-bottom: 6mm; font-size: 11px; border: 1px solid #e0e0e0; text-align: left;">
-                            <h3 style="color: #2a2a72; margin: 0 0 3mm 0; font-size: 13px; font-weight: bold;">ข้อมูลผู้วิเคราะห์</h3>
-                            <p style="margin: 2mm 0; line-height: 1.3;"><strong>ชื่อ:</strong> ${document.getElementById('nickname').value || 'ไม่ระบุชื่อ'}</p>
-                            <p style="margin: 2mm 0; line-height: 1.3;"><strong>ระดับชั้น:</strong> ${document.getElementById('current-grade').options[document.getElementById('current-grade').selectedIndex].text || 'ไม่ระบุ'}</p>
-                        </div>
-                        
-                        <!-- เนื้อหาการวิเคราะห์ -->
-                        <div style="font-size: 10px; line-height: 1.3; max-width: 100%; text-align: left;">
-                            ${tempContainer.innerHTML}
-                        </div>
-                        
-                        <!-- ส่วนท้าย -->
-                        <div style="margin-top: 8mm; padding-top: 4mm; border-top: 1px solid #ddd; font-size: 9px; color: #666; line-height: 1.2; text-align: center;">
-                            <p style="margin: 1mm 0;"><strong>หมายเหตุ:</strong> การวิเคราะห์นี้เป็นการประเมินเบื้องต้นจากคะแนน Pre-test เท่านั้น</p>
-                            <p style="margin: 1mm 0;">รายงานนี้สร้างโดยระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569</p>
-                            <p style="margin: 1mm 0;">ออกแบบและสรุปผลโดย Line OPC : ครอบครัวยอดนารี❤️สตรีวิทยา</p>
-                        </div>
+                // เพิ่มส่วนท้าย
+                const footerHTML = `
+                    <div style="margin-top: 15px; padding-top: 8px; border-top: 1px solid #ddd; font-size: 9px; color: #666; line-height: 1.2; text-align: center;">
+                        <p style="margin: 2px 0;"><strong>หมายเหตุ:</strong> การวิเคราะห์นี้เป็นการประเมินเบื้องต้นจากคะแนน Pre-test เท่านั้น</p>
+                        <p style="margin: 2px 0;">รายงานนี้สร้างโดยระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569</p>
+                        <p style="margin: 2px 0;">ออกแบบและสรุปผลโดย Line OPC : ครอบครัวยอดนารี❤️สตรีวิทยา</p>
                     </div>
                 `;
 
+                // รวมเนื้อหาทั้งหมด
+                tempContainer.innerHTML = headerHTML + analysisContent.innerHTML + footerHTML;
+
                 // ตั้งค่าสำหรับ PDF
                 const opt = {
-                    margin: [10, 10, 10, 10], // top, right, bottom, left - ลด margin เพื่อให้เนื้อหาพอดี
+                    margin: [10, 10, 10, 10], // top, right, bottom, left
                     filename: `satriwit-analysis-${new Date().toISOString().split('T')[0]}.pdf`,
                     image: { type: 'jpeg', quality: 0.9 },
                     html2canvas: { 
@@ -3735,7 +3688,7 @@
                 };
 
                 // สร้าง PDF
-                await html2pdf().set(opt).from(pdfContent).save();
+                await html2pdf().set(opt).from(tempContainer).save();
                 showMessage('สร้างไฟล์ PDF สำเร็จ!', 'success');      
             } catch (error) {
                 console.error('Error exporting to PDF:', error);
