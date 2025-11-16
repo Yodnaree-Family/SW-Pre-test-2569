@@ -3156,9 +3156,47 @@
                     showMessage('ไม่พบข้อมูลการวิเคราะห์ที่เลือก', 'error');
                     return;
                 }
-                  // เวอร์ชันที่มี container ควบคุมขอบเขตและจัดกลางหน้ากระดาษ
+                      // เวอร์ชันที่มี container ควบคุมขอบเขตและจัดกลางหน้ากระดาษ
 const createPDFContent = () => {
-    const analysisContent = activeTabContent.cloneNode(true);
+    // สร้าง element ชั่วคราวเพื่อเก็บเนื้อหาทั้งหมด
+    const tempContainer = document.createElement('div');
+    
+    // คัดลอกเนื้อหาจากทุก tab ที่ต้องการ
+    const allTabContents = document.querySelectorAll('.tab-content');
+    let combinedContent = '';
+    
+    allTabContents.forEach(tabContent => {
+        if (tabContent.style.display !== 'none') {
+            // คัดลอกเนื้อหาพร้อม style
+            const contentClone = tabContent.cloneNode(true);
+            
+            // แสดง element ที่ซ่อนอยู่ทั้งหมด
+            const hiddenElements = contentClone.querySelectorAll('*');
+            hiddenElements.forEach(el => {
+                if (el.style.display === 'none') {
+                    el.style.display = 'block';
+                }
+                if (el.style.visibility === 'hidden') {
+                    el.style.visibility = 'visible';
+                }
+            });
+            
+            // แสดง canvas และ SVG
+            const canvases = contentClone.querySelectorAll('canvas');
+            canvases.forEach(canvas => {
+                canvas.style.display = 'block';
+                canvas.style.visibility = 'visible';
+                canvas.style.width = '100%';
+                canvas.style.height = 'auto';
+            });
+            
+            combinedContent += contentClone.innerHTML;
+        }
+    });
+    
+    // สร้าง element สำหรับปรับแต่ง PDF
+    const pdfContentElement = document.createElement('div');
+    pdfContentElement.innerHTML = combinedContent;
     
     // ฟังก์ชันปรับแต่งเนื้อหาแบบละเอียด
     const adjustContentForPDF = (element) => {
@@ -3167,13 +3205,21 @@ const createPDFContent = () => {
         element.style.maxWidth = '100%';
         element.style.overflow = 'hidden';
         
+        // แสดง element ที่ซ่อนอยู่
+        if (element.style.display === 'none') {
+            element.style.display = 'block';
+        }
+        if (element.style.visibility === 'hidden') {
+            element.style.visibility = 'visible';
+        }
+        
         // ปรับแต่งตามประเภท element
         const tag = element.tagName.toLowerCase();
         
         switch(tag) {
             case 'table':
                 element.style.width = '100%';
-                element.style.margin = '2px 0';
+                element.style.margin = '4px 0';
                 element.style.tableLayout = 'fixed';
                 element.style.borderCollapse = 'collapse';
                 element.style.fontSize = '9px';
@@ -3181,43 +3227,80 @@ const createPDFContent = () => {
                 
             case 'td':
             case 'th':
-                element.style.padding = '3px 2px';
+                element.style.padding = '4px 3px';
                 element.style.border = '0.5px solid #cccccc';
                 element.style.wordBreak = 'break-word';
                 element.style.verticalAlign = 'top';
-                element.style.lineHeight = '1.1';
-                element.style.fontSize = '8px';
+                element.style.lineHeight = '1.2';
+                element.style.fontSize = '9px';
                 element.style.textAlign = 'left';
                 break;
                 
             case 'div':
-                element.style.margin = '2px 0';
-                element.style.padding = '0';
+                if (element.classList.contains('chart-container') || 
+                    element.classList.contains('graph-container') ||
+                    element.id.includes('chart') ||
+                    element.id.includes('graph')) {
+                    element.style.display = 'block';
+                    element.style.visibility = 'visible';
+                    element.style.width = '100%';
+                    element.style.height = '150px';
+                    element.style.margin = '8px 0';
+                } else {
+                    element.style.margin = '3px 0';
+                    element.style.padding = '0';
+                }
+                break;
+                
+            case 'canvas':
+                element.style.display = 'block';
+                element.style.visibility = 'visible';
+                element.style.width = '100%';
+                element.style.height = '120px';
+                element.style.margin = '6px 0';
                 break;
                 
             case 'p':
-                element.style.margin = '2px 0';
+                element.style.margin = '3px 0';
                 element.style.padding = '0';
                 element.style.lineHeight = '1.3';
                 element.style.textAlign = 'left';
+                element.style.fontSize = '10px';
                 break;
                 
             case 'h1':
                 element.style.fontSize = '16px';
-                element.style.margin = '4px 0';
+                element.style.margin = '6px 0';
                 element.style.textAlign = 'center';
+                element.style.fontWeight = 'bold';
                 break;
                 
             case 'h2':
                 element.style.fontSize = '14px';
-                element.style.margin = '3px 0';
+                element.style.margin = '5px 0';
                 element.style.textAlign = 'center';
+                element.style.fontWeight = 'bold';
                 break;
                 
             case 'h3':
                 element.style.fontSize = '12px';
-                element.style.margin = '3px 0';
+                element.style.margin = '4px 0';
                 element.style.textAlign = 'left';
+                element.style.fontWeight = 'bold';
+                break;
+                
+            case 'ul':
+            case 'ol':
+                element.style.margin = '3px 0';
+                element.style.paddingLeft = '15px';
+                element.style.fontSize = '10px';
+                break;
+                
+            case 'li':
+                element.style.margin = '2px 0';
+                element.style.padding = '0';
+                element.style.lineHeight = '1.3';
+                element.style.fontSize = '10px';
                 break;
                 
             default:
@@ -3228,14 +3311,14 @@ const createPDFContent = () => {
     };
 
     // ปรับแต่งทุก element
-    const allElements = analysisContent.querySelectorAll('*');
+    const allElements = pdfContentElement.querySelectorAll('*');
     allElements.forEach(el => adjustContentForPDF(el));
     
     // ปรับแต่ง element หลัก
-    adjustContentForPDF(analysisContent);
+    adjustContentForPDF(pdfContentElement);
 
     return `
-        <div style="width: 180mm; min-height: 270mm; font-family: 'Sarabun', sans-serif; padding: 15mm 15mm; margin: 0 auto; box-sizing: border-box; background: white;">
+        <div style="width: 170mm; min-height: 270mm; font-family: 'Sarabun', sans-serif; padding: 12mm 15mm; margin: 0 auto; box-sizing: border-box; background: white;">
             <!-- ส่วนหัว -->
             <div style="text-align: center; margin-bottom: 8mm; border-bottom: 1px solid #2a2a72; padding-bottom: 4mm;">
                 <h1 style="color: #2a2a72; margin: 0 0 3mm 0; font-size: 18px; line-height: 1.2; font-weight: bold;">รายงานการวิเคราะห์คะแนน Pre-test</h1>
@@ -3258,7 +3341,7 @@ const createPDFContent = () => {
             
             <!-- เนื้อหาการวิเคราะห์ -->
             <div style="font-size: 10px; line-height: 1.3; max-width: 100%; text-align: left;">
-                ${analysisContent.innerHTML}
+                ${pdfContentElement.innerHTML}
             </div>
             
             <!-- ส่วนท้าย -->
@@ -3287,7 +3370,8 @@ const opt = {
         width: 794,
         height: 1123,
         windowWidth: 794,
-        letterRendering: true
+        letterRendering: true,
+        backgroundColor: '#ffffff'
     },
     jsPDF: { 
         unit: 'mm', 
@@ -3298,9 +3382,7 @@ const opt = {
 };
 
 // สร้าง PDF
-await html2pdf().set(opt).from(pdfContent).save();
-                showMessage('สร้างไฟล์ PDF สำเร็จ!', 'success');
-                
+await html2pdf().set(opt).from(pdfContent).save()                showMessage('สร้างไฟล์ PDF สำเร็จ!', 'success');      
             } catch (error) {
                 console.error('Error exporting to PDF:', error);
                 showMessage('เกิดข้อผิดพลาดในการสร้างไฟล์ PDF: ' + error.message, 'error');
