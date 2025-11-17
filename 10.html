@@ -3804,108 +3804,8 @@
             }
         };
 
+        
         // ฟังก์ชันสร้างเนื้อหา PDF จากข้อมูลการวิเคราะห์ทั้งหมด
-        function generatePDFContent() {
-            let content = '';
-            
-            // ข้อมูลผู้วิเคราะห์
-            const nickname = document.getElementById('nickname').value || 'ไม่ระบุชื่อ';
-            const grade = document.getElementById('current-grade').options[document.getElementById('current-grade').selectedIndex].text || 'ไม่ระบุ';
-            
-            // ส่วนหัว PDF
-            content += `
-                <div class="pdf-header-improved">
-                    <h1 class="pdf-title-improved">รายงานการวิเคราะห์คะแนน Pre-test</h1>
-                    <h2 class="pdf-subtitle-improved">โรงเรียนสตรีวิทยา ปีการศึกษา 2569</h2>
-                    <p class="pdf-date-improved">สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', { 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    })}</p>
-                </div>
-                
-                <div class="pdf-user-info-improved">
-                    <h3>ข้อมูลผู้วิเคราะห์</h3>
-                    <p><strong>ชื่อ:</strong> ${nickname}</p>
-                    <p><strong>ระดับชั้น:</strong> ${grade}</p>
-                </div>
-            `;
-            
-            // เพิ่มข้อมูลการวิเคราะห์จากแต่ละแท็บ
-            Object.keys(currentAnalysisData).forEach((key, index) => {
-                const data = currentAnalysisData[key];
-                const { stats, projectedScore, preTestTotal, currentScores, projectedSubjects, target, examType } = data;
-                const { title, min, avg, max, fullScore } = stats;
-                
-                // คำนวณเปอร์เซ็นต์สำหรับกราฟ
-                const scorePercent = Math.min(100, (projectedScore / fullScore * 100)).toFixed(2);
-                const minPercent = (min / fullScore * 100);
-                const avgPercent = (avg / fullScore * 100);
-                const maxPercent = (max / fullScore * 100);
-                
-                // วิเคราะห์โอกาสสอบติด
-                const chance = calculateAdmissionChance(projectedScore, stats);
-                
-                // วิเคราะห์จุดแข็งจุดที่ควรเสริม
-                const analysis = analyzeStrengthsWeaknesses(currentScores, target, examType);
-                
-                // สร้างตารางรายวิชา
-                let subjectTableHTML = '<table class="pdf-table-improved">';
-                subjectTableHTML += '<thead><tr><th>วิชา</th><th>คะแนน Pre-test</th><th>คะแนนที่เทียบได้</th></tr></thead><tbody>';
-                
-                if (projectedSubjects.math !== undefined) {
-                    subjectTableHTML += `<tr><td>คณิตศาสตร์</td><td>${currentScores.math ? currentScores.math.toFixed(2) : '0.00'}</td><td>${projectedSubjects.math.toFixed(2)}</td></tr>`;
-                }
-                if (projectedSubjects.science !== undefined) {
-                    subjectTableHTML += `<tr><td>วิทยาศาสตร์</td><td>${currentScores.science ? currentScores.science.toFixed(2) : '0.00'}</td><td>${projectedSubjects.science.toFixed(2)}</td></tr>`;
-                }
-                if (projectedSubjects.english !== undefined) {
-                    subjectTableHTML += `<tr><td>ภาษาอังกฤษ</td><td>${currentScores.english ? currentScores.english.toFixed(2) : '0.00'}</td><td>${projectedSubjects.english.toFixed(2)}</td></tr>`;
-                }
-                if (projectedSubjects.thai !== undefined) {
-                    subjectTableHTML += `<tr><td>ภาษาไทย</td><td>${currentScores.thai ? currentScores.thai.toFixed(2) : '0.00'}</td><td>${projectedSubjects.thai.toFixed(2)}</td></tr>`;
-                }
-                if (projectedSubjects.social !== undefined) {
-                    subjectTableHTML += `<tr><td>สังคมศึกษา</td><td>${currentScores.social ? currentScores.social.toFixed(2) : '0.00'}</td><td>${projectedSubjects.social.toFixed(2)}</td></tr>`;
-                }
-                if (projectedSubjects.interview !== undefined) {
-                    subjectTableHTML += `<tr><td>สัมภาษณ์ (สมมติฐาน)</td><td>-</td><td>${projectedSubjects.interview.toFixed(2)}</td></tr>`;
-                }
-                subjectTableHTML += '</tbody></table>';
-                
-                // สร้างตารางคำแนะนำรายวิชาสำหรับ PDF
-                const subjectAdviceTable = createSubjectAdviceTableForPDF(target, currentScores, examType);
-                
-                // สรุปผล
-                const summary = createSummary(target, analysis, preTestTotal);
-                
-                // เพิ่มเนื้อหาการวิเคราะห์แต่ละส่วน
-                content += `
-                    <div class="pdf-page-improved">
-                        <h3 style="color: #2a2a72; border-bottom: 2px solid #2a2a72; padding-bottom: 8px; margin-bottom: 15px;">${title}</h3>
-                        
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-                            <div style="text-align: center; width: 48%; background: #f0f8ff; padding: 12px; border-radius: 8px; border: 1px solid #d1e7ff;">
-                                <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: bold; color: #1e40af;">คะแนน Pre-test ของคุณ</p>
-                                <p style="margin: 0; font-size: 24px; font-weight: bold; color: #3b82f6;">${preTestTotal.toFixed(2)}</p>
-                            </div>
-                            <div style="text-align: center; width: 48%; background: #f0f9ff; padding: 12px; border-radius: 8px; border: 1px solid #bae6fd;">
-                                <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: bold; color: #0f766e;">คะแนนสอบจริงที่คาดการณ์</p>
-                                <p style="margin: 0; font-size: 24px; font-weight: bold; color: #10b981;">${projectedScore.toFixed(2)}</p>
-                                <p style="margin: 5px 0 0 0; font-size: 12px; color: #666;">จากเต็ม ${fullScore} คะแนน</p>
-                            </div>
-                        </div>
-                        
-                        <!-- ตารางเปรียบเทียบรายวิชา -->
-                        <div style="margin-bottom: 20px;">
-                            <h4 style="font-size: 16px; font-weight: bold; color: #374151; margin-bottom: 10px;">ตารางเปรียบเทียบรายวิชา</h4>
-                            ${subjectTableHTML}
-                        </div>
-                        
-                        <!-- แสดงโอกาสสอบติด -->
- // ฟังก์ชันสร้างเนื้อหา PDF จากข้อมูลการวิเคราะห์ทั้งหมด
 function generatePDFContent() {
     let content = '';
     
@@ -4073,36 +3973,19 @@ function generatePDFContent() {
                 
                 <!-- สรุปผล -->
                 ${summary}
-                
-                <!-- สรุปผลการวิเคราะห์ -->
-                <div style="margin-top: 25px; padding: 20px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #4f46e5;">
-                    <h4 style="margin: 0 0 15px 0; font-size: 18px; font-weight: bold; color: #2a2a72;">สรุปผลการวิเคราะห์</h4>
-                    <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #333;">
-                        การวิเคราะห์นี้เป็นการประเมินเบื้องต้นจากคะแนน Pre-test เท่านั้น และใช้ข้อมูลคะแนนสอบเข้าปี 2568 เป็นเกณฑ์เปรียบเทียบ 
-                        ผลลัพธ์ที่ได้เป็นเพียงการประมาณการเพื่อเป็นแนวทางในการเตรียมตัวเท่านั้น ไม่ได้เป็นการรับประกันผลการสอบจริง 
-                        ควรใช้ข้อมูลนี้ประกอบการวางแผนการเรียนและเตรียมตัวสอบอย่างเหมาะสม
-                    </p>
-                </div>
-                
-                <!-- ส่วนท้าย PDF -->
-                <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e5e7eb;">
-                    <p style="margin: 0 0 10px 0; font-size: 12px; color: #666; line-height: 1.5;">
-                        <strong>หมายเหตุ:</strong> การวิเคราะห์นี้เป็นการประเมินเบื้องต้นจากคะแนน Pre-test เท่านั้น 
-                        และใช้ข้อมูลคะแนนสอบเข้าปี 2568 เป็นเกณฑ์เปรียบเทียบ
-                    </p>
-                    <p style="margin: 0 0 10px 0; font-size: 12px; color: #666;">
-                        รายงานนี้สร้างโดยระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569
-                    </p>
-                    <p style="margin: 0 0 10px 0; font-size: 12px; color: #666;">
-                        ออกแบบและสรุปผลโดย Line OPC : ครอบครัวยอดนารี❤️สตรีวิทยา
-                    </p>
-                    <p style="margin: 0; font-size: 12px; color: #3b82f6;">
-                        เข้าร่วมกลุ่ม Line OPC: https://line.me/ti/g2/ZRIN-ofnybH08hXhS6OYTfIMeKqvupT0Qzd44Q
-                    </p>
-                </div>
             </div>
         `;
     });
+    
+    // ส่วนท้าย PDF - แก้ไขเพิ่มเติม
+    content += `
+        <div class="pdf-footer-improved">
+            <p><strong>หมายเหตุ:</strong> การวิเคราะห์นี้เป็นการประเมินเบื้องต้นจากคะแนน Pre-test เท่านั้น 
+            และใช้ข้อมูลคะแนนสอบเข้าปี 2568 เป็นเกณฑ์เปรียบเทียบ</p>
+            <p>รายงานนี้สร้างโดยระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569</p>
+            <p>ออกแบบและสรุปผลโดย Line OPC : <a href="https://line.me/ti/g2/ZRIN-ofnybH08hXhS6OYTfIMeKqvupT0Qzd44Q" target="_blank" style="color: #3b82f6; text-decoration: underline;">ครอบครัวยอดนารี❤️สตรีวิทยา</a></p>
+        </div>
+    `;
     
     return content;
 }
