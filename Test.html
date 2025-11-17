@@ -28,7 +28,7 @@
     <!-- เพิ่ม SheetJS สำหรับ Export Excel -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     
-    <!-- เพิ่ม html2pdf สำหรับ Export PDF -->
+    <!-- เพิ่ม html2pdf สำหรับ Export PDF - อัพเดทเวอร์ชัน -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
@@ -633,6 +633,86 @@
             margin-top: 10px;
             font-size: 12px;
             color: #666;
+        }
+        
+        /* เพิ่ม CSS สำหรับการพิมพ์ PDF */
+        .pdf-page {
+            page-break-after: always;
+            padding: 20px;
+            font-family: 'Sarabun', sans-serif;
+        }
+        
+        .pdf-page:last-child {
+            page-break-after: auto;
+        }
+        
+        .pdf-header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #2a2a72;
+            padding-bottom: 10px;
+        }
+        
+        .pdf-title {
+            color: #2a2a72;
+            margin: 0 0 5px 0;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .pdf-subtitle {
+            color: #009ffd;
+            margin: 0 0 5px 0;
+            font-size: 16px;
+        }
+        
+        .pdf-date {
+            color: #666;
+            font-size: 12px;
+            margin: 0;
+        }
+        
+        .pdf-user-info {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 12px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .pdf-content {
+            font-size: 12px;
+            line-height: 1.4;
+            color: #333;
+        }
+        
+        .pdf-footer {
+            margin-top: 20px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+            font-size: 10px;
+            color: #666;
+            line-height: 1.2;
+            text-align: center;
+        }
+        
+        .pdf-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 10px;
+        }
+        
+        .pdf-table th, .pdf-table td {
+            border: 1px solid #ccc;
+            padding: 5px;
+            text-align: left;
+        }
+        
+        .pdf-table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -3461,11 +3541,23 @@
                     rowClass = 'bg-yellow-50';
                 }
                 
+                // แสดงเฉพาะคำแนะนำที่ตรงกับคะแนนจริงของผู้ใช้
+                let lowAdviceCell = '';
+                let highAdviceCell = '';
+                
+                if (score <= threshold.low) {
+                    lowAdviceCell = currentAdvice[subject].low;
+                }
+                
+                if (score >= threshold.high) {
+                    highAdviceCell = currentAdvice[subject].high;
+                }
+                
                 tableHTML += `
                     <tr class="${rowClass}">
                         <td class="border border-gray-300 p-2 font-medium">${subjectName}</td>
-                        <td class="border border-gray-300 p-2">${currentAdvice[subject].low}</td>
-                        <td class="border border-gray-300 p-2">${currentAdvice[subject].high}</td>
+                        <td class="border border-gray-300 p-2">${lowAdviceCell}</td>
+                        <td class="border border-gray-300 p-2">${highAdviceCell}</td>
                     </tr>
                 `;
             });
@@ -3534,7 +3626,7 @@
             `;
         }
 
-        // ฟังก์ชันส่งออกผลวิเคราะห์เป็น PDF
+        // ฟังก์ชันส่งออกผลวิเคราะห์เป็น PDF - แก้ไขให้แสดงข้อมูลทั้งหมด
         window.exportAnalysisToPDF = async () => {
             if (!currentAnalysisData) {
                 showMessage('ไม่มีข้อมูลการวิเคราะห์ที่จะส่งออก', 'error');
@@ -3545,190 +3637,31 @@
                 // แสดงข้อความกำลังสร้าง PDF
                 showMessage('กำลังสร้างไฟล์ PDF...', 'info');
                 
-                // สร้างเนื้อหาสำหรับ PDF
-                const activeTabContent = document.querySelector('.analysis-tab-content.active');
-                if (!activeTabContent) {
-                    showMessage('ไม่พบข้อมูลการวิเคราะห์ที่เลือก', 'error');
-                    return;
-                }
+                // สร้าง element ชั่วคราวสำหรับ PDF
+                const element = document.createElement('div');
+                element.className = 'print-section';
                 
-                // สร้าง element ชั่วคราวเพื่อเก็บเนื้อหาทั้งหมด
-                const tempContainer = document.createElement('div');
-                tempContainer.className = 'print-section';
-                tempContainer.style.width = '100%';
-                tempContainer.style.fontFamily = "'Sarabun', sans-serif";
-                tempContainer.style.fontSize = '12px';
-                tempContainer.style.lineHeight = '1.4';
-                tempContainer.style.color = '#333';
+                // สร้างเนื้อหาสำหรับ PDF จากข้อมูลการวิเคราะห์ทั้งหมด
+                const analysisContent = generatePDFContent();
+                element.innerHTML = analysisContent;
                 
-                // เพิ่มส่วนหัวสำหรับ PDF
-                const headerHTML = `
-                    <div style="text-align: center; margin-bottom: 15px; border-bottom: 2px solid #2a2a72; padding-bottom: 10px;">
-                        <h1 style="color: #2a2a72; margin: 0 0 5px 0; font-size: 20px; font-weight: bold;">รายงานการวิเคราะห์คะแนน Pre-test</h1>
-                        <h2 style="color: #009ffd; margin: 0 0 5px 0; font-size: 16px;">โรงเรียนสตรีวิทยา ปีการศึกษา 2569</h2>
-                        <p style="color: #666; font-size: 12px; margin: 0;">สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', { 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        })}</p>
-                    </div>
-                    
-                    <div style="background: #f8f9fa; padding: 8px; border-radius: 3px; margin-bottom: 10px; font-size: 11px; border: 1px solid #e0e0e0;">
-                        <h3 style="color: #2a2a72; margin: 0 0 5px 0; font-size: 13px; font-weight: bold;">ข้อมูลผู้วิเคราะห์</h3>
-                        <p style="margin: 3px 0;"><strong>ชื่อ:</strong> ${document.getElementById('nickname').value || 'ไม่ระบุชื่อ'}</p>
-                        <p style="margin: 3px 0;"><strong>ระดับชั้น:</strong> ${document.getElementById('current-grade').options[document.getElementById('current-grade').selectedIndex].text || 'ไม่ระบุ'}</p>
-                    </div>
-                `;
+                // เพิ่ม element ลงใน DOM ชั่วคราว
+                document.body.appendChild(element);
                 
-                // คัดลอกเนื้อหาการวิเคราะห์
-                const analysisContent = activeTabContent.cloneNode(true);
-                
-                // ปรับแต่งเนื้อหาให้เหมาะสำหรับ PDF
-                const adjustContentForPDF = (element) => {
-                    // ปรับแต่งพื้นฐาน
-                    element.style.boxSizing = 'border-box';
-                    element.style.maxWidth = '100%';
-                    element.style.overflow = 'hidden';
-                    
-                    // แสดง element ที่ซ่อนอยู่
-                    if (element.style.display === 'none') {
-                        element.style.display = 'block';
-                    }
-                    if (element.style.visibility === 'hidden') {
-                        element.style.visibility = 'visible';
-                    }
-                    
-                    // ปรับแต่งตามประเภท element
-                    const tag = element.tagName.toLowerCase();
-                    
-                    switch(tag) {
-                        case 'table':
-                            element.style.width = '100%';
-                            element.style.margin = '4px 0';
-                            element.style.tableLayout = 'fixed';
-                            element.style.borderCollapse = 'collapse';
-                            element.style.fontSize = '9px';
-                            break;
-                            
-                        case 'td':
-                        case 'th':
-                            element.style.padding = '4px 3px';
-                            element.style.border = '0.5px solid #cccccc';
-                            element.style.wordBreak = 'break-word';
-                            element.style.verticalAlign = 'top';
-                            element.style.lineHeight = '1.2';
-                            element.style.fontSize = '9px';
-                            element.style.textAlign = 'left';
-                            break;
-                            
-                        case 'div':
-                            if (element.classList.contains('chart-container') || 
-                                element.id.includes('chart') ||
-                                element.id.includes('graph')) {
-                                element.style.display = 'block';
-                                element.style.visibility = 'visible';
-                                element.style.width = '100%';
-                                element.style.height = '150px';
-                                element.style.margin = '8px 0';
-                            } else {
-                                element.style.margin = '3px 0';
-                                element.style.padding = '0';
-                            }
-                            break;
-                            
-                        case 'canvas':
-                            element.style.display = 'block';
-                            element.style.visibility = 'visible';
-                            element.style.width = '100%';
-                            element.style.height = '120px';
-                            element.style.margin = '6px 0';
-                            break;
-                            
-                        case 'p':
-                            element.style.margin = '3px 0';
-                            element.style.padding = '0';
-                            element.style.lineHeight = '1.3';
-                            element.style.textAlign = 'left';
-                            element.style.fontSize = '10px';
-                            break;
-                            
-                        case 'h1':
-                            element.style.fontSize = '16px';
-                            element.style.margin = '6px 0';
-                            element.style.textAlign = 'center';
-                            element.style.fontWeight = 'bold';
-                            break;
-                            
-                        case 'h2':
-                            element.style.fontSize = '14px';
-                            element.style.margin = '5px 0';
-                            element.style.textAlign = 'center';
-                            element.style.fontWeight = 'bold';
-                            break;
-                            
-                        case 'h3':
-                            element.style.fontSize = '12px';
-                            element.style.margin = '4px 0';
-                            element.style.textAlign = 'left';
-                            element.style.fontWeight = 'bold';
-                            break;
-                            
-                        case 'ul':
-                        case 'ol':
-                            element.style.margin = '3px 0';
-                            element.style.paddingLeft = '15px';
-                            element.style.fontSize = '10px';
-                            break;
-                            
-                        case 'li':
-                            element.style.margin = '2px 0';
-                            element.style.padding = '0';
-                            element.style.lineHeight = '1.3';
-                            element.style.fontSize = '10px';
-                            break;
-                            
-                        default:
-                            element.style.fontSize = '10px';
-                            element.style.lineHeight = '1.3';
-                            element.style.textAlign = 'left';
-                    }
-                };
-
-                // ปรับแต่งทุก element ใน analysisContent
-                const allElements = analysisContent.querySelectorAll('*');
-                allElements.forEach(el => adjustContentForPDF(el));
-                
-                // ปรับแต่ง analysisContent หลัก
-                adjustContentForPDF(analysisContent);
-
-                // เพิ่มส่วนท้าย
-                const footerHTML = `
-                    <div style="margin-top: 15px; padding-top: 8px; border-top: 1px solid #ddd; font-size: 9px; color: #666; line-height: 1.2; text-align: center;">
-                        <p style="margin: 2px 0;"><strong>หมายเหตุ:</strong> การวิเคราะห์นี้เป็นการประเมินเบื้องต้นจากคะแนน Pre-test เท่านั้น</p>
-                        <p style="margin: 2px 0;">รายงานนี้สร้างโดยระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569</p>
-                        <p style="margin: 2px 0;">ออกแบบและสรุปผลโดย Line OPC : ครอบครัวยอดนารี❤️สตรีวิทยา</p>
-                    </div>
-                `;
-
-                // รวมเนื้อหาทั้งหมด
-                tempContainer.innerHTML = headerHTML + analysisContent.innerHTML + footerHTML;
-
                 // ตั้งค่าสำหรับ PDF
                 const opt = {
-                    margin: [10, 10, 10, 10], // top, right, bottom, left
+                    margin: 10,
                     filename: `satriwit-analysis-${new Date().toISOString().split('T')[0]}.pdf`,
-                    image: { type: 'jpeg', quality: 0.9 },
+                    image: { type: 'jpeg', quality: 0.98 },
                     html2canvas: { 
                         scale: 2,
                         useCORS: true,
                         logging: false,
                         scrollX: 0,
                         scrollY: 0,
-                        width: tempContainer.scrollWidth,
-                        height: tempContainer.scrollHeight,
-                        windowWidth: tempContainer.scrollWidth,
+                        width: element.scrollWidth,
+                        height: element.scrollHeight,
+                        windowWidth: element.scrollWidth,
                         letterRendering: true,
                         backgroundColor: '#ffffff'
                     },
@@ -3741,13 +3674,187 @@
                 };
 
                 // สร้าง PDF
-                await html2pdf().set(opt).from(tempContainer).save();
+                await html2pdf().set(opt).from(element).save();
+                
+                // ลบ element ชั่วคราว
+                document.body.removeChild(element);
+                
                 showMessage('สร้างไฟล์ PDF สำเร็จ!', 'success');      
             } catch (error) {
                 console.error('Error exporting to PDF:', error);
                 showMessage('เกิดข้อผิดพลาดในการสร้างไฟล์ PDF: ' + error.message, 'error');
             }
         };
+
+        // ฟังก์ชันสร้างเนื้อหา PDF จากข้อมูลการวิเคราะห์ทั้งหมด
+        function generatePDFContent() {
+            let content = '';
+            
+            // ข้อมูลผู้วิเคราะห์
+            const nickname = document.getElementById('nickname').value || 'ไม่ระบุชื่อ';
+            const grade = document.getElementById('current-grade').options[document.getElementById('current-grade').selectedIndex].text || 'ไม่ระบุ';
+            
+            // ส่วนหัว PDF
+            content += `
+                <div class="pdf-header">
+                    <h1 class="pdf-title">รายงานการวิเคราะห์คะแนน Pre-test</h1>
+                    <h2 class="pdf-subtitle">โรงเรียนสตรีวิทยา ปีการศึกษา 2569</h2>
+                    <p class="pdf-date">สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    })}</p>
+                </div>
+                
+                <div class="pdf-user-info">
+                    <h3>ข้อมูลผู้วิเคราะห์</h3>
+                    <p><strong>ชื่อ:</strong> ${nickname}</p>
+                    <p><strong>ระดับชั้น:</strong> ${grade}</p>
+                </div>
+            `;
+            
+            // เพิ่มข้อมูลการวิเคราะห์จากแต่ละแท็บ
+            Object.keys(currentAnalysisData).forEach((key, index) => {
+                const data = currentAnalysisData[key];
+                const { stats, projectedScore, preTestTotal, currentScores, projectedSubjects } = data;
+                const { title, min, avg, max, fullScore } = stats;
+                
+                // คำนวณเปอร์เซ็นต์สำหรับกราฟ
+                const scorePercent = Math.min(100, (projectedScore / fullScore * 100)).toFixed(2);
+                const minPercent = (min / fullScore * 100);
+                const avgPercent = (avg / fullScore * 100);
+                const maxPercent = (max / fullScore * 100);
+                
+                // วิเคราะห์โอกาสสอบติด
+                const chance = calculateAdmissionChance(projectedScore, stats);
+                
+                // วิเคราะห์จุดแข็งจุดที่ควรเสริม
+                const analysis = analyzeStrengthsWeaknesses(currentScores, data.target, data.examType);
+                
+                // สร้างตารางรายวิชา
+                let subjectTableHTML = '<table class="pdf-table">';
+                subjectTableHTML += '<thead><tr><th>วิชา</th><th>คะแนน Pre-test</th><th>คะแนนที่เทียบได้</th></tr></thead><tbody>';
+                
+                if (projectedSubjects.math !== undefined) {
+                    subjectTableHTML += `<tr><td>คณิตศาสตร์</td><td>${currentScores.math.toFixed(2)}</td><td>${projectedSubjects.math.toFixed(2)}</td></tr>`;
+                }
+                if (projectedSubjects.science !== undefined) {
+                    subjectTableHTML += `<tr><td>วิทยาศาสตร์</td><td>${currentScores.science.toFixed(2)}</td><td>${projectedSubjects.science.toFixed(2)}</td></tr>`;
+                }
+                if (projectedSubjects.english !== undefined) {
+                    subjectTableHTML += `<tr><td>ภาษาอังกฤษ</td><td>${currentScores.english.toFixed(2)}</td><td>${projectedSubjects.english.toFixed(2)}</td></tr>`;
+                }
+                if (projectedSubjects.thai !== undefined) {
+                    subjectTableHTML += `<tr><td>ภาษาไทย</td><td>${currentScores.thai.toFixed(2)}</td><td>${projectedSubjects.thai.toFixed(2)}</td></tr>`;
+                }
+                if (projectedSubjects.social !== undefined) {
+                    subjectTableHTML += `<tr><td>สังคมศึกษา</td><td>${currentScores.social.toFixed(2)}</td><td>${projectedSubjects.social.toFixed(2)}</td></tr>`;
+                }
+                if (projectedSubjects.interview !== undefined) {
+                    subjectTableHTML += `<tr><td>สัมภาษณ์ (สมมติฐาน)</td><td>-</td><td>${projectedSubjects.interview.toFixed(2)}</td></tr>`;
+                }
+                subjectTableHTML += '</tbody></table>';
+                
+                // เพิ่มเนื้อหาการวิเคราะห์แต่ละส่วน
+                content += `
+                    <div class="pdf-page">
+                        <h3>${title}</h3>
+                        
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                            <div style="text-align: center; width: 48%; background: #f0f8ff; padding: 10px; border-radius: 5px;">
+                                <p style="margin: 0 0 5px 0; font-size: 12px;">คะแนน Pre-test ของคุณ</p>
+                                <p style="margin: 0; font-size: 18px; font-weight: bold; color: #3b82f6;">${preTestTotal.toFixed(2)}</p>
+                            </div>
+                            <div style="text-align: center; width: 48%; background: #f0f8ff; padding: 10px; border-radius: 5px;">
+                                <p style="margin: 0 0 5px 0; font-size: 12px;">คะแนนสอบจริงที่คาดการณ์</p>
+                                <p style="margin: 0; font-size: 18px; font-weight: bold; color: #10b981;">${projectedScore.toFixed(2)}</p>
+                                <p style="margin: 0; font-size: 10px; color: #666;">จากเต็ม ${fullScore} คะแนน</p>
+                            </div>
+                        </div>
+                        
+                        <!-- ตารางเปรียบเทียบรายวิชา -->
+                        ${subjectTableHTML}
+                        
+                        <!-- แสดงโอกาสสอบติด -->
+                        <div style="background: ${chance.level === 'high' ? '#d1fae5' : chance.level === 'medium' ? '#fef3c7' : '#fed7aa'}; 
+                                    padding: 10px; border-radius: 5px; margin: 15px 0; text-align: center;">
+                            <h4 style="margin: 0 0 5px 0; font-size: 14px;">โอกาสสอบติด: ${chance.text}</h4>
+                            <p style="margin: 0; font-size: 11px;">${chance.description}</p>
+                        </div>
+                        
+                        ${data.target === 'EP' ? 
+                            `<div style="background: #ffedd5; padding: 8px; border-radius: 5px; margin: 10px 0; text-align: center; font-size: 10px;">
+                                <b>*หมายเหตุ:</b> คะแนนนี้คำนวณโดยสมมติว่าคุณได้คะแนนส่วนสัมภาษณ์เต็ม 20 คะแนน
+                            </div>` : ''
+                        }
+                        
+                        <!-- สถิติเปรียบเทียบ -->
+                        <div style="margin: 15px 0;">
+                            <p style="font-size: 12px; font-weight: bold; margin-bottom: 5px;">เปรียบเทียบกับสถิติปี 2568</p>
+                            <div style="display: flex; justify-content: space-between; text-align: center; margin-top: 10px;">
+                                <div style="width: 30%; background: #fee2e2; padding: 8px; border-radius: 5px;">
+                                    <p style="margin: 0 0 3px 0; font-size: 10px; font-weight: bold; color: #dc2626;">ต่ำสุดปี 68</p>
+                                    <p style="margin: 0; font-size: 14px; font-weight: bold;">${min.toFixed(2)}</p>
+                                </div>
+                                <div style="width: 30%; background: #fef3c7; padding: 8px; border-radius: 5px;">
+                                    <p style="margin: 0 0 3px 0; font-size: 10px; font-weight: bold; color: #d97706;">เฉลี่ยปี 68</p>
+                                    <p style="margin: 0; font-size: 14px; font-weight: bold;">${avg.toFixed(2)}</p>
+                                </div>
+                                <div style="width: 30%; background: #d1fae5; padding: 8px; border-radius: 5px;">
+                                    <p style="margin: 0 0 3px 0; font-size: 10px; font-weight: bold; color: #059669;">สูงสุดปี 68</p>
+                                    <p style="margin: 0; font-size: 14px; font-weight: bold;">${max.toFixed(2)}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- แสดงจุดแข็ง และจุดที่ควรเสริม -->
+                        <div style="display: flex; justify-content: space-between; margin: 15px 0;">
+                            ${analysis.strengths.length > 0 ? `
+                                <div style="width: 48%; background: #f0fdf4; padding: 10px; border-radius: 5px; border: 1px solid #bbf7d0;">
+                                    <h5 style="margin: 0 0 5px 0; font-size: 12px; font-weight: bold; color: #16a34a;">จุดแข็ง</h5>
+                                    <ul style="margin: 0; padding-left: 15px; font-size: 11px;">
+                                        ${analysis.strengths.map(strength => `<li>${strength}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            ` : '<div style="width: 48%;"></div>'}
+                            
+                            ${analysis.weaknesses.length > 0 ? `
+                                <div style="width: 48%; background: #fffbeb; padding: 10px; border-radius: 5px; border: 1px solid #fde68a;">
+                                    <h5 style="margin: 0 0 5px 0; font-size: 12px; font-weight: bold; color: #d97706;">จุดที่ควรเสริม</h5>
+                                    <ul style="margin: 0; padding-left: 15px; font-size: 11px;">
+                                        ${analysis.weaknesses.map(weakness => `<li>${weakness}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            ` : '<div style="width: 48%;"></div>'}
+                        </div>
+                        
+                        <!-- ข้อแนะนำ -->
+                        ${analysis.improvements.length > 0 ? `
+                            <div style="background: #f0f9ff; padding: 10px; border-radius: 5px; border: 1px solid #bae6fd; margin: 10px 0;">
+                                <h5 style="margin: 0 0 5px 0; font-size: 12px; font-weight: bold; color: #0369a1;">ข้อแนะนำ</h5>
+                                <ul style="margin: 0; padding-left: 15px; font-size: 11px;">
+                                    ${analysis.improvements.map(improvement => `<li>${improvement}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            // ส่วนท้าย PDF
+            content += `
+                <div class="pdf-footer">
+                    <p><strong>หมายเหตุ:</strong> การวิเคราะห์นี้เป็นการประเมินเบื้องต้นจากคะแนน Pre-test เท่านั้น 
+                    และใช้ข้อมูลคะแนนสอบเข้าปี 2568 เป็นเกณฑ์เปรียบเทียบ</p>
+                    <p>รายงานนี้สร้างโดยระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569</p>
+                    <p>ออกแบบและสรุปผลโดย Line OPC : ครอบครัวยอดนารี❤️สตรีวิทยา</p>
+                </div>
+            `;
+            
+            return content;
+        }
 
         // --- Admin Functions ---
 
