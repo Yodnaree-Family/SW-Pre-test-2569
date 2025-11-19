@@ -3665,7 +3665,7 @@ function getAnalysisDataFromActiveTab() {
 
         // ฟังก์ชันส่งออกผลวิเคราะห์เป็น PDF - แก้ไขให้แสดงข้อมูลทั้งหมด
          // 🚨 NEW PDF EXPORT FUNCTION WITH FLOW LOGIC 🚨
-                window.exportAnalysisToPDF = async () => {
+                        window.exportAnalysisToPDF = async () => {
             const activeTab = document.querySelector('.analysis-tab.active');
             if (!activeTab) { showMessage('กรุณาเลือกแท็บการวิเคราะห์ก่อนบันทึก PDF', 'error'); return; }
             
@@ -3678,16 +3678,19 @@ function getAnalysisDataFromActiveTab() {
                 element.style.padding = '0';
                 element.style.margin = '0';
                 element.style.background = 'white';
-                // บังคับตำแหน่งให้อยู่นอกจอแต่ render ได้ (แก้บั๊กจอดำในบาง Browser)
-                element.style.position = 'absolute';
-                element.style.left = '-9999px';
+                
+                // 🔥 แก้ไขจุดที่ทำให้ PDF ว่างเปล่า:
+                // เปลี่ยนจาก left: -9999px เป็น zIndex: -9999 แทน
+                // เพื่อให้ Element ยังอยู่ในพิกัดที่ html2canvas มองเห็นได้ แต่อยู่หลังสุด
+                element.style.position = 'fixed'; // ใช้ fixed เพื่อให้ตำแหน่งนิ่ง
+                element.style.left = '0';
                 element.style.top = '0';
+                element.style.zIndex = '-9999'; 
                 
                 element.innerHTML = generatePDFContent();
                 document.body.appendChild(element);
                 
-                // 🔥 จุดแก้สำคัญที่ 1: รอให้ Browser วาด Font Sarabun เสร็จก่อน (1.5 วินาที)
-                // ถ้าไม่รอ html2canvas จะจับภาพตอนฟอนต์ยังไม่มา ทำให้สระเพี้ยน
+                // รอให้ Font โหลดและ Browser วาดเสร็จ
                 await new Promise(resolve => setTimeout(resolve, 1500));
 
                 const opt = {
@@ -3695,26 +3698,30 @@ function getAnalysisDataFromActiveTab() {
                     filename: `satriwit-analysis-${new Date().toISOString().split('T')[0]}.pdf`,
                     image: { type: 'jpeg', quality: 0.98 },
                     html2canvas: { 
-                        scale: 2, // ใช้แค่ 2 ก็คมชัดพอและไม่หน่วงครับ
+                        scale: 2, 
                         useCORS: true, 
                         logging: false,
                         scrollY: 0,
-                        // ห้ามใช้ letterRendering กับภาษาไทยเด็ดขาด
+                        windowWidth: document.documentElement.offsetWidth, // ช่วยให้จับภาพได้เต็ม
+                        windowHeight: document.documentElement.offsetHeight
                     },
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true },
                     pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
                 };
 
                 await html2pdf().set(opt).from(element).save();
+                
+                // ลบ Element ทิ้งหลังจาก save เสร็จ
                 document.body.removeChild(element);
                 showMessage('สร้างไฟล์ PDF สำเร็จ!', 'success');      
             } catch (error) {
                 console.error('Error exporting to PDF:', error);
                 showMessage('เกิดข้อผิดพลาด: ' + error.message, 'error');
                 const tempElement = document.querySelector('.print-section');
-                if (tempElement) document.body.removeChild(tempElement);
+                if (tempElement && tempElement.parentNode) tempElement.parentNode.removeChild(tempElement);
             }
         };
+
 
 
         
@@ -4161,5 +4168,6 @@ function getAnalysisDataFromActiveTab() {
 </body>
 
 </html>
+
 
 
