@@ -3615,11 +3615,11 @@
             }
             
             return `
-                <div class="mt-8 p-4 bg-blue-50 rounded-lg">
-                    <h4 class="text-lg font-bold text-blue-800 mb-2">สรุปผลการวิเคราะห์</h4>
-                    <p class="text-gray-700">${summaryText}</p>
-                </div>
-            `;
+    <div class="mt-8 p-4 bg-blue-50 rounded-lg">
+        <h4 class="text-lg font-bold text-blue-800 mb-2">สรุปผลการวิเคราะห์</h4>
+        <p class="text-gray-700 summary-text">${summaryText}</p> </div>
+`;
+
         }
 
 // ฟังก์ชันช่วยในการดึงข้อมูลจากแท็บ analysis
@@ -3776,7 +3776,14 @@ function getAnalysisDataFromActiveTab() {
 
                     .text-center { text-align: center; }
                     .font-bold { font-weight: bold; }
+                    /* สีสำหรับหมายเหตุ */
+                    .bg-note { background-color: #fffbeb !important; border-color: #fcd34d; color: #92400e; }
+
+                    .text-center { text-align: center; }
+                    .font-bold { font-weight: bold; }
+                    .text-xl { font-size: 20px; }
                     
+                    a { text-decoration: none; color: #000; }
                     /* ตั้งค่าหน้ากระดาษ */
                     @page {
                         size: A4;
@@ -3926,8 +3933,8 @@ function getAnalysisDataFromActiveTab() {
                         content += `</tbody></table>`;
                     }
                     
-                    // สรุป
-                    const summaryEl = activeTabContent.querySelector('.bg-blue-50 p');
+                    /// สรุปผล
+const summaryEl = activeTabContent.querySelector('.summary-text'); // ✅ เรียกหาชื่อเล่นที่เราตั้งไว้
                     if(summaryEl) {
                         content += `
                             <div class="box bg-blue" style="margin-top:20px;">
@@ -3936,14 +3943,24 @@ function getAnalysisDataFromActiveTab() {
                             </div>
                         `;
                     }
+                
+// 🔥 เพิ่มส่วนหมายเหตุ (Note) ตรงนี้ครับ
+                    content += `
+                        <div class="box bg-note" style="margin-top:15px;">
+                            <p style="margin:0; font-size:12px;">
+                                <strong>หมายเหตุ:</strong> การวิเคราะห์นี้เป็นการประเมินเบื้องต้นจากคะแนน Pre-test เท่านั้น 
+                                และใช้ข้อมูลคะแนนสอบเข้าปี 2568 เป็นเกณฑ์เปรียบเทียบ เพื่อเป็นแนวทางในการเตรียมตัวสอบ
+                            </p>
+                        </div>
+                    `;
                 }
             }
 
             // Footer
             content += `
                 <div style="margin-top:30px; border-top:1px solid #ccc; padding-top:10px; text-align:center; font-size:12px; color:#666;">
-                    <p style="margin:2px;">รายงานนี้สร้างโดยระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569 | ออกแบบและสรุปผลโดย Line OPC : ครอบครัวยอดนารี❤️สตรีวิทยา</p>
-                    <p style="margin:2px;">ลุ้นสอวอไปด้วยกันนะ</p>
+                    <p style="margin:2px;">รายงานนี้สร้างโดยระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569 | ออกแบบและสรุปผลโดย ลุ้นสอวอไปด้วยกันนะ</p>
+                    <p style="margin:2px;">Line OPC : ครอบครัวยอดนารี❤️สตรีวิทยา</p>
                 </div>
             `;
 
