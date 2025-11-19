@@ -3764,20 +3764,24 @@ function getAnalysisDataFromActiveTab() {
         };
 
         // ---------------------------------------------------------
-        // แก้ไขครั้งที่ 7: ฟังก์ชัน generatePDFContent
+        
+                
+                        
+                            // ---------------------------------------------------------
+        // แก้ไขครั้งที่ 8 (Fix Navigation & PDF): ฟังก์ชัน generatePDFContent
         // ---------------------------------------------------------
         function generatePDFContent() {
-            // CSS Reset: ล้างค่าทุกอย่างที่อาจจะติดมาจาก Tailwind
-            const cssReset = `
-                /* Reset พื้นฐาน */
+            // สร้าง CSS Reset และ Style ทั้งหมดไว้ที่นี่ที่เดียว
+            const fullStyle = `
+                /* Reset พื้นฐานสำหรับ PDF */
                 .pdf-wrapper {
                     font-family: 'Sarabun', sans-serif !important;
                     color: #000000 !important;
                     line-height: 1.6 !important;
-                    letter-spacing: normal !important;
                     text-align: left;
                     width: 100%;
                     background: #fff;
+                    font-variant-ligatures: none; /* แก้สระลอย */
                 }
                 
                 /* บังคับ Font ทุกตัว */
@@ -3802,11 +3806,13 @@ function getAnalysisDataFromActiveTab() {
                     border-collapse: collapse;
                     margin: 15px 0;
                     font-size: 14px;
+                    table-layout: fixed; /* บังคับคอลัมน์ไม่ให้เพี้ยน */
                 }
                 .pdf-table th, .pdf-table td {
                     border: 1px solid #ccc;
                     padding: 10px;
                     vertical-align: top;
+                    word-wrap: break-word;
                 }
                 .pdf-table th { background-color: #f3f4f6; font-weight: bold; }
 
@@ -3822,7 +3828,7 @@ function getAnalysisDataFromActiveTab() {
                 .bg-yellow { background-color: #fefce8; border-color: #fef08a; }
                 .bg-red { background-color: #fef2f2; border-color: #fecaca; }
                 
-                /* Text Helper */
+                /* Helper Classes */
                 .text-center { text-align: center; }
                 .font-bold { font-weight: bold; }
                 .text-xl { font-size: 20px; }
@@ -3830,10 +3836,11 @@ function getAnalysisDataFromActiveTab() {
                 .mb-2 { margin-bottom: 8px; }
             `;
 
+            // เริ่มต้นสร้าง HTML Content
             let content = `
                 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
                 
-                <style>${cssReset}</style>
+                <style>${fullStyle}</style>
                 
                 <div class="pdf-wrapper">
                     <div class="pdf-header">
@@ -3843,7 +3850,7 @@ function getAnalysisDataFromActiveTab() {
                     </div>
             `;
             
-            // ข้อมูลผู้ใช้
+            // ดึงข้อมูลผู้ใช้
             const nickname = document.getElementById('nickname')?.value || 'ไม่ระบุชื่อ';
             const gradeSelect = document.getElementById('current-grade');
             const grade = gradeSelect?.options[gradeSelect.selectedIndex]?.text || 'ไม่ระบุ';
@@ -3855,7 +3862,7 @@ function getAnalysisDataFromActiveTab() {
                 </div>
             `;
 
-            // --- Logic ดึงข้อมูล ---
+            // --- Logic ดึงข้อมูลจาก Tab ที่ Active ---
             const activeTab = document.querySelector('.analysis-tab.active');
             if (activeTab) {
                 const tabId = activeTab.id;
@@ -3863,26 +3870,27 @@ function getAnalysisDataFromActiveTab() {
                 const activeTabContent = document.getElementById(contentId);
 
                 if (activeTabContent) {
+                    // 1. หัวข้อและคะแนน
                     const title = activeTabContent.querySelector('h3')?.textContent || 'การวิเคราะห์คะแนน';
                     const preTestScore = activeTabContent.querySelector('.text-3xl.text-blue-600')?.textContent || '0.00';
                     const projectedScore = activeTabContent.querySelector('.text-3xl.text-green-600')?.textContent || '0.00';
                     const fullScoreText = activeTabContent.querySelector('.text-sm.text-gray-500')?.textContent || '';
 
                     content += `
-                        <h3 style="border-bottom: 2px solid #ddd; padding-bottom: 5px; margin-top: 20px;">${title}</h3>
+                        <h3 style="border-bottom: 2px solid #ddd; padding-bottom: 5px; margin-top: 20px; font-weight: bold;">${title}</h3>
                         
                         <table style="width:100%; margin-bottom: 20px;">
                             <tr>
                                 <td style="width:50%; padding-right:10px; border:none;">
                                     <div class="pdf-box bg-blue text-center">
                                         <p class="mb-2 font-bold">คะแนน Pre-test ของคุณ</p>
-                                        <div class="text-xl" style="color:#2563eb;">${preTestScore}</div>
+                                        <div class="text-xl" style="color:#2563eb; font-weight:bold;">${preTestScore}</div>
                                     </div>
                                 </td>
                                 <td style="width:50%; padding-left:10px; border:none;">
                                     <div class="pdf-box bg-green text-center">
                                         <p class="mb-2 font-bold">คะแนนสอบจริงที่คาดการณ์</p>
-                                        <div class="text-xl" style="color:#16a34a;">${projectedScore}</div>
+                                        <div class="text-xl" style="color:#16a34a; font-weight:bold;">${projectedScore}</div>
                                         <div style="font-size:12px; color:#666;">${fullScoreText}</div>
                                     </div>
                                 </td>
@@ -3890,12 +3898,11 @@ function getAnalysisDataFromActiveTab() {
                         </table>
                     `;
 
-                    // โอกาสสอบติด
+                    // 2. โอกาสสอบติด
                     const chanceElement = activeTabContent.querySelector('.chance-high, .chance-medium, .chance-low');
                     if (chanceElement) {
                         const chanceTitle = chanceElement.querySelector('h4')?.textContent || '';
                         const chanceDesc = chanceElement.querySelector('p')?.textContent || '';
-                        // Map สี
                         let chanceBg = 'bg-yellow';
                         if (chanceElement.classList.contains('chance-high')) chanceBg = 'bg-green';
                         if (chanceElement.classList.contains('chance-low')) chanceBg = 'bg-red';
@@ -3908,7 +3915,7 @@ function getAnalysisDataFromActiveTab() {
                         `;
                     }
 
-                    // เปรียบเทียบสถิติ
+                    // 3. เปรียบเทียบสถิติ
                     const statsElements = activeTabContent.querySelectorAll('.bg-red-50, .bg-yellow-50, .bg-green-50');
                     if (statsElements.length >= 3) {
                         const min = statsElements[0].querySelector('.text-2xl')?.textContent || '0';
@@ -3917,40 +3924,38 @@ function getAnalysisDataFromActiveTab() {
                         
                         content += `
                             <h4 class="font-bold" style="margin-top:20px;">เปรียบเทียบกับสถิติปี 2568</h4>
-                            <table style="width:100%; text-align:center; margin-top:10px;">
+                            <table style="width:100%; text-align:center; margin-top:10px; border-collapse: separate; border-spacing: 5px;">
                                 <tr>
-                                    <td style="width:33%; border:none; padding:5px;"><div class="pdf-box bg-red"><div style="font-size:12px;">ต่ำสุดปี 68</div><div class="font-bold text-lg">${min}</div></div></td>
-                                    <td style="width:33%; border:none; padding:5px;"><div class="pdf-box bg-yellow"><div style="font-size:12px;">เฉลี่ยปี 68</div><div class="font-bold text-lg">${avg}</div></div></td>
-                                    <td style="width:33%; border:none; padding:5px;"><div class="pdf-box bg-green"><div style="font-size:12px;">สูงสุดปี 68</div><div class="font-bold text-lg">${max}</div></div></td>
+                                    <td style="width:33%; border:none; padding:0;"><div class="pdf-box bg-red" style="margin:0;"><div style="font-size:12px; font-weight:bold;">ต่ำสุดปี 68</div><div class="font-bold text-lg">${min}</div></div></td>
+                                    <td style="width:33%; border:none; padding:0;"><div class="pdf-box bg-yellow" style="margin:0;"><div style="font-size:12px; font-weight:bold;">เฉลี่ยปี 68</div><div class="font-bold text-lg">${avg}</div></div></td>
+                                    <td style="width:33%; border:none; padding:0;"><div class="pdf-box bg-green" style="margin:0;"><div style="font-size:12px; font-weight:bold;">สูงสุดปี 68</div><div class="font-bold text-lg">${max}</div></div></td>
                                 </tr>
                             </table>
                         `;
                     }
                     
-                    // จุดแข็ง / จุดอ่อน
+                    // 4. จุดแข็ง / จุดอ่อน
                      const strEl = activeTabContent.querySelector('.strength-item');
                     const weakEl = activeTabContent.querySelector('.weakness-item');
                     if (strEl || weakEl) {
-                        content += `<table style="width:100%; margin-top:15px;"><tr>`;
+                        content += `<table style="width:100%; margin-top:15px; border-collapse: separate; border-spacing: 5px;"><tr>`;
                         if (strEl) {
-                             // ดึงเนื้อหา list
                             const items = Array.from(strEl.querySelectorAll('li')).map(li => `<li>${li.textContent}</li>`).join('');
-                            content += `<td style="width:50%; vertical-align:top; border:none; padding-right:5px;"><div class="pdf-box bg-green"><h5 class="font-bold mb-2" style="color:green;">จุดแข็ง</h5><ul style="padding-left:20px; margin:0;">${items}</ul></div></td>`;
+                            content += `<td style="width:50%; vertical-align:top; border:none; padding:0;"><div class="pdf-box bg-green" style="margin:0;"><h5 class="font-bold mb-2" style="color:green; font-size:16px; margin-top:0;">จุดแข็ง</h5><ul style="padding-left:20px; margin:0;">${items}</ul></div></td>`;
                         }
                         if (weakEl) {
                             const items = Array.from(weakEl.querySelectorAll('li')).map(li => `<li>${li.textContent}</li>`).join('');
-                            content += `<td style="width:50%; vertical-align:top; border:none; padding-left:5px;"><div class="pdf-box bg-yellow"><h5 class="font-bold mb-2" style="color:#d97706;">จุดที่ควรเสริม</h5><ul style="padding-left:20px; margin:0;">${items}</ul></div></td>`;
+                            content += `<td style="width:50%; vertical-align:top; border:none; padding:0;"><div class="pdf-box bg-yellow" style="margin:0;"><h5 class="font-bold mb-2" style="color:#d97706; font-size:16px; margin-top:0;">จุดที่ควรเสริม</h5><ul style="padding-left:20px; margin:0;">${items}</ul></div></td>`;
                         }
                         content += `</tr></table>`;
                     }
 
-                    // ตารางคะแนน (สร้างใหม่ด้วยโครงสร้างที่ง่ายที่สุด)
+                    // 5. ตารางคะแนนรายวิชา
                     const tables = activeTabContent.querySelectorAll('table');
                     if(tables.length > 0) {
                         content += `<h4 class="font-bold" style="margin-top:20px;">คะแนนรายวิชา</h4>`;
-                        content += `<table class="pdf-table"><thead><tr><th>วิชา</th><th>คะแนน Pre-test</th><th>เทียบเคียง</th></tr></thead><tbody>`;
+                        content += `<table class="pdf-table"><thead><tr><th style="width:40%">วิชา</th><th style="width:30%">คะแนน Pre-test</th><th style="width:30%">เทียบเคียง</th></tr></thead><tbody>`;
                         
-                        // Loop ดึงข้อมูลจากตารางเดิม
                         tables[0].querySelectorAll('tbody tr').forEach(tr => {
                             const tds = tr.querySelectorAll('td');
                             if(tds.length >= 3) {
@@ -3960,26 +3965,7 @@ function getAnalysisDataFromActiveTab() {
                                     <td class="text-center">${tds[2].textContent}</td>
                                 </tr>`;
                             }
-                        });
-                        content += `</tbody></table>`;
-                    }
 
-                    // ตารางข้อเสนอแนะ
-                    if(tables.length > 1) {
-                        content += `<h4 class="font-bold" style="margin-top:20px;">ข้อเสนอแนะเพื่อพัฒนา</h4>`;
-                        content += `<table class="pdf-table"><thead><tr><th style="width:30%">วิชา</th><th>ข้อเสนอแนะ</th></tr></thead><tbody>`;
-                        
-                        tables[1].querySelectorAll('tbody tr').forEach(tr => {
-                            const tds = tr.querySelectorAll('td');
-                            if(tds.length >= 2) {
-                                let rowBg = '';
-                                if(tr.classList.contains('bg-green-50')) rowBg = 'background-color:#f0fdf4;';
-                                if(tr.classList.contains('bg-red-50')) rowBg = 'background-color:#fef2f2
-
-                    
-                     
-            
-    
 
         // --- Admin Functions ---
 
@@ -4303,6 +4289,7 @@ function getAnalysisDataFromActiveTab() {
 </body>
 
 </html>
+
 
 
 
