@@ -635,84 +635,88 @@
             color: #666;
         }
         
-        /* เพิ่ม CSS สำหรับการพิมพ์ PDF */
-        .pdf-page {
-            page-break-after: always;
-            padding: 20px;
+        /* 🚨 IMPROVED PDF STYLES (สำหรับ PDF แบบ Flow) 🚨 */
+        .pdf-container-flow {
+            width: 100%;
             font-family: 'Sarabun', sans-serif;
+            color: #333;
+            line-height: 1.5;
+            background: white;
+        }
+
+        /* พยายามไม่ตัดกลาง element */
+        .pdf-section {
+            margin-bottom: 20px;
+            page-break-inside: avoid; 
         }
         
-        .pdf-page:last-child {
-            page-break-after: auto;
-        }
-        
-        .pdf-header {
+        .pdf-header-improved {
             text-align: center;
             margin-bottom: 20px;
-            border-bottom: 2px solid #2a2a72;
-            padding-bottom: 10px;
+            border-bottom: 3px solid #2a2a72;
+            padding-bottom: 15px;
+            page-break-inside: avoid;
         }
         
-        .pdf-title {
+        .pdf-title-improved {
             color: #2a2a72;
-            margin: 0 0 5px 0;
-            font-size: 20px;
+            margin: 0 0 8px 0;
+            font-size: 24px;
             font-weight: bold;
         }
         
-        .pdf-subtitle {
+        .pdf-subtitle-improved {
             color: #009ffd;
-            margin: 0 0 5px 0;
-            font-size: 16px;
+            margin: 0 0 8px 0;
+            font-size: 18px;
         }
         
-        .pdf-date {
-            color: #666;
-            font-size: 12px;
-            margin: 0;
-        }
-        
-        .pdf-user-info {
+        .pdf-user-info-improved {
             background: #f8f9fa;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            font-size: 12px;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
             border: 1px solid #e0e0e0;
+            page-break-inside: avoid;
         }
         
-        .pdf-content {
+        .pdf-footer-final {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 2px solid #ddd;
             font-size: 12px;
-            line-height: 1.4;
-            color: #333;
-        }
-        
-        .pdf-footer {
-            margin-top: 20px;
-            padding-top: 10px;
-            border-top: 1px solid #ddd;
-            font-size: 10px;
             color: #666;
-            line-height: 1.2;
+            line-height: 1.4;
             text-align: center;
+            background-color: #fff;
+            page-break-inside: avoid; /* ห้ามตัดกลาง Footer */
+        }
+
+        .keep-together {
+            page-break-inside: avoid;
         }
         
-        .pdf-table {
+        .pdf-table-flow {
             width: 100%;
             border-collapse: collapse;
             margin: 10px 0;
-            font-size: 10px;
+            font-size: 12px;
         }
         
-        .pdf-table th, .pdf-table td {
+        .pdf-table-flow th, .pdf-table-flow td {
             border: 1px solid #ccc;
-            padding: 5px;
+            padding: 8px;
             text-align: left;
         }
         
-        .pdf-table th {
+        .pdf-table-flow th {
             background-color: #f0f0f0;
             font-weight: bold;
+        }
+        
+        .pdf-table-flow tr {
+            page-break-inside: avoid; /* พยายามไม่ตัดกลางแถว */
         }
     </style>
 </head>
@@ -3503,14 +3507,13 @@
             
             tableHTML = `
                 <div class="mt-8">
-                    <h4 class="text-lg font-bold text-gray-800 mb-4">คำแนะนำรายวิชา</h4>
+                    <h4 class="text-lg font-bold text-gray-800 mb-4">ข้อเสนอแนะเพื่อพัฒนา</h4>
                     <div class="overflow-x-auto">
                         <table class="w-full border-collapse border border-gray-300 text-sm">
                             <thead>
                                 <tr class="bg-gray-100">
                                     <th class="border border-gray-300 p-2">วิชา</th>
-                                    <th class="border border-gray-300 p-2">คะแนนน้อย – ข้อแนะนำ</th>
-                                    <th class="border border-gray-300 p-2">คะแนนดี – ต่อยอด</th>
+                                    <th class="border border-gray-300 p-2">ข้อเสนอแนะ</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -3533,31 +3536,24 @@
                 
                 // กำหนดคลาสสำหรับแถวตามคะแนน
                 let rowClass = '';
+                let advice = '';
+                
                 if (score <= threshold.low) {
                     rowClass = 'bg-red-50';
+                    advice = currentAdvice[subject].low;
                 } else if (score >= threshold.high) {
                     rowClass = 'bg-green-50';
+                    advice = currentAdvice[subject].high;
                 } else {
                     rowClass = 'bg-yellow-50';
-                }
-                
-                // แสดงเฉพาะคำแนะนำที่ตรงกับคะแนนจริงของผู้ใช้
-                let lowAdviceCell = '';
-                let highAdviceCell = '';
-                
-                if (score <= threshold.low) {
-                    lowAdviceCell = currentAdvice[subject].low;
-                }
-                
-                if (score >= threshold.high) {
-                    highAdviceCell = currentAdvice[subject].high;
+                    // สำหรับคะแนนระดับกลาง ให้ใช้คำแนะนำเดียวกับต่อยอด
+                    advice = currentAdvice[subject].high || currentAdvice[subject].low;
                 }
                 
                 tableHTML += `
                     <tr class="${rowClass}">
                         <td class="border border-gray-300 p-2 font-medium">${subjectName}</td>
-                        <td class="border border-gray-300 p-2">${lowAdviceCell}</td>
-                        <td class="border border-gray-300 p-2">${highAdviceCell}</td>
+                        <td class="border border-gray-300 p-2">${advice}</td>
                     </tr>
                 `;
             });
@@ -3626,235 +3622,303 @@
             `;
         }
 
-        // ฟังก์ชันส่งออกผลวิเคราะห์เป็น PDF - แก้ไขให้แสดงข้อมูลทั้งหมด
-        window.exportAnalysisToPDF = async () => {
-            if (!currentAnalysisData) {
-                showMessage('ไม่มีข้อมูลการวิเคราะห์ที่จะส่งออก', 'error');
-                return;
-            }
-            
-            try {
-                // แสดงข้อความกำลังสร้าง PDF
-                showMessage('กำลังสร้างไฟล์ PDF...', 'info');
-                
-                // สร้าง element ชั่วคราวสำหรับ PDF
-                const element = document.createElement('div');
-                element.className = 'print-section';
-                
-                // สร้างเนื้อหาสำหรับ PDF จากข้อมูลการวิเคราะห์ทั้งหมด
-                const analysisContent = generatePDFContent();
-                element.innerHTML = analysisContent;
-                
-                // เพิ่ม element ลงใน DOM ชั่วคราว
-                document.body.appendChild(element);
-                
-                // ตั้งค่าสำหรับ PDF
-                const opt = {
-                    margin: 10,
-                    filename: `satriwit-analysis-${new Date().toISOString().split('T')[0]}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { 
-                        scale: 2,
-                        useCORS: true,
-                        logging: false,
-                        scrollX: 0,
-                        scrollY: 0,
-                        width: element.scrollWidth,
-                        height: element.scrollHeight,
-                        windowWidth: element.scrollWidth,
-                        letterRendering: true,
-                        backgroundColor: '#ffffff'
-                    },
-                    jsPDF: { 
-                        unit: 'mm', 
-                        format: 'a4', 
-                        orientation: 'portrait',
-                        compress: true
-                    }
-                };
+// ฟังก์ชันช่วยในการดึงข้อมูลจากแท็บ analysis
+function getAnalysisDataFromActiveTab() {
+    const activeTab = document.querySelector('.analysis-tab.active');
+    if (!activeTab) return null;
+    
+    const tabId = activeTab.id;
+    const contentId = tabId.replace('analysis-tab', 'analysis-content');
+    const contentElement = document.getElementById(contentId);
+    
+    if (!contentElement) return null;
+    
+    // ดึงข้อมูลพื้นฐาน
+    const titleElement = contentElement.querySelector('h3');
+    const title = titleElement ? titleElement.textContent : 'การวิเคราะห์คะแนน';
+    
+    // ดึงคะแนน
+    const preTestScoreElement = contentElement.querySelector('.text-3xl.text-blue-600');
+    const preTestScore = preTestScoreElement ? preTestScoreElement.textContent : '0.00';
+    
+    const projectedScoreElement = contentElement.querySelector('.text-3xl.text-green-600');
+    const projectedScore = projectedScoreElement ? projectedScoreElement.textContent : '0.00';
+    
+    // ดึงข้อมูลโอกาสสอบติด
+    const chanceElement = contentElement.querySelector('.chance-high, .chance-medium, .chance-low');
+    let chanceData = { text: 'โอกาสสอบติด: ไม่ระบุ', description: '' };
+    
+    if (chanceElement) {
+        const chanceHeader = chanceElement.querySelector('h4');
+        const chanceDesc = chanceElement.querySelector('p');
+        chanceData.text = chanceHeader ? chanceHeader.textContent : chanceData.text;
+        chanceData.description = chanceDesc ? chanceDesc.textContent : chanceData.description;
+    }
+    
+    return {
+        title,
+        preTestScore,
+        projectedScore,
+        chanceData
+    };
+}
 
-                // สร้าง PDF
-                await html2pdf().set(opt).from(element).save();
+        // ฟังก์ชันส่งออกผลวิเคราะห์เป็น PDF - แก้ไขให้แสดงข้อมูลทั้งหมด
+         // 🚨 NEW PDF EXPORT FUNCTION WITH FLOW LOGIC 🚨
                 
-                // ลบ element ชั่วคราว
-                document.body.removeChild(element);
+        // ---------------------------------------------------------
+        // วิธีแก้ปัญหาจบจริง: ใช้ Browser Print (รองรับภาษาไทย 100%)
+        // ---------------------------------------------------------
+        
+        window.exportAnalysisToPDF = () => {
+            const activeTab = document.querySelector('.analysis-tab.active');
+            if (!activeTab) { showMessage('กรุณาเลือกแท็บการวิเคราะห์ก่อนบันทึก PDF', 'error'); return; }
+            
+            // แจ้งเตือนผู้ใช้
+            showMessage('กำลังเปิดหน้าต่างพิมพ์... กรุณาเลือก "Save as PDF" หรือ "บันทึกเป็น PDF"', 'info');
+            
+            // 1. สร้าง Container สำหรับพิมพ์โดยเฉพาะ
+            const printDiv = document.createElement('div');
+            printDiv.className = 'print-section'; // class นี้จะถูกแสดงผลเฉพาะตอนสั่ง Print (ตาม CSS @media print ที่มีอยู่แล้ว)
+            
+            // 2. ใส่เนื้อหา
+            printDiv.innerHTML = generatePDFContent();
+            document.body.appendChild(printDiv);
+            
+            // 3. รอโหลดฟอนต์สักครู่ แล้วสั่งพิมพ์
+            setTimeout(() => {
+                window.print();
                 
-                showMessage('สร้างไฟล์ PDF สำเร็จ!', 'success');      
-            } catch (error) {
-                console.error('Error exporting to PDF:', error);
-                showMessage('เกิดข้อผิดพลาดในการสร้างไฟล์ PDF: ' + error.message, 'error');
-            }
+                // 4. ลบ Container ทิ้งหลังจากกดปิดหน้าต่างพิมพ์
+                // (ตั้งเวลาเผื่อไว้เพื่อให้ Browser จับภาพทัน)
+                setTimeout(() => {
+                    if (document.body.contains(printDiv)) {
+                        document.body.removeChild(printDiv);
+                    }
+                }, 1000);
+            }, 500);
         };
 
-        // ฟังก์ชันสร้างเนื้อหา PDF จากข้อมูลการวิเคราะห์ทั้งหมด
         function generatePDFContent() {
-            let content = '';
-            
-            // ข้อมูลผู้วิเคราะห์
-            const nickname = document.getElementById('nickname').value || 'ไม่ระบุชื่อ';
-            const grade = document.getElementById('current-grade').options[document.getElementById('current-grade').selectedIndex].text || 'ไม่ระบุ';
-            
-            // ส่วนหัว PDF
-            content += `
-                <div class="pdf-header">
-                    <h1 class="pdf-title">รายงานการวิเคราะห์คะแนน Pre-test</h1>
-                    <h2 class="pdf-subtitle">โรงเรียนสตรีวิทยา ปีการศึกษา 2569</h2>
-                    <p class="pdf-date">สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', { 
-                        year: 'numeric', 
-                        month: 'long', 
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    })}</p>
-                </div>
-                
-                <div class="pdf-user-info">
-                    <h3>ข้อมูลผู้วิเคราะห์</h3>
-                    <p><strong>ชื่อ:</strong> ${nickname}</p>
-                    <p><strong>ระดับชั้น:</strong> ${grade}</p>
-                </div>
+            // CSS สำหรับจัดหน้ากระดาษ A4 ตอนพิมพ์
+            const printStyle = `
+                <style>
+                    .pdf-print-wrapper {
+                        font-family: 'Sarabun', sans-serif !important;
+                        color: #000;
+                        line-height: 1.6;
+                        width: 100%;
+                        max-width: 210mm; /* ความกว้าง A4 */
+                        margin: 0 auto;
+                        background: #fff;
+                        padding: 20px; 
+                    }
+                    .pdf-header {
+                        text-align: center;
+                        border-bottom: 2px solid #2a2a72;
+                        padding-bottom: 15px;
+                        margin-bottom: 20px;
+                    }
+                    .pdf-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin: 15px 0;
+                        font-size: 14px;
+                    }
+                    .pdf-table th, .pdf-table td {
+                        border: 1px solid #ccc;
+                        padding: 10px;
+                        text-align: left;
+                        vertical-align: top;
+                    }
+                    .pdf-table th { background-color: #f0f0f0; font-weight: bold; }
+                    .pdf-box {
+                        border: 1px solid #eee;
+                        border-radius: 8px;
+                        padding: 15px;
+                        margin-bottom: 15px;
+                        page-break-inside: avoid; /* ห้ามตัดกลางหน้า */
+                    }
+                    
+                    /* สีพื้นหลัง */
+                    .bg-blue-light { background-color: #eff6ff; border-color: #bfdbfe; }
+                    .bg-green-light { background-color: #f0fdf4; border-color: #bbf7d0; }
+                    .bg-yellow-light { background-color: #fefce8; border-color: #fef08a; }
+                    .bg-red-light { background-color: #fef2f2; border-color: #fecaca; }
+                    
+                    .font-bold { font-weight: bold; }
+                    .text-center { text-align: center; }
+                    
+                    /* ซ่อน URL ที่มักจะติดมาตอนพรินต์ */
+                    a[href]:after { content: none !important; }
+                </style>
             `;
-            
-            // เพิ่มข้อมูลการวิเคราะห์จากแต่ละแท็บ
-            Object.keys(currentAnalysisData).forEach((key, index) => {
-                const data = currentAnalysisData[key];
-                const { stats, projectedScore, preTestTotal, currentScores, projectedSubjects } = data;
-                const { title, min, avg, max, fullScore } = stats;
-                
-                // คำนวณเปอร์เซ็นต์สำหรับกราฟ
-                const scorePercent = Math.min(100, (projectedScore / fullScore * 100)).toFixed(2);
-                const minPercent = (min / fullScore * 100);
-                const avgPercent = (avg / fullScore * 100);
-                const maxPercent = (max / fullScore * 100);
-                
-                // วิเคราะห์โอกาสสอบติด
-                const chance = calculateAdmissionChance(projectedScore, stats);
-                
-                // วิเคราะห์จุดแข็งจุดที่ควรเสริม
-                const analysis = analyzeStrengthsWeaknesses(currentScores, data.target, data.examType);
-                
-                // สร้างตารางรายวิชา
-                let subjectTableHTML = '<table class="pdf-table">';
-                subjectTableHTML += '<thead><tr><th>วิชา</th><th>คะแนน Pre-test</th><th>คะแนนที่เทียบได้</th></tr></thead><tbody>';
-                
-                if (projectedSubjects.math !== undefined) {
-                    subjectTableHTML += `<tr><td>คณิตศาสตร์</td><td>${currentScores.math.toFixed(2)}</td><td>${projectedSubjects.math.toFixed(2)}</td></tr>`;
-                }
-                if (projectedSubjects.science !== undefined) {
-                    subjectTableHTML += `<tr><td>วิทยาศาสตร์</td><td>${currentScores.science.toFixed(2)}</td><td>${projectedSubjects.science.toFixed(2)}</td></tr>`;
-                }
-                if (projectedSubjects.english !== undefined) {
-                    subjectTableHTML += `<tr><td>ภาษาอังกฤษ</td><td>${currentScores.english.toFixed(2)}</td><td>${projectedSubjects.english.toFixed(2)}</td></tr>`;
-                }
-                if (projectedSubjects.thai !== undefined) {
-                    subjectTableHTML += `<tr><td>ภาษาไทย</td><td>${currentScores.thai.toFixed(2)}</td><td>${projectedSubjects.thai.toFixed(2)}</td></tr>`;
-                }
-                if (projectedSubjects.social !== undefined) {
-                    subjectTableHTML += `<tr><td>สังคมศึกษา</td><td>${currentScores.social.toFixed(2)}</td><td>${projectedSubjects.social.toFixed(2)}</td></tr>`;
-                }
-                if (projectedSubjects.interview !== undefined) {
-                    subjectTableHTML += `<tr><td>สัมภาษณ์ (สมมติฐาน)</td><td>-</td><td>${projectedSubjects.interview.toFixed(2)}</td></tr>`;
-                }
-                subjectTableHTML += '</tbody></table>';
-                
-                // เพิ่มเนื้อหาการวิเคราะห์แต่ละส่วน
-                content += `
-                    <div class="pdf-page">
-                        <h3>${title}</h3>
-                        
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
-                            <div style="text-align: center; width: 48%; background: #f0f8ff; padding: 10px; border-radius: 5px;">
-                                <p style="margin: 0 0 5px 0; font-size: 12px;">คะแนน Pre-test ของคุณ</p>
-                                <p style="margin: 0; font-size: 18px; font-weight: bold; color: #3b82f6;">${preTestTotal.toFixed(2)}</p>
-                            </div>
-                            <div style="text-align: center; width: 48%; background: #f0f8ff; padding: 10px; border-radius: 5px;">
-                                <p style="margin: 0 0 5px 0; font-size: 12px;">คะแนนสอบจริงที่คาดการณ์</p>
-                                <p style="margin: 0; font-size: 18px; font-weight: bold; color: #10b981;">${projectedScore.toFixed(2)}</p>
-                                <p style="margin: 0; font-size: 10px; color: #666;">จากเต็ม ${fullScore} คะแนน</p>
-                            </div>
-                        </div>
-                        
-                        <!-- ตารางเปรียบเทียบรายวิชา -->
-                        ${subjectTableHTML}
-                        
-                        <!-- แสดงโอกาสสอบติด -->
-                        <div style="background: ${chance.level === 'high' ? '#d1fae5' : chance.level === 'medium' ? '#fef3c7' : '#fed7aa'}; 
-                                    padding: 10px; border-radius: 5px; margin: 15px 0; text-align: center;">
-                            <h4 style="margin: 0 0 5px 0; font-size: 14px;">โอกาสสอบติด: ${chance.text}</h4>
-                            <p style="margin: 0; font-size: 11px;">${chance.description}</p>
-                        </div>
-                        
-                        ${data.target === 'EP' ? 
-                            `<div style="background: #ffedd5; padding: 8px; border-radius: 5px; margin: 10px 0; text-align: center; font-size: 10px;">
-                                <b>*หมายเหตุ:</b> คะแนนนี้คำนวณโดยสมมติว่าคุณได้คะแนนส่วนสัมภาษณ์เต็ม 20 คะแนน
-                            </div>` : ''
-                        }
-                        
-                        <!-- สถิติเปรียบเทียบ -->
-                        <div style="margin: 15px 0;">
-                            <p style="font-size: 12px; font-weight: bold; margin-bottom: 5px;">เปรียบเทียบกับสถิติปี 2568</p>
-                            <div style="display: flex; justify-content: space-between; text-align: center; margin-top: 10px;">
-                                <div style="width: 30%; background: #fee2e2; padding: 8px; border-radius: 5px;">
-                                    <p style="margin: 0 0 3px 0; font-size: 10px; font-weight: bold; color: #dc2626;">ต่ำสุดปี 68</p>
-                                    <p style="margin: 0; font-size: 14px; font-weight: bold;">${min.toFixed(2)}</p>
-                                </div>
-                                <div style="width: 30%; background: #fef3c7; padding: 8px; border-radius: 5px;">
-                                    <p style="margin: 0 0 3px 0; font-size: 10px; font-weight: bold; color: #d97706;">เฉลี่ยปี 68</p>
-                                    <p style="margin: 0; font-size: 14px; font-weight: bold;">${avg.toFixed(2)}</p>
-                                </div>
-                                <div style="width: 30%; background: #d1fae5; padding: 8px; border-radius: 5px;">
-                                    <p style="margin: 0 0 3px 0; font-size: 10px; font-weight: bold; color: #059669;">สูงสุดปี 68</p>
-                                    <p style="margin: 0; font-size: 14px; font-weight: bold;">${max.toFixed(2)}</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- แสดงจุดแข็ง และจุดที่ควรเสริม -->
-                        <div style="display: flex; justify-content: space-between; margin: 15px 0;">
-                            ${analysis.strengths.length > 0 ? `
-                                <div style="width: 48%; background: #f0fdf4; padding: 10px; border-radius: 5px; border: 1px solid #bbf7d0;">
-                                    <h5 style="margin: 0 0 5px 0; font-size: 12px; font-weight: bold; color: #16a34a;">จุดแข็ง</h5>
-                                    <ul style="margin: 0; padding-left: 15px; font-size: 11px;">
-                                        ${analysis.strengths.map(strength => `<li>${strength}</li>`).join('')}
-                                    </ul>
-                                </div>
-                            ` : '<div style="width: 48%;"></div>'}
-                            
-                            ${analysis.weaknesses.length > 0 ? `
-                                <div style="width: 48%; background: #fffbeb; padding: 10px; border-radius: 5px; border: 1px solid #fde68a;">
-                                    <h5 style="margin: 0 0 5px 0; font-size: 12px; font-weight: bold; color: #d97706;">จุดที่ควรเสริม</h5>
-                                    <ul style="margin: 0; padding-left: 15px; font-size: 11px;">
-                                        ${analysis.weaknesses.map(weakness => `<li>${weakness}</li>`).join('')}
-                                    </ul>
-                                </div>
-                            ` : '<div style="width: 48%;"></div>'}
-                        </div>
-                        
-                        <!-- ข้อแนะนำ -->
-                        ${analysis.improvements.length > 0 ? `
-                            <div style="background: #f0f9ff; padding: 10px; border-radius: 5px; border: 1px solid #bae6fd; margin: 10px 0;">
-                                <h5 style="margin: 0 0 5px 0; font-size: 12px; font-weight: bold; color: #0369a1;">ข้อแนะนำ</h5>
-                                <ul style="margin: 0; padding-left: 15px; font-size: 11px;">
-                                    ${analysis.improvements.map(improvement => `<li>${improvement}</li>`).join('')}
-                                </ul>
-                            </div>
-                        ` : ''}
+
+            // เริ่มสร้างเนื้อหา HTML
+            let content = printStyle + `
+                <div class="pdf-print-wrapper">
+                    <div class="pdf-header">
+                        <h1 style="font-size:24px; font-weight:bold; color:#2a2a72; margin:0;">รายงานการวิเคราะห์คะแนน Pre-test</h1>
+                        <h2 style="font-size:18px; color:#009ffd; margin:5px 0;">โรงเรียนสตรีวิทยา ปีการศึกษา 2569</h2>
+                        <p style="color:#666; font-size:12px;">สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                     </div>
-                `;
-            });
-            
-            // ส่วนท้าย PDF
-            content += `
-                <div class="pdf-footer">
-                    <p><strong>หมายเหตุ:</strong> การวิเคราะห์นี้เป็นการประเมินเบื้องต้นจากคะแนน Pre-test เท่านั้น 
-                    และใช้ข้อมูลคะแนนสอบเข้าปี 2568 เป็นเกณฑ์เปรียบเทียบ</p>
-                    <p>รายงานนี้สร้างโดยระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569</p>
-                    <p>ออกแบบและสรุปผลโดย Line OPC : ครอบครัวยอดนารี❤️สตรีวิทยา</p>
-                </div>
             `;
             
+            // ข้อมูลผู้ใช้
+            const nickname = document.getElementById('nickname')?.value || 'ไม่ระบุชื่อ';
+            const gradeSelect = document.getElementById('current-grade');
+            const grade = gradeSelect?.options[gradeSelect.selectedIndex]?.text || 'ไม่ระบุ';
+            
+            content += `
+                <div class="pdf-box bg-blue-light">
+                    <h3 style="font-size:16px; font-weight:bold; color:#1e3a8a; margin:0 0 5px 0;">ข้อมูลผู้วิเคราะห์</h3>
+                    <p style="margin:0;"><strong>ชื่อ:</strong> ${nickname} &nbsp;&nbsp; <strong>ระดับชั้น:</strong> ${grade}</p>
+                </div>
+            `;
+
+            // ดึงข้อมูลจาก Tab ที่เปิดอยู่
+            const activeTab = document.querySelector('.analysis-tab.active');
+            if (activeTab) {
+                const tabId = activeTab.id;
+                const contentId = tabId.replace('analysis-tab', 'analysis-content');
+                const activeTabContent = document.getElementById(contentId);
+
+                if (activeTabContent) {
+                    // ชื่อหลักสูตร
+                    const title = activeTabContent.querySelector('h3')?.textContent || 'การวิเคราะห์คะแนน';
+                    content += `<h3 style="font-size:18px; font-weight:bold; border-bottom:1px solid #ddd; padding-bottom:5px; margin-top:20px;">${title}</h3>`;
+
+                    // คะแนนสอบ
+                    const preTestScore = activeTabContent.querySelector('.text-3xl.text-blue-600')?.textContent || '-';
+                    const projectedScore = activeTabContent.querySelector('.text-3xl.text-green-600')?.textContent || '-';
+                    
+                    content += `
+                        <div style="display:flex; justify-content:space-between; margin-bottom:15px; margin-top:15px;">
+                            <div class="pdf-box" style="width:48%; text-align:center; background-color:#f0f9ff;">
+                                <div style="font-weight:bold; margin-bottom:5px;">คะแนน Pre-test</div>
+                                <div style="font-size:24px; color:#2563eb; font-weight:bold;">${preTestScore}</div>
+                            </div>
+                            <div class="pdf-box" style="width:48%; text-align:center; background-color:#f0fdf4;">
+                                <div style="font-weight:bold; margin-bottom:5px;">คะแนนสอบจริง (คาดการณ์)</div>
+                                <div style="font-size:24px; color:#16a34a; font-weight:bold;">${projectedScore}</div>
+                            </div>
+                        </div>
+                    `;
+
+                    // โอกาสสอบติด
+                    const chanceElement = activeTabContent.querySelector('.chance-high, .chance-medium, .chance-low');
+                    if (chanceElement) {
+                        const chanceText = chanceElement.querySelector('h4')?.textContent || '';
+                        const chanceDesc = chanceElement.querySelector('p')?.textContent || '';
+                        let bgClass = 'bg-yellow-light';
+                        if (chanceElement.classList.contains('chance-high')) bgClass = 'bg-green-light';
+                        if (chanceElement.classList.contains('chance-low')) bgClass = 'bg-red-light';
+                        
+                        content += `
+                            <div class="pdf-box ${bgClass} text-center">
+                                <h4 style="margin:0 0 5px 0; font-size:16px; font-weight:bold;">${chanceText}</h4>
+                                <p style="margin:0; font-size:14px;">${chanceDesc}</p>
+                            </div>
+                        `;
+                    }
+
+                    // ตารางคะแนน
+                    const tables = activeTabContent.querySelectorAll('table');
+                    if(tables.length > 0) {
+                        content += `<h4 style="margin-top:20px; font-weight:bold;">คะแนนรายวิชา</h4>`;
+                        content += `<table class="pdf-table"><thead><tr><th style="width:40%">วิชา</th><th style="width:30%">คะแนน Pre-test</th><th style="width:30%">เทียบเคียง</th></tr></thead><tbody>`;
+                        
+                        tables[0].querySelectorAll('tbody tr').forEach(tr => {
+                            const tds = tr.querySelectorAll('td');
+                            if(tds.length >= 3) {
+                                content += `<tr>
+                                    <td>${tds[0].textContent}</td>
+                                    <td class="text-center">${tds[1].textContent}</td>
+                                    <td class="text-center">${tds[2].textContent}</td>
+                                </tr>`;
+                            }
+                        });
+                        content += `</tbody></table>`;
+                    }
+                    
+                    // จุดแข็ง / จุดอ่อน
+                    const strEl = activeTabContent.querySelector('.strength-item');
+                    const weakEl = activeTabContent.querySelector('.weakness-item');
+                    
+                    if (strEl || weakEl) {
+                         content += `<div style="display:flex; gap:10px; margin-top:15px;">`;
+                         if (strEl) {
+                             const items = Array.from(strEl.querySelectorAll('li')).map(li => `<li>${li.textContent}</li>`).join('');
+                             content += `<div class="pdf-box bg-green-light" style="flex:1; margin-bottom:0;">
+                                <h5 style="color:green; font-weight:bold; margin:0 0 5px 0;">จุดแข็ง</h5>
+                                <ul style="margin:0; padding-left:20px; font-size:14px;">${items}</ul>
+                             </div>`;
+                         }
+                         if (weakEl) {
+                             const items = Array.from(weakEl.querySelectorAll('li')).map(li => `<li>${li.textContent}</li>`).join('');
+                             content += `<div class="pdf-box bg-yellow-light" style="flex:1; margin-bottom:0;">
+                                <h5 style="color:#d97706; font-weight:bold; margin:0 0 5px 0;">จุดที่ควรเสริม</h5>
+                                <ul style="margin:0; padding-left:20px; font-size:14px;">${items}</ul>
+                             </div>`;
+                         }
+                         content += `</div>`;
+                    }
+
+                    // ตารางข้อเสนอแนะ
+                    if(tables.length > 1) {
+                        content += `<h4 style="margin-top:20px; font-weight:bold;">ข้อเสนอแนะเพื่อพัฒนา</h4>`;
+                        content += `<table class="pdf-table"><thead><tr><th style="width:30%">วิชา</th><th>ข้อเสนอแนะ</th></tr></thead><tbody>`;
+                        
+                        tables[1].querySelectorAll('tbody tr').forEach(tr => {
+                            const tds = tr.querySelectorAll('td');
+                            if(tds.length >= 2) {
+                                // เช็คสี
+                                let rowClass = '';
+                                if(tr.classList.contains('bg-green-50')) rowClass = 'bg-green-light';
+                                else if(tr.classList.contains('bg-red-50')) rowClass = 'bg-red-light';
+                                else if(tr.classList.contains('bg-yellow-50')) rowClass = 'bg-yellow-light';
+
+                                // สร้าง tr พร้อม class สี (ถ้ามี)
+                                // *หมายเหตุ: ใน pdf-table เราไม่ได้กำหนด class สีไว้ใน style ข้างบน
+                                // ต้องกำหนด style inline ให้แน่ใจ
+                                let bgStyle = '';
+                                if(rowClass === 'bg-green-light') bgStyle = 'background-color:#f0fdf4;';
+                                if(rowClass === 'bg-red-light') bgStyle = 'background-color:#fef2f2;';
+                                if(rowClass === 'bg-yellow-light') bgStyle = 'background-color:#fefce8;';
+
+                                content += `<tr style="${bgStyle}">
+                                    <td class="font-bold">${tds[0].textContent}</td>
+                                    <td>${tds[1].textContent}</td>
+                                </tr>`;
+                            }
+                        });
+                        content += `</tbody></table>`;
+                    }
+                    
+                    // สรุปผล
+                    const summaryEl = activeTabContent.querySelector('.bg-blue-50 p');
+                    if(summaryEl) {
+                        content += `
+                            <div class="pdf-box bg-blue-light" style="margin-top:20px;">
+                                <h4 style="color:#1e3a8a; font-weight:bold; margin:0 0 5px 0;">สรุปผลการวิเคราะห์</h4>
+                                <p style="margin:0;">${summaryEl.textContent}</p>
+                            </div>
+                        `;
+                    }
+                }
+            }
+
+            // Footer
+            content += `
+                <div style="margin-top:30px; border-top:1px solid #ddd; padding-top:10px; text-align:center; font-size:12px; color:#666;">
+                    <p style="margin:5px 0;">รายงานนี้สร้างโดยระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569 | ออกแบบและสรุปผลโดย Line OPC : ครอบครัวยอดนารี❤️สตรีวิทยา</p>
+                    <p style="margin:5px 0;">ลุ้นสอวอไปด้วยกันนะ</p>
+                </div>
+                </div> `;
+
             return content;
         }
+
 
         // --- Admin Functions ---
 
@@ -4176,4 +4240,17 @@
         });
     </script>
 </body>
+
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
