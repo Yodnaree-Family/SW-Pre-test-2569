@@ -3666,59 +3666,11 @@ function getAnalysisDataFromActiveTab() {
         // ฟังก์ชันส่งออกผลวิเคราะห์เป็น PDF - แก้ไขให้แสดงข้อมูลทั้งหมด
          // 🚨 NEW PDF EXPORT FUNCTION WITH FLOW LOGIC 🚨
             
-
-                
-            let content = `
-                <div class="pdf-container-flow" style="${cssFix}">
-                <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
-                <style>
-                    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap');
-                    
-                    .pdf-container-flow * {
-                        font-family: 'Sarabun', sans-serif !important;
-                    }
-                    
-                    /* ตาราง: จัดการการตัดคำและระยะห่าง */
-                    .pdf-table-flow {
-                        width: 100%;
-                        border-collapse: collapse;
-                        table-layout: fixed; /* บังคับความกว้างคอลัมน์ */
-                    }
-                    .pdf-table-flow td, .pdf-table-flow th {
-                        padding: 8px;
-                        vertical-align: top;
-                        word-wrap: break-word; /* ตัดคำยาวๆ */
-                        overflow-wrap: break-word;
-                    }
-                </style>
-            `;
-            
-            // ... (ส่วนเนื้อหา HTML ด้านล่างนี้ ใช้ Code เดิมจากครั้งก่อนได้เลยครับ ไม่ต้องแก้) ...
-            // เพื่อความสะดวก ผมจะใส่ Placeholder ไว้ ให้คุณ Copy ส่วน Logic เดิมมาใส่ตรงนี้ครับ
-                    // ---------------------------------------------------------
-        html2pdf().set(opt).from(container).save();
-                
-                // 4. ลบ Container ทิ้ง
-                document.body.removeChild(container);
-                showMessage('สร้างไฟล์ PDF สำเร็จ!', 'success');      
-                
-            } catch (error) {
-                console.error('Error exporting to PDF:', error);
-                showMessage('เกิดข้อผิดพลาด: ' + error.message, 'error');
-                const el = document.getElementById('pdf-print-container');
-                if (el) document.body.removeChild(el);
-            }
-        };
-
         // ---------------------------------------------------------
-        
-                
-
-            
-                    
-                            // ---------------------------------------------------------
-        // FINAL FIX: ฟังก์ชัน exportAnalysisToPDF (ใช้เทคนิค Overlay แบบสมบูรณ์)
+        // ชุดโค้ดแก้ไขสมบูรณ์: PDF ภาษาไทย (Overlay + Full Logic)
         // ---------------------------------------------------------
+
+        // 1. ฟังก์ชันส่งออก PDF
         window.exportAnalysisToPDF = async () => {
             const activeTab = document.querySelector('.analysis-tab.active');
             if (!activeTab) { showMessage('กรุณาเลือกแท็บการวิเคราะห์ก่อนบันทึก PDF', 'error'); return; }
@@ -3729,7 +3681,7 @@ function getAnalysisDataFromActiveTab() {
             try {
                 showMessage('กำลังสร้างไฟล์ PDF... (กรุณารอสักครู่)', 'info');
                 
-                // 1. สร้าง Container Overlay (บังหน้าจอขาว)
+                // สร้าง Overlay สีขาวบังหน้าจอ (เพื่อให้ html2canvas จับภาพได้แน่นอน 100%)
                 const container = document.createElement('div');
                 container.id = 'pdf-print-overlay';
                 container.style.position = 'fixed';
@@ -3739,9 +3691,9 @@ function getAnalysisDataFromActiveTab() {
                 container.style.height = '100%';
                 container.style.zIndex = '99999';
                 container.style.backgroundColor = '#ffffff';
-                container.style.overflowY = 'scroll'; // เผื่อเนื้อหายาว
+                container.style.overflowY = 'scroll';
                 
-                // 2. สร้างเนื้อหากระดาษ A4 ภายใน Overlay
+                // สร้างกระดาษ A4
                 const contentBox = document.createElement('div');
                 contentBox.style.width = '210mm';
                 contentBox.style.minHeight = '297mm';
@@ -3750,12 +3702,12 @@ function getAnalysisDataFromActiveTab() {
                 contentBox.style.padding = '20px';
                 contentBox.style.boxSizing = 'border-box';
                 
-                // ใส่ HTML
+                // ใส่เนื้อหา HTML
                 contentBox.innerHTML = generatePDFContent();
                 container.appendChild(contentBox);
                 document.body.appendChild(container);
                 
-                // 3. รอโหลดฟอนต์และรูปภาพ (สำคัญมากสำหรับภาษาไทย)
+                // รอโหลดฟอนต์และจัดหน้า (สำคัญมากสำหรับภาษาไทย)
                 await document.fonts.ready;
                 await new Promise(resolve => setTimeout(resolve, 2000)); // รอ 2 วินาที
 
@@ -3769,16 +3721,15 @@ function getAnalysisDataFromActiveTab() {
                         logging: false,
                         scrollY: 0,
                         windowWidth: document.documentElement.offsetWidth,
-                        // ปิด letterRendering เพื่อแก้สระลอย
-                        letterRendering: false 
+                        letterRendering: false // ปิดตัวนี้เพื่อแก้สระลอย
                     },
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 };
 
-                // 4. สั่ง Save
+                // สั่ง Save
                 await html2pdf().set(opt).from(contentBox).save();
                 
-                // 5. ลบ Overlay ทิ้ง
+                // ลบ Overlay ทิ้ง
                 document.body.removeChild(container);
                 showMessage('สร้างไฟล์ PDF สำเร็จ!', 'success');      
                 
@@ -3790,21 +3741,18 @@ function getAnalysisDataFromActiveTab() {
             }
         };
 
-        // ---------------------------------------------------------
-        // FINAL FIX: ฟังก์ชัน generatePDFContent (แก้โค้ดไม่ครบ + จัด CSS ภาษาไทย)
-        // ---------------------------------------------------------
+        // 2. ฟังก์ชันสร้างเนื้อหา HTML สำหรับ PDF
         function generatePDFContent() {
-            // CSS แบบ Inline เพื่อความชัวร์ (Reset ค่าทั้งหมด)
+            // CSS สำหรับ PDF โดยเฉพาะ
             const cssStyle = `
                 font-family: 'Sarabun', sans-serif !important;
                 color: #000;
                 line-height: 1.6;
                 width: 100%;
                 box-sizing: border-box;
-                font-variant-ligatures: none; /* แก้สระลอย */
+                font-variant-ligatures: none;
             `;
 
-            // ส่วนเริ่มต้น HTML
             let content = `
                 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
                 <style>
@@ -3813,6 +3761,8 @@ function getAnalysisDataFromActiveTab() {
                     .pdf-table th, .pdf-table td { border: 1px solid #ccc; padding: 8px; vertical-align: top; text-align: left; }
                     .pdf-table th { background-color: #f0f0f0; font-weight: bold; }
                     .pdf-box { padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #eee; }
+                    .text-center { text-align: center; }
+                    .font-bold { font-weight: bold; }
                 </style>
                 
                 <div class="pdf-container" style="${cssStyle}">
@@ -3835,7 +3785,7 @@ function getAnalysisDataFromActiveTab() {
                 </div>
             `;
 
-            // Logic ดึงข้อมูล
+            // ดึงข้อมูลจาก Tab
             const activeTab = document.querySelector('.analysis-tab.active');
             if (activeTab) {
                 const tabId = activeTab.id;
@@ -3843,13 +3793,11 @@ function getAnalysisDataFromActiveTab() {
                 const activeTabContent = document.getElementById(contentId);
 
                 if (activeTabContent) {
-                    // หัวข้อหลักสูตร
                     const title = activeTabContent.querySelector('h3')?.textContent || 'การวิเคราะห์คะแนน';
-                    content += `<h3 style="font-size:18px; font-weight:bold; border-bottom:1px solid #ddd; padding-bottom:5px; margin-top:20px;">${title}</h3>`;
-
-                    // คะแนน
                     const preTestScore = activeTabContent.querySelector('.text-3xl.text-blue-600')?.textContent || '-';
                     const projectedScore = activeTabContent.querySelector('.text-3xl.text-green-600')?.textContent || '-';
+                    
+                    content += `<h3 style="font-size:18px; font-weight:bold; border-bottom:1px solid #ddd; padding-bottom:5px; margin-top:20px;">${title}</h3>`;
                     
                     content += `
                         <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
@@ -3869,9 +3817,9 @@ function getAnalysisDataFromActiveTab() {
                     if (chanceElement) {
                         const chanceText = chanceElement.querySelector('h4')?.textContent || '';
                         const chanceDesc = chanceElement.querySelector('p')?.textContent || '';
-                        let bg = '#fefce8'; // yellow default
-                        if (chanceElement.classList.contains('chance-high')) bg = '#f0fdf4'; // green
-                        if (chanceElement.classList.contains('chance-low')) bg = '#fef2f2'; // red
+                        let bg = '#fefce8';
+                        if (chanceElement.classList.contains('chance-high')) bg = '#dcfce7';
+                        if (chanceElement.classList.contains('chance-low')) bg = '#fee2e2';
                         
                         content += `
                             <div class="pdf-box" style="background-color:${bg}; text-align:center;">
@@ -3892,8 +3840,8 @@ function getAnalysisDataFromActiveTab() {
                             if(tds.length >= 3) {
                                 content += `<tr>
                                     <td>${tds[0].textContent}</td>
-                                    <td style="text-align:center;">${tds[1].textContent}</td>
-                                    <td style="text-align:center;">${tds[2].textContent}</td>
+                                    <td class="text-center">${tds[1].textContent}</td>
+                                    <td class="text-center">${tds[2].textContent}</td>
                                 </tr>`;
                             }
                         });
@@ -3910,14 +3858,14 @@ function getAnalysisDataFromActiveTab() {
                              const items = Array.from(strEl.querySelectorAll('li')).map(li => `<li>${li.textContent}</li>`).join('');
                              content += `<div class="pdf-box" style="flex:1; background-color:#f0fdf4; margin-bottom:0;">
                                 <h5 style="color:green; font-weight:bold; margin:0 0 5px 0;">จุดแข็ง</h5>
-                                <ul style="margin:0; padding-left:20px;">${items}</ul>
+                                <ul style="margin:0; padding-left:20px; font-size:14px;">${items}</ul>
                              </div>`;
                          }
                          if (weakEl) {
                              const items = Array.from(weakEl.querySelectorAll('li')).map(li => `<li>${li.textContent}</li>`).join('');
                              content += `<div class="pdf-box" style="flex:1; background-color:#fefce8; margin-bottom:0;">
                                 <h5 style="color:#d97706; font-weight:bold; margin:0 0 5px 0;">จุดที่ควรเสริม</h5>
-                                <ul style="margin:0; padding-left:20px;">${items}</ul>
+                                <ul style="margin:0; padding-left:20px; font-size:14px;">${items}</ul>
                              </div>`;
                          }
                          content += `</div>`;
@@ -3931,7 +3879,6 @@ function getAnalysisDataFromActiveTab() {
                         tables[1].querySelectorAll('tbody tr').forEach(tr => {
                             const tds = tr.querySelectorAll('td');
                             if(tds.length >= 2) {
-                                // ตรวจสอบสีพื้นหลัง
                                 let rowStyle = "";
                                 if(tr.classList.contains('bg-green-50')) rowStyle = "background-color:#f0fdf4;";
                                 if(tr.classList.contains('bg-red-50')) rowStyle = "background-color:#fef2f2;";
@@ -3970,6 +3917,8 @@ function getAnalysisDataFromActiveTab() {
 
             return content;
         }
+
+                        
 
 
         // --- Admin Functions ---
@@ -4294,6 +4243,7 @@ function getAnalysisDataFromActiveTab() {
 </body>
 
 </html>
+
 
 
 
