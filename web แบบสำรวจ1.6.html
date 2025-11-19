@@ -3665,79 +3665,87 @@ function getAnalysisDataFromActiveTab() {
 
         // ฟังก์ชันส่งออกผลวิเคราะห์เป็น PDF - แก้ไขให้แสดงข้อมูลทั้งหมด
          // 🚨 NEW PDF EXPORT FUNCTION WITH FLOW LOGIC 🚨
-                        window.exportAnalysisToPDF = async () => {
+            // ---------------------------------------------------------
+        // แก้ไขครั้งที่ 3 (Final): ฟังก์ชัน exportAnalysisToPDF (ใช้เทคนิค Overlay)
+        // ---------------------------------------------------------
+        window.exportAnalysisToPDF = async () => {
             const activeTab = document.querySelector('.analysis-tab.active');
             if (!activeTab) { showMessage('กรุณาเลือกแท็บการวิเคราะห์ก่อนบันทึก PDF', 'error'); return; }
             
             try {
                 showMessage('กำลังสร้างไฟล์ PDF... (กรุณารอสักครู่)', 'info');
                 
-                const element = document.createElement('div');
-                element.className = 'print-section';
-                element.style.width = '210mm';
-                element.style.padding = '0';
-                element.style.margin = '0';
-                element.style.background = 'white';
+                // 1. สร้าง Container หลักที่จะทำหน้าที่เป็น Overlay บังหน้าจอชั่วคราว
+                const overlay = document.createElement('div');
+                overlay.className = 'print-section-overlay';
                 
-                // 🔥 แก้ไขจุดที่ทำให้ PDF ว่างเปล่า:
-                // เปลี่ยนจาก left: -9999px เป็น zIndex: -9999 แทน
-                // เพื่อให้ Element ยังอยู่ในพิกัดที่ html2canvas มองเห็นได้ แต่อยู่หลังสุด
-                element.style.position = 'fixed'; // ใช้ fixed เพื่อให้ตำแหน่งนิ่ง
-                element.style.left = '0';
-                element.style.top = '0';
-                element.style.zIndex = '-9999'; 
+                // 🔥 ตั้งค่า Style ให้ทับหน้าจอทั้งหมด (เพื่อให้ html2canvas เห็นแน่นอน)
+                overlay.style.position = 'fixed';
+                overlay.style.top = '0';
+                overlay.style.left = '0';
+                overlay.style.width = '100%';
+                overlay.style.height = '100%';
+                overlay.style.zIndex = '99999'; // อยู่บนสุด
+                overlay.style.backgroundColor = '#ffffff'; // พื้นหลังขาว
+                overlay.style.overflowY = 'scroll'; // เผื่อเนื้อหายาว
                 
-                element.innerHTML = generatePDFContent();
-                document.body.appendChild(element);
+                // 2. สร้าง Container เนื้อหาด้านใน (จำกัดความกว้างเท่า A4)
+                const contentContainer = document.createElement('div');
+                contentContainer.style.width = '210mm'; // ความกว้าง A4
+                contentContainer.style.margin = '0 auto'; // จัดกึ่งกลาง
+                contentContainer.style.backgroundColor = '#ffffff';
+                contentContainer.style.padding = '20px';
                 
-                // รอให้ Font โหลดและ Browser วาดเสร็จ
-                await new Promise(resolve => setTimeout(resolve, 1500));
+                // ใส่เนื้อหาลงไป
+                contentContainer.innerHTML = generatePDFContent();
+                overlay.appendChild(contentContainer);
+                document.body.appendChild(overlay);
+                
+                // 3. 🔥 รอเวลาให้ Browser วาด Font Sarabun เสร็จ (สำคัญมาก!)
+                await new Promise(resolve => setTimeout(resolve, 2000)); // รอ 2 วินาที
 
                 const opt = {
                     margin: [0, 0, 0, 0],
                     filename: `satriwit-analysis-${new Date().toISOString().split('T')[0]}.pdf`,
                     image: { type: 'jpeg', quality: 0.98 },
                     html2canvas: { 
-                        scale: 2, 
+                        scale: 3, // ความละเอียดสูง
                         useCORS: true, 
                         logging: false,
                         scrollY: 0,
-                        windowWidth: document.documentElement.offsetWidth, // ช่วยให้จับภาพได้เต็ม
-                        windowHeight: document.documentElement.offsetHeight
+                        windowWidth: document.documentElement.offsetWidth,
                     },
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true },
                     pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
                 };
 
-                await html2pdf().set(opt).from(element).save();
+                // สร้าง PDF จาก contentContainer (ไม่ใช่ overlay)
+                await html2pdf().set(opt).from(contentContainer).save();
                 
-                // ลบ Element ทิ้งหลังจาก save เสร็จ
-                document.body.removeChild(element);
+                // 4. ลบ Overlay ทิ้งหลังจากเสร็จ
+                document.body.removeChild(overlay);
                 showMessage('สร้างไฟล์ PDF สำเร็จ!', 'success');      
+                
             } catch (error) {
                 console.error('Error exporting to PDF:', error);
                 showMessage('เกิดข้อผิดพลาด: ' + error.message, 'error');
-                const tempElement = document.querySelector('.print-section');
-                if (tempElement && tempElement.parentNode) tempElement.parentNode.removeChild(tempElement);
+                const tempElement = document.querySelector('.print-section-overlay');
+                if (tempElement) document.body.removeChild(tempElement);
             }
         };
 
-
-
-        
-
-        // แก้ไขครั้งที่ 2: ฟังก์ชัน generatePDFContent
         // ---------------------------------------------------------
-                function generatePDFContent() {
-            // 🔥 จุดแก้สำคัญที่ 2: ใส่ Link Font ลงไปในเนื้อหาที่จะปริ้นเลย เพื่อความชัวร์
-            // และบังคับ font-family ให้เป็น Sarabun !important
+        // แก้ไขครั้งที่ 3: ฟังก์ชัน generatePDFContent
+        // ---------------------------------------------------------
+        function generatePDFContent() {
+            // CSS ที่ปรับจูนเพื่อความสวยงามใน PDF
             const cssFix = `
                 font-family: 'Sarabun', sans-serif !important;
                 color: #333;
                 line-height: 1.5;
                 width: 100%;
-                padding: 20px;
                 box-sizing: border-box;
+                font-variant-ligatures: none; /* ป้องกันการเชื่อมคำผิดๆ */
             `;
 
             let content = `
@@ -3747,6 +3755,8 @@ function getAnalysisDataFromActiveTab() {
                     .pdf-container-flow * {
                         font-family: 'Sarabun', sans-serif !important;
                     }
+                    /* ซ่อน Scrollbar ในขณะพิมพ์ */
+                    ::-webkit-scrollbar { display: none; }
                 </style>
             `;
             
@@ -3759,7 +3769,7 @@ function getAnalysisDataFromActiveTab() {
             const grade = gradeSelect?.options[gradeSelect.selectedIndex]?.text || 'ไม่ระบุ';
             content += `<div class="pdf-user-info-improved keep-together"><h3 style="margin:0 0 10px 0; color:#2a2a72;">ข้อมูลผู้วิเคราะห์</h3><p style="margin:0;"><strong>ชื่อ:</strong> ${nickname} &nbsp;&nbsp; <strong>ระดับชั้น:</strong> ${grade}</p></div>`;
 
-            // --- ส่วนดึงข้อมูลเดิม (ไม่ต้องแก้ Logic ตรงนี้ แต่ Copy มาวางให้ครบ) ---
+            // --- Logic การดึงข้อมูลเดิม ---
             const activeTab = document.querySelector('.analysis-tab.active');
             if (activeTab) {
                 const tabId = activeTab.id;
@@ -3842,6 +3852,7 @@ function getAnalysisDataFromActiveTab() {
             content += `</div>`;
             return content;
         }
+
 
                     
                     
@@ -4168,6 +4179,7 @@ function getAnalysisDataFromActiveTab() {
 </body>
 
 </html>
+
 
 
 
