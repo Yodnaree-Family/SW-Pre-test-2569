@@ -3665,8 +3665,11 @@ function getAnalysisDataFromActiveTab() {
 
         // ฟังก์ชันส่งออกผลวิเคราะห์เป็น PDF - แก้ไขให้แสดงข้อมูลทั้งหมด
          // 🚨 NEW PDF EXPORT FUNCTION WITH FLOW LOGIC 🚨
-            // ---------------------------------------------------------
-        // แก้ไขครั้งที่ 3 (Final): ฟังก์ชัน exportAnalysisToPDF (ใช้เทคนิค Overlay)
+            
+                
+
+                            // ---------------------------------------------------------
+        // แก้ไขครั้งที่ 6 (The Ultimate Fix): ฟังก์ชัน exportAnalysisToPDF
         // ---------------------------------------------------------
         window.exportAnalysisToPDF = async () => {
             const activeTab = document.querySelector('.analysis-tab.active');
@@ -3675,116 +3678,116 @@ function getAnalysisDataFromActiveTab() {
             try {
                 showMessage('กำลังสร้างไฟล์ PDF... (กรุณารอสักครู่)', 'info');
                 
-                // 1. สร้าง Container หลักที่จะทำหน้าที่เป็น Overlay บังหน้าจอชั่วคราว
-                const overlay = document.createElement('div');
-                overlay.className = 'print-section-overlay';
-                
-                // 🔥 ตั้งค่า Style ให้ทับหน้าจอทั้งหมด (เพื่อให้ html2canvas เห็นแน่นอน)
-                overlay.style.position = 'fixed';
-                overlay.style.top = '0';
-                overlay.style.left = '0';
-                overlay.style.width = '100%';
-                overlay.style.height = '100%';
-                overlay.style.zIndex = '99999'; // อยู่บนสุด
-                overlay.style.backgroundColor = '#ffffff'; // พื้นหลังขาว
-                overlay.style.overflowY = 'scroll'; // เผื่อเนื้อหายาว
-                
-                // 2. สร้าง Container เนื้อหาด้านใน (จำกัดความกว้างเท่า A4)
+                // สร้าง Container
                 const contentContainer = document.createElement('div');
-                contentContainer.style.width = '210mm'; // ความกว้าง A4
-                contentContainer.style.margin = '0 auto'; // จัดกึ่งกลาง
+                contentContainer.style.width = '210mm';
+                contentContainer.style.margin = '0 auto';
                 contentContainer.style.backgroundColor = '#ffffff';
                 contentContainer.style.padding = '20px';
+                contentContainer.style.position = 'absolute';
+                contentContainer.style.left = '-9999px'; // ซ่อนไว้ก่อน
+                contentContainer.style.top = '0';
                 
-                // ใส่เนื้อหาลงไป
+                // ใส่เนื้อหา
                 contentContainer.innerHTML = generatePDFContent();
-                overlay.appendChild(contentContainer);
-                document.body.appendChild(overlay);
+                document.body.appendChild(contentContainer);
                 
-                // 3. 🔥 รอเวลาให้ Browser วาด Font Sarabun เสร็จ (สำคัญมาก!)
-                await new Promise(resolve => setTimeout(resolve, 2000)); // รอ 2 วินาที
+                // รอโหลด Font
+                await document.fonts.ready;
+                await new Promise(resolve => setTimeout(resolve, 1000));
 
                 const opt = {
-                    margin: [0, 0, 0, 0],
+                    margin: 0,
                     filename: `satriwit-analysis-${new Date().toISOString().split('T')[0]}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
+                    image: { type: 'jpeg', quality: 1 },
                     html2canvas: { 
-                        scale: 3, // ความละเอียดสูง
-                        useCORS: true, 
+                        scale: 2,
+                        useCORS: true,
                         logging: false,
                         scrollY: 0,
-                        windowWidth: document.documentElement.offsetWidth,
+                        // 🔥 ท่าไม้ตาย: ปรับแต่ง Element ก่อนถ่ายรูป
+                        onclone: (clonedDoc) => {
+                            const element = clonedDoc.body.lastChild; // ตัวที่เราเพิ่ง append ไป
+                            
+                            // 1. บังคับให้แสดงผล (แก้หน้าขาว)
+                            element.style.display = 'block';
+                            element.style.position = 'static'; 
+                            element.style.left = 'auto';
+                            element.style.top = 'auto';
+                            
+                            // 2. ไล่แก้ทุก Text Node ให้ใช้ Font Sarabun ชัดเจน
+                            const allElements = element.querySelectorAll('*');
+                            allElements.forEach(el => {
+                                el.style.fontFamily = "'Sarabun', sans-serif";
+                                if (el.tagName === 'TD' || el.tagName === 'TH') {
+                                    el.style.whiteSpace = 'normal'; // ให้ตัดคำปกติในตาราง
+                                }
+                            });
+                        }
                     },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true },
-                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 };
 
-                // สร้าง PDF จาก contentContainer (ไม่ใช่ overlay)
                 await html2pdf().set(opt).from(contentContainer).save();
                 
-                // 4. ลบ Overlay ทิ้งหลังจากเสร็จ
-                document.body.removeChild(overlay);
+                document.body.removeChild(contentContainer);
                 showMessage('สร้างไฟล์ PDF สำเร็จ!', 'success');      
                 
             } catch (error) {
                 console.error('Error exporting to PDF:', error);
                 showMessage('เกิดข้อผิดพลาด: ' + error.message, 'error');
-                const tempElement = document.querySelector('.print-section-overlay');
-                if (tempElement) document.body.removeChild(tempElement);
             }
         };
 
-        
-                       
         // ---------------------------------------------------------
-        // แก้ไขครั้งที่ 5 (Final - แก้สระลอย): ฟังก์ชัน generatePDFContent
+        // แก้ไขครั้งที่ 6: ฟังก์ชัน generatePDFContent
         // ---------------------------------------------------------
         function generatePDFContent() {
-            // 🔥 เอา letter-spacing ออก เพื่อแก้สระลอย
-            // 🔥 คง line-height ไว้ เพื่อแก้บรรทัดซ้อน
+            // CSS ที่คลีนที่สุด ตัด Property ที่อาจก่อปัญหาออก
             const cssFix = `
                 font-family: 'Sarabun', sans-serif !important;
                 color: #333;
-                line-height: 1.6; 
+                line-height: 1.4; /* ลดลงเล็กน้อยให้กระชับ */
                 width: 100%;
                 box-sizing: border-box;
-                font-variant-ligatures: none;
             `;
 
             let content = `
                 <div class="pdf-container-flow" style="${cssFix}">
                 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
                 <style>
+                    @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap');
+                    
                     .pdf-container-flow * {
                         font-family: 'Sarabun', sans-serif !important;
                     }
-                    /* ปรับ Padding ในตารางให้อ่านง่าย */
-                    .pdf-table-flow td, .pdf-table-flow th {
-                        padding: 8px 5px !important;
-                        vertical-align: top;
-                        line-height: 1.5;
-                    }
                     
-                    /* จัดการการตัดคำ */
-                    p, td, th, div {
-                        word-break: break-word;
+                    /* ตาราง: จัดการการตัดคำและระยะห่าง */
+                    .pdf-table-flow {
+                        width: 100%;
+                        border-collapse: collapse;
+                        table-layout: fixed; /* บังคับความกว้างคอลัมน์ */
+                    }
+                    .pdf-table-flow td, .pdf-table-flow th {
+                        padding: 8px;
+                        vertical-align: top;
+                        word-wrap: break-word; /* ตัดคำยาวๆ */
                         overflow-wrap: break-word;
                     }
-
-                    ::-webkit-scrollbar { display: none; }
                 </style>
             `;
             
-            // ส่วนหัว
-            content += `<div class="pdf-header-improved"><h1 class="pdf-title-improved">รายงานการวิเคราะห์คะแนน Pre-test</h1><h2 class="pdf-subtitle-improved">โรงเรียนสตรีวิทยา ปีการศึกษา 2569</h2><p style="color:#666; font-size:14px; margin:0;">สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p></div>`;
+            // ... (ส่วนเนื้อหา HTML ด้านล่างนี้ ใช้ Code เดิมจากครั้งก่อนได้เลยครับ ไม่ต้องแก้) ...
+            // เพื่อความสะดวก ผมจะใส่ Placeholder ไว้ ให้คุณ Copy ส่วน Logic เดิมมาใส่ตรงนี้ครับ
             
-            // ข้อมูลผู้ใช้
+            // --- เริ่ม Copy Logic เดิม ---
+             content += `<div class="pdf-header-improved"><h1 class="pdf-title-improved">รายงานการวิเคราะห์คะแนน Pre-test</h1><h2 class="pdf-subtitle-improved">โรงเรียนสตรีวิทยา ปีการศึกษา 2569</h2><p style="color:#666; font-size:14px; margin:0;">สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p></div>`;
+            
             const nickname = document.getElementById('nickname')?.value || 'ไม่ระบุชื่อ';
             const gradeSelect = document.getElementById('current-grade');
             const grade = gradeSelect?.options[gradeSelect.selectedIndex]?.text || 'ไม่ระบุ';
             content += `<div class="pdf-user-info-improved keep-together"><h3 style="margin:0 0 10px 0; color:#2a2a72;">ข้อมูลผู้วิเคราะห์</h3><p style="margin:0;"><strong>ชื่อ:</strong> ${nickname} &nbsp;&nbsp; <strong>ระดับชั้น:</strong> ${grade}</p></div>`;
 
-            // --- Logic การดึงข้อมูล (Copy ส่วนเดิมมาวางได้เลย หรือใช้ตามด้านล่างนี้ครับ) ---
             const activeTab = document.querySelector('.analysis-tab.active');
             if (activeTab) {
                 const tabId = activeTab.id;
@@ -3850,7 +3853,6 @@ function getAnalysisDataFromActiveTab() {
                              const tds = tr.querySelectorAll('td');
                              if(tds.length >= 2) {
                                  const bg = tr.classList.contains('bg-green-50') ? '#f0fdf4' : (tr.classList.contains('bg-red-50') ? '#fef2f2' : '#fffbeb');
-                                 // เพิ่ม padding ให้เซลล์ตารางคำแนะนำ
                                  rows += `<tr style="background-color:${bg}; page-break-inside:avoid;"><td style="border:1px solid #ccc; padding:12px; font-weight:bold; width:25%; vertical-align:top;">${tds[0].textContent}</td><td style="border:1px solid #ccc; padding:12px; width:75%; line-height:1.6;">${tds[1].textContent}</td></tr>`;
                              }
                         });
@@ -3863,11 +3865,13 @@ function getAnalysisDataFromActiveTab() {
                     }
                 }
             }
+            // --- จบ Copy Logic เดิม ---
 
             content += `<div class="pdf-footer-final keep-together"><p style="font-weight:bold; color:#2a2a72; margin-bottom:5px;">รายงานนี้สร้างโดยระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569</p><p style="margin-bottom:5px;">ออกแบบและสรุปผลโดย Line OPC : ครอบครัวยอดนารี❤️สตรีวิทยา</p><p style="margin-bottom:5px;">ลุ้นสอวอไปด้วยกันนะ</p><div style="margin-top:10px; padding:10px; background:#f0fdf4; display:inline-block; border-radius:50px; border:1px solid #bbf7d0;"><img src="https://upload.wikimedia.org/wikipedia/commons/4/41/LINE_logo.svg" style="width:20px; vertical-align:middle; margin-right:5px;"><span style="color:#16a34a; font-weight:bold; font-size:12px;">Line OpenChat: ครอบครัวยอดนารี❤️สตรีวิทยา</span></div></div>`;
             content += `</div>`;
             return content;
         }
+
 
                     
                      
@@ -4196,6 +4200,7 @@ function getAnalysisDataFromActiveTab() {
 </body>
 
 </html>
+
 
 
 
