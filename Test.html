@@ -3670,97 +3670,144 @@ function getAnalysisDataFromActiveTab() {
         // วิธีแก้ปัญหาจบจริง: ใช้ Browser Print (รองรับภาษาไทย 100%)
         // ---------------------------------------------------------
         
+                // ---------------------------------------------------------
+        // แก้ไขครั้งสุดท้าย (Perfect Print): ใช้ CSS ซ่อนหน้าเว็บเดิม
+        // ---------------------------------------------------------
+        
         window.exportAnalysisToPDF = () => {
             const activeTab = document.querySelector('.analysis-tab.active');
             if (!activeTab) { showMessage('กรุณาเลือกแท็บการวิเคราะห์ก่อนบันทึก PDF', 'error'); return; }
             
-            // แจ้งเตือนผู้ใช้
-            showMessage('กำลังเปิดหน้าต่างพิมพ์... กรุณาเลือก "Save as PDF" หรือ "บันทึกเป็น PDF"', 'info');
+            showMessage('กำลังเตรียมหน้าต่างพิมพ์...', 'info');
             
-            // 1. สร้าง Container สำหรับพิมพ์โดยเฉพาะ
-            const printDiv = document.createElement('div');
-            printDiv.className = 'print-section'; // class นี้จะถูกแสดงผลเฉพาะตอนสั่ง Print (ตาม CSS @media print ที่มีอยู่แล้ว)
+            // 1. สร้าง Container สำหรับพิมพ์
+            const printContainer = document.createElement('div');
+            printContainer.id = 'print-container';
             
-            // 2. ใส่เนื้อหา
-            printDiv.innerHTML = generatePDFContent();
-            document.body.appendChild(printDiv);
+            // ใส่เนื้อหา
+            printContainer.innerHTML = generatePDFContent();
+            document.body.appendChild(printContainer);
             
-            // 3. รอโหลดฟอนต์สักครู่ แล้วสั่งพิมพ์
+            // 2. สร้าง Style สำหรับการพิมพ์โดยเฉพาะ (The Magic CSS)
+            const style = document.createElement('style');
+            style.id = 'print-style';
+            style.innerHTML = `
+                @media print {
+                    /* 1. ซ่อนทุกอย่างใน Body */
+                    body * {
+                        visibility: hidden;
+                    }
+                    
+                    /* 2. ซ่อน Background และเงาต่างๆ ของหน้าเว็บ */
+                    body {
+                        background: white !important;
+                    }
+
+                    /* 3. แสดงเฉพาะ Container ที่เราสร้าง */
+                    #print-container, #print-container * {
+                        visibility: visible;
+                    }
+
+                    /* 4. จัดตำแหน่งให้ Container ไปอยู่ที่มุมซ้ายบนสุดของกระดาษ */
+                    #print-container {
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                        width: 100%;
+                        margin: 0;
+                        padding: 0;
+                    }
+
+                    /* 5. ตั้งค่าหน้ากระดาษ */
+                    @page {
+                        size: A4 portrait;
+                        margin: 10mm; /* ขอบกระดาษ */
+                    }
+                    
+                    /* ลบ Header/Footer ของ Browser (ถ้าทำได้) */
+                    html, body {
+                        height: 100%;
+                        margin: 0 !important; 
+                        padding: 0 !important;
+                        overflow: visible;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // 3. รอโหลดรูป/ฟอนต์แป๊บนึง แล้วสั่งพิมพ์
             setTimeout(() => {
                 window.print();
                 
-                // 4. ลบ Container ทิ้งหลังจากกดปิดหน้าต่างพิมพ์
-                // (ตั้งเวลาเผื่อไว้เพื่อให้ Browser จับภาพทัน)
+                // 4. เก็บกวาด (ลบ Container และ Style ทิ้งเมื่อพิมพ์เสร็จ)
+                // ใช้ setTimeout เพื่อให้แน่ใจว่า Browser ส่งข้อมูลไปเครื่องพิมพ์แล้ว
                 setTimeout(() => {
-                    if (document.body.contains(printDiv)) {
-                        document.body.removeChild(printDiv);
-                    }
+                    document.body.removeChild(printContainer);
+                    document.head.removeChild(style);
                 }, 1000);
             }, 500);
         };
 
         function generatePDFContent() {
-            // CSS สำหรับจัดหน้ากระดาษ A4 ตอนพิมพ์
-            const printStyle = `
+            // CSS ภายในเนื้อหา (ใช้ Tahoma เพื่อความชัวร์เรื่องสระ)
+            const internalStyle = `
                 <style>
-                    .pdf-print-wrapper {
-                        font-family: 'Sarabun', sans-serif !important;
+                    .report-wrapper {
+                        font-family: 'Tahoma', sans-serif !important;
                         color: #000;
-                        line-height: 1.6;
+                        line-height: 1.5;
                         width: 100%;
-                        max-width: 210mm; /* ความกว้าง A4 */
-                        margin: 0 auto;
+                        max-width: 210mm;
                         background: #fff;
-                        padding: 20px; 
                     }
-                    .pdf-header {
+                    .report-header {
                         text-align: center;
                         border-bottom: 2px solid #2a2a72;
-                        padding-bottom: 15px;
+                        padding-bottom: 10px;
                         margin-bottom: 20px;
                     }
-                    .pdf-table {
+                    .report-table {
                         width: 100%;
                         border-collapse: collapse;
-                        margin: 15px 0;
-                        font-size: 14px;
+                        margin-top: 15px;
+                        font-size: 12pt;
                     }
-                    .pdf-table th, .pdf-table td {
-                        border: 1px solid #ccc;
-                        padding: 10px;
+                    .report-table th, .report-table td {
+                        border: 1px solid #999;
+                        padding: 8px;
                         text-align: left;
                         vertical-align: top;
                     }
-                    .pdf-table th { background-color: #f0f0f0; font-weight: bold; }
-                    .pdf-box {
-                        border: 1px solid #eee;
-                        border-radius: 8px;
-                        padding: 15px;
-                        margin-bottom: 15px;
-                        page-break-inside: avoid; /* ห้ามตัดกลางหน้า */
+                    .report-table th { background-color: #f0f0f0; font-weight: bold; }
+                    
+                    .box {
+                        border: 1px solid #ccc;
+                        border-radius: 5px;
+                        padding: 10px;
+                        margin-bottom: 10px;
+                        background-color: #fff; /* พื้นหลังขาวไว้ก่อน */
                     }
                     
-                    /* สีพื้นหลัง */
-                    .bg-blue-light { background-color: #eff6ff; border-color: #bfdbfe; }
-                    .bg-green-light { background-color: #f0fdf4; border-color: #bbf7d0; }
-                    .bg-yellow-light { background-color: #fefce8; border-color: #fef08a; }
-                    .bg-red-light { background-color: #fef2f2; border-color: #fecaca; }
-                    
-                    .font-bold { font-weight: bold; }
+                    /* บังคับสีพื้นหลังสำหรับ Webkit browsers (Chrome/Safari) */
+                    .bg-blue { background-color: #eff6ff !important; -webkit-print-color-adjust: exact; }
+                    .bg-green { background-color: #f0fdf4 !important; -webkit-print-color-adjust: exact; }
+                    .bg-yellow { background-color: #fefce8 !important; -webkit-print-color-adjust: exact; }
+                    .bg-red { background-color: #fef2f2 !important; -webkit-print-color-adjust: exact; }
+
                     .text-center { text-align: center; }
+                    .font-bold { font-weight: bold; }
                     
-                    /* ซ่อน URL ที่มักจะติดมาตอนพรินต์ */
-                    a[href]:after { content: none !important; }
+                    /* แก้ลิงก์ติดมาตอนพิมพ์ */
+                    a { text-decoration: none; color: #000; }
                 </style>
             `;
 
-            // เริ่มสร้างเนื้อหา HTML
-            let content = printStyle + `
-                <div class="pdf-print-wrapper">
-                    <div class="pdf-header">
-                        <h1 style="font-size:24px; font-weight:bold; color:#2a2a72; margin:0;">รายงานการวิเคราะห์คะแนน Pre-test</h1>
-                        <h2 style="font-size:18px; color:#009ffd; margin:5px 0;">โรงเรียนสตรีวิทยา ปีการศึกษา 2569</h2>
-                        <p style="color:#666; font-size:12px;">สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+            let content = internalStyle + `
+                <div class="report-wrapper">
+                    <div class="report-header">
+                        <h1 style="font-size:20pt; margin:0; color:#2a2a72;">รายงานการวิเคราะห์คะแนน Pre-test</h1>
+                        <h2 style="font-size:14pt; margin:5px 0; color:#009ffd;">โรงเรียนสตรีวิทยา ปีการศึกษา 2569</h2>
+                        <p style="font-size:10pt; color:#666;">สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
                     </div>
             `;
             
@@ -3770,13 +3817,13 @@ function getAnalysisDataFromActiveTab() {
             const grade = gradeSelect?.options[gradeSelect.selectedIndex]?.text || 'ไม่ระบุ';
             
             content += `
-                <div class="pdf-box bg-blue-light">
-                    <h3 style="font-size:16px; font-weight:bold; color:#1e3a8a; margin:0 0 5px 0;">ข้อมูลผู้วิเคราะห์</h3>
-                    <p style="margin:0;"><strong>ชื่อ:</strong> ${nickname} &nbsp;&nbsp; <strong>ระดับชั้น:</strong> ${grade}</p>
+                <div class="box bg-blue">
+                    <h3 style="font-size:12pt; margin:0 0 5px 0;">ข้อมูลผู้วิเคราะห์</h3>
+                    <p style="margin:0; font-size:11pt;"><strong>ชื่อ:</strong> ${nickname} &nbsp;&nbsp; <strong>ระดับชั้น:</strong> ${grade}</p>
                 </div>
             `;
 
-            // ดึงข้อมูลจาก Tab ที่เปิดอยู่
+            // ดึงข้อมูล
             const activeTab = document.querySelector('.analysis-tab.active');
             if (activeTab) {
                 const tabId = activeTab.id;
@@ -3786,23 +3833,29 @@ function getAnalysisDataFromActiveTab() {
                 if (activeTabContent) {
                     // ชื่อหลักสูตร
                     const title = activeTabContent.querySelector('h3')?.textContent || 'การวิเคราะห์คะแนน';
-                    content += `<h3 style="font-size:18px; font-weight:bold; border-bottom:1px solid #ddd; padding-bottom:5px; margin-top:20px;">${title}</h3>`;
+                    content += `<h3 style="font-size:14pt; border-bottom:1px solid #ccc; padding-bottom:5px; margin-top:15px;">${title}</h3>`;
 
-                    // คะแนนสอบ
+                    // คะแนน
                     const preTestScore = activeTabContent.querySelector('.text-3xl.text-blue-600')?.textContent || '-';
                     const projectedScore = activeTabContent.querySelector('.text-3xl.text-green-600')?.textContent || '-';
                     
                     content += `
-                        <div style="display:flex; justify-content:space-between; margin-bottom:15px; margin-top:15px;">
-                            <div class="pdf-box" style="width:48%; text-align:center; background-color:#f0f9ff;">
-                                <div style="font-weight:bold; margin-bottom:5px;">คะแนน Pre-test</div>
-                                <div style="font-size:24px; color:#2563eb; font-weight:bold;">${preTestScore}</div>
-                            </div>
-                            <div class="pdf-box" style="width:48%; text-align:center; background-color:#f0fdf4;">
-                                <div style="font-weight:bold; margin-bottom:5px;">คะแนนสอบจริง (คาดการณ์)</div>
-                                <div style="font-size:24px; color:#16a34a; font-weight:bold;">${projectedScore}</div>
-                            </div>
-                        </div>
+                        <table style="width:100%; margin-bottom:15px;">
+                            <tr>
+                                <td style="width:50%; padding-right:5px; border:none;">
+                                    <div class="box bg-blue text-center">
+                                        <div class="font-bold">คะแนน Pre-test</div>
+                                        <div style="font-size:18pt; color:#2563eb; font-weight:bold;">${preTestScore}</div>
+                                    </div>
+                                </td>
+                                <td style="width:50%; padding-left:5px; border:none;">
+                                    <div class="box bg-green text-center">
+                                        <div class="font-bold">คะแนนสอบจริง (คาดการณ์)</div>
+                                        <div style="font-size:18pt; color:#16a34a; font-weight:bold;">${projectedScore}</div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
                     `;
 
                     // โอกาสสอบติด
@@ -3810,14 +3863,14 @@ function getAnalysisDataFromActiveTab() {
                     if (chanceElement) {
                         const chanceText = chanceElement.querySelector('h4')?.textContent || '';
                         const chanceDesc = chanceElement.querySelector('p')?.textContent || '';
-                        let bgClass = 'bg-yellow-light';
-                        if (chanceElement.classList.contains('chance-high')) bgClass = 'bg-green-light';
-                        if (chanceElement.classList.contains('chance-low')) bgClass = 'bg-red-light';
+                        let bgClass = 'bg-yellow';
+                        if (chanceElement.classList.contains('chance-high')) bgClass = 'bg-green';
+                        if (chanceElement.classList.contains('chance-low')) bgClass = 'bg-red';
                         
                         content += `
-                            <div class="pdf-box ${bgClass} text-center">
-                                <h4 style="margin:0 0 5px 0; font-size:16px; font-weight:bold;">${chanceText}</h4>
-                                <p style="margin:0; font-size:14px;">${chanceDesc}</p>
+                            <div class="box ${bgClass} text-center">
+                                <h4 style="margin:0 0 5px 0; font-size:12pt;">${chanceText}</h4>
+                                <p style="margin:0; font-size:11pt;">${chanceDesc}</p>
                             </div>
                         `;
                     }
@@ -3825,8 +3878,8 @@ function getAnalysisDataFromActiveTab() {
                     // ตารางคะแนน
                     const tables = activeTabContent.querySelectorAll('table');
                     if(tables.length > 0) {
-                        content += `<h4 style="margin-top:20px; font-weight:bold;">คะแนนรายวิชา</h4>`;
-                        content += `<table class="pdf-table"><thead><tr><th style="width:40%">วิชา</th><th style="width:30%">คะแนน Pre-test</th><th style="width:30%">เทียบเคียง</th></tr></thead><tbody>`;
+                        content += `<h4 style="margin-top:15px; font-size:12pt;">คะแนนรายวิชา</h4>`;
+                        content += `<table class="report-table"><thead><tr><th style="width:40%">วิชา</th><th style="width:30%">คะแนน Pre-test</th><th style="width:30%">เทียบเคียง</th></tr></thead><tbody>`;
                         
                         tables[0].querySelectorAll('tbody tr').forEach(tr => {
                             const tds = tr.querySelectorAll('td');
@@ -3846,47 +3899,42 @@ function getAnalysisDataFromActiveTab() {
                     const weakEl = activeTabContent.querySelector('.weakness-item');
                     
                     if (strEl || weakEl) {
-                         content += `<div style="display:flex; gap:10px; margin-top:15px;">`;
+                         content += `<table style="width:100%; margin-top:15px;"><tr>`;
                          if (strEl) {
                              const items = Array.from(strEl.querySelectorAll('li')).map(li => `<li>${li.textContent}</li>`).join('');
-                             content += `<div class="pdf-box bg-green-light" style="flex:1; margin-bottom:0;">
-                                <h5 style="color:green; font-weight:bold; margin:0 0 5px 0;">จุดแข็ง</h5>
-                                <ul style="margin:0; padding-left:20px; font-size:14px;">${items}</ul>
-                             </div>`;
+                             content += `<td style="width:50%; border:none; padding-right:5px; vertical-align:top;">
+                                <div class="box bg-green">
+                                    <h5 style="color:green; margin:0 0 5px 0; font-size:11pt;">จุดแข็ง</h5>
+                                    <ul style="margin:0; padding-left:20px; font-size:10pt;">${items}</ul>
+                                </div>
+                             </td>`;
                          }
                          if (weakEl) {
                              const items = Array.from(weakEl.querySelectorAll('li')).map(li => `<li>${li.textContent}</li>`).join('');
-                             content += `<div class="pdf-box bg-yellow-light" style="flex:1; margin-bottom:0;">
-                                <h5 style="color:#d97706; font-weight:bold; margin:0 0 5px 0;">จุดที่ควรเสริม</h5>
-                                <ul style="margin:0; padding-left:20px; font-size:14px;">${items}</ul>
-                             </div>`;
+                             content += `<td style="width:50%; border:none; padding-left:5px; vertical-align:top;">
+                                <div class="box bg-yellow">
+                                    <h5 style="color:#d97706; margin:0 0 5px 0; font-size:11pt;">จุดที่ควรเสริม</h5>
+                                    <ul style="margin:0; padding-left:20px; font-size:10pt;">${items}</ul>
+                                </div>
+                             </td>`;
                          }
-                         content += `</div>`;
+                         content += `</tr></table>`;
                     }
 
                     // ตารางข้อเสนอแนะ
                     if(tables.length > 1) {
-                        content += `<h4 style="margin-top:20px; font-weight:bold;">ข้อเสนอแนะเพื่อพัฒนา</h4>`;
-                        content += `<table class="pdf-table"><thead><tr><th style="width:30%">วิชา</th><th>ข้อเสนอแนะ</th></tr></thead><tbody>`;
+                        content += `<h4 style="margin-top:15px; font-size:12pt;">ข้อเสนอแนะเพื่อพัฒนา</h4>`;
+                        content += `<table class="report-table"><thead><tr><th style="width:30%">วิชา</th><th>ข้อเสนอแนะ</th></tr></thead><tbody>`;
                         
                         tables[1].querySelectorAll('tbody tr').forEach(tr => {
                             const tds = tr.querySelectorAll('td');
                             if(tds.length >= 2) {
-                                // เช็คสี
                                 let rowClass = '';
-                                if(tr.classList.contains('bg-green-50')) rowClass = 'bg-green-light';
-                                else if(tr.classList.contains('bg-red-50')) rowClass = 'bg-red-light';
-                                else if(tr.classList.contains('bg-yellow-50')) rowClass = 'bg-yellow-light';
+                                if(tr.classList.contains('bg-green-50')) rowClass = 'bg-green';
+                                else if(tr.classList.contains('bg-red-50')) rowClass = 'bg-red';
+                                else if(tr.classList.contains('bg-yellow-50')) rowClass = 'bg-yellow';
 
-                                // สร้าง tr พร้อม class สี (ถ้ามี)
-                                // *หมายเหตุ: ใน pdf-table เราไม่ได้กำหนด class สีไว้ใน style ข้างบน
-                                // ต้องกำหนด style inline ให้แน่ใจ
-                                let bgStyle = '';
-                                if(rowClass === 'bg-green-light') bgStyle = 'background-color:#f0fdf4;';
-                                if(rowClass === 'bg-red-light') bgStyle = 'background-color:#fef2f2;';
-                                if(rowClass === 'bg-yellow-light') bgStyle = 'background-color:#fefce8;';
-
-                                content += `<tr style="${bgStyle}">
+                                content += `<tr class="${rowClass}">
                                     <td class="font-bold">${tds[0].textContent}</td>
                                     <td>${tds[1].textContent}</td>
                                 </tr>`;
@@ -3895,13 +3943,13 @@ function getAnalysisDataFromActiveTab() {
                         content += `</tbody></table>`;
                     }
                     
-                    // สรุปผล
+                    // สรุป
                     const summaryEl = activeTabContent.querySelector('.bg-blue-50 p');
                     if(summaryEl) {
                         content += `
-                            <div class="pdf-box bg-blue-light" style="margin-top:20px;">
-                                <h4 style="color:#1e3a8a; font-weight:bold; margin:0 0 5px 0;">สรุปผลการวิเคราะห์</h4>
-                                <p style="margin:0;">${summaryEl.textContent}</p>
+                            <div class="box bg-blue" style="margin-top:15px;">
+                                <h4 style="color:#1e3a8a; margin:0 0 5px 0; font-size:11pt;">สรุปผลการวิเคราะห์</h4>
+                                <p style="margin:0; font-size:10pt;">${summaryEl.textContent}</p>
                             </div>
                         `;
                     }
@@ -3910,16 +3958,17 @@ function getAnalysisDataFromActiveTab() {
 
             // Footer
             content += `
-                <div style="margin-top:30px; border-top:1px solid #ddd; padding-top:10px; text-align:center; font-size:12px; color:#666;">
-                    <p style="margin:5px 0;">รายงานนี้สร้างโดยระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569 | ออกแบบและสรุปผลโดย Line OPC : ครอบครัวยอดนารี❤️สตรีวิทยา</p>
-                    <p style="margin:5px 0;">ลุ้นสอวอไปด้วยกันนะ</p>
+                <div style="margin-top:30px; border-top:1px solid #ccc; padding-top:10px; text-align:center; font-size:9pt; color:#666;">
+                    <p style="margin:2px;">รายงานนี้สร้างโดยระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569 | ออกแบบและสรุปผลโดย Line OPC : ครอบครัวยอดนารี❤️สตรีวิทยา</p>
+                    <p style="margin:2px;">ลุ้นสอวอไปด้วยกันนะ</p>
                 </div>
-                </div> `;
+                </div>
+            `;
 
             return content;
         }
 
-
+                         
         // --- Admin Functions ---
 
         // ฟังก์ชันล็อกอิน Admin
