@@ -3665,36 +3665,42 @@ function getAnalysisDataFromActiveTab() {
 
         // ฟังก์ชันส่งออกผลวิเคราะห์เป็น PDF - แก้ไขให้แสดงข้อมูลทั้งหมด
          // 🚨 NEW PDF EXPORT FUNCTION WITH FLOW LOGIC 🚨
-        window.exportAnalysisToPDF = async () => {
+                window.exportAnalysisToPDF = async () => {
             const activeTab = document.querySelector('.analysis-tab.active');
             if (!activeTab) { showMessage('กรุณาเลือกแท็บการวิเคราะห์ก่อนบันทึก PDF', 'error'); return; }
             
             try {
-                showMessage('กำลังสร้างไฟล์ PDF...', 'info');
+                showMessage('กำลังสร้างไฟล์ PDF... (กรุณารอสักครู่)', 'info');
+                
                 const element = document.createElement('div');
                 element.className = 'print-section';
-                element.style.width = '210mm'; 
+                element.style.width = '210mm';
                 element.style.padding = '0';
                 element.style.margin = '0';
                 element.style.background = 'white';
+                // บังคับตำแหน่งให้อยู่นอกจอแต่ render ได้ (แก้บั๊กจอดำในบาง Browser)
+                element.style.position = 'absolute';
+                element.style.left = '-9999px';
+                element.style.top = '0';
+                
                 element.innerHTML = generatePDFContent();
                 document.body.appendChild(element);
                 
+                // 🔥 จุดแก้สำคัญที่ 1: รอให้ Browser วาด Font Sarabun เสร็จก่อน (1.5 วินาที)
+                // ถ้าไม่รอ html2canvas จะจับภาพตอนฟอนต์ยังไม่มา ทำให้สระเพี้ยน
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
                 const opt = {
-                    margin: [0, 0, 0, 0], // ลดขอบขาวให้จัดการใน CSS แทน
+                    margin: [0, 0, 0, 0],
                     filename: `satriwit-analysis-${new Date().toISOString().split('T')[0]}.pdf`,
-                    image: { type: 'jpeg', quality: 1 }, // ปรับคุณภาพรูปสูงสุด
-                    // 🔥 จุดแก้สำคัญ: 
-                    // 1. เอา letterRendering ออก (แก้สระเพี้ยน)
-                    // 2. เพิ่ม scale เป็น 4 (แก้ตัวหนังสือซ้อน + ชัดขึ้น)
+                    image: { type: 'jpeg', quality: 0.98 },
                     html2canvas: { 
-                        scale: 4, 
+                        scale: 2, // ใช้แค่ 2 ก็คมชัดพอและไม่หน่วงครับ
                         useCORS: true, 
-                        logging: false, 
-                        scrollY: 0, 
-                        backgroundColor: '#ffffff'
+                        logging: false,
+                        scrollY: 0,
+                        // ห้ามใช้ letterRendering กับภาษาไทยเด็ดขาด
                     },
-                    
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true },
                     pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
                 };
@@ -3710,27 +3716,32 @@ function getAnalysisDataFromActiveTab() {
             }
         };
 
+
         
 
         // แก้ไขครั้งที่ 2: ฟังก์ชัน generatePDFContent
         // ---------------------------------------------------------
-        function generatePDFContent() {
-            // 🔥 เพิ่ม CSS เฉพาะทางสำหรับแก้ปัญหาการจัดเรียงตัวอักษร
+                function generatePDFContent() {
+            // 🔥 จุดแก้สำคัญที่ 2: ใส่ Link Font ลงไปในเนื้อหาที่จะปริ้นเลย เพื่อความชัวร์
+            // และบังคับ font-family ให้เป็น Sarabun !important
             const cssFix = `
-                font-family: 'Sarabun', sans-serif;
+                font-family: 'Sarabun', sans-serif !important;
                 color: #333;
-                line-height: 1.6;
+                line-height: 1.5;
                 width: 100%;
                 padding: 20px;
                 box-sizing: border-box;
-                /* เทคนิคแก้สระลอย/จม และระยะห่าง */
-                text-rendering: geometricPrecision;
-                -webkit-font-smoothing: antialiased;
-                /* letter-spacing น้อยๆ ช่วยลดโอกาสซ้อนกันโดยไม่ทำให้สระแตก */
-                letter-spacing: 0.01em; 
             `;
 
-            let content = `<div class="pdf-container-flow" style="${cssFix}">`;
+            let content = `
+                <div class="pdf-container-flow" style="${cssFix}">
+                <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+                <style>
+                    .pdf-container-flow * {
+                        font-family: 'Sarabun', sans-serif !important;
+                    }
+                </style>
+            `;
             
             // ส่วนหัว
             content += `<div class="pdf-header-improved"><h1 class="pdf-title-improved">รายงานการวิเคราะห์คะแนน Pre-test</h1><h2 class="pdf-subtitle-improved">โรงเรียนสตรีวิทยา ปีการศึกษา 2569</h2><p style="color:#666; font-size:14px; margin:0;">สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p></div>`;
@@ -3741,7 +3752,7 @@ function getAnalysisDataFromActiveTab() {
             const grade = gradeSelect?.options[gradeSelect.selectedIndex]?.text || 'ไม่ระบุ';
             content += `<div class="pdf-user-info-improved keep-together"><h3 style="margin:0 0 10px 0; color:#2a2a72;">ข้อมูลผู้วิเคราะห์</h3><p style="margin:0;"><strong>ชื่อ:</strong> ${nickname} &nbsp;&nbsp; <strong>ระดับชั้น:</strong> ${grade}</p></div>`;
 
-            // Logic ดึงข้อมูลเดิม
+            // --- ส่วนดึงข้อมูลเดิม (ไม่ต้องแก้ Logic ตรงนี้ แต่ Copy มาวางให้ครบ) ---
             const activeTab = document.querySelector('.analysis-tab.active');
             if (activeTab) {
                 const tabId = activeTab.id;
@@ -3825,6 +3836,8 @@ function getAnalysisDataFromActiveTab() {
             return content;
         }
 
+                    
+                    
 
         // --- Admin Functions ---
 
@@ -4148,4 +4161,5 @@ function getAnalysisDataFromActiveTab() {
 </body>
 
 </html>
+
 
