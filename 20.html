@@ -3665,98 +3665,80 @@ function getAnalysisDataFromActiveTab() {
 
         // ฟังก์ชันส่งออกผลวิเคราะห์เป็น PDF - แก้ไขให้แสดงข้อมูลทั้งหมด
          // 🚨 NEW PDF EXPORT FUNCTION WITH FLOW LOGIC 🚨
-                
-                // ---------------------------------------------------------
-        // แก้ไขครั้งสุดท้าย (Final & Perfect): ใช้ Browser Print แบบ Clean Layout
+                 // ---------------------------------------------------------
+        // แก้ไขครั้งสุดท้าย (The Iframe Solution): แยกส่วนพิมพ์ออกจากหน้าเว็บหลัก
         // ---------------------------------------------------------
         
         window.exportAnalysisToPDF = () => {
             const activeTab = document.querySelector('.analysis-tab.active');
             if (!activeTab) { showMessage('กรุณาเลือกแท็บการวิเคราะห์ก่อนบันทึก PDF', 'error'); return; }
             
-            showMessage('กำลังเตรียมหน้าต่างพิมพ์... กรุณาเลือก "Save as PDF"', 'info');
+            showMessage('กำลังเตรียมหน้าต่างพิมพ์... (รอรูปภาพหน้าต่างเด้งขึ้นมา)', 'info');
             
-            // 1. สร้าง Container สำหรับพิมพ์
-            // เช็คว่ามีของเก่าค้างไหม ถ้ามีให้ลบออก
-            const oldPrintDiv = document.getElementById('print-container');
-            if (oldPrintDiv) document.body.removeChild(oldPrintDiv);
+            // 1. สร้าง Iframe (หน้าต่างจำลอง)
+            const iframe = document.createElement('iframe');
+            // ซ่อน Iframe ไว้ไม่ให้รกตา แต่ต้องมีความกว้างเพื่อให้ render ได้
+            iframe.style.position = 'fixed';
+            iframe.style.right = '0';
+            iframe.style.bottom = '0';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = '0';
+            document.body.appendChild(iframe);
             
-            const printDiv = document.createElement('div');
-            printDiv.id = 'print-container';
+            // 2. เตรียมเนื้อหา
+            const content = generatePDFContent();
             
-            // 2. ใส่เนื้อหา
-            printDiv.innerHTML = generatePDFContent();
-            document.body.appendChild(printDiv);
-            
-            // 3. เพิ่ม Style สำหรับพิมพ์โดยเฉพาะ (บังคับซ่อนทุกอย่างที่ไม่ใช่ใบรายงาน)
-            const style = document.createElement('style');
-            style.id = 'print-style';
-            style.innerHTML = `
-                @media print {
-                    /* ซ่อนทุกอย่างในหน้าเว็บ */
-                    body > * {
-                        display: none !important;
-                    }
-                    
-                    /* ยกเว้นกล่อง print-container ของเรา */
-                    body > #print-container {
-                        display: block !important;
-                    }
-                    
-                    /* ปรับแต่งกล่องพิมพ์ */
-                    #print-container {
-                        position: absolute;
-                        left: 0;
-                        top: 0;
-                        width: 100%;
-                        margin: 0;
-                        padding: 0;
-                        background-color: white;
-                    }
+            // 3. เขียนเนื้อหาลงใน Iframe
+            const doc = iframe.contentWindow.document;
+            doc.open();
+            doc.write(`
+                <!DOCTYPE html>
+                <html lang="th">
+                <head>
+                    <title>รายงานผลการวิเคราะห์</title>
+                    <meta charset="UTF-8">
+                    <link rel="preconnect" href="https://fonts.googleapis.com">
+                    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+                </head>
+                <body>
+                    ${content}
+                    <script>
+                        // สคริปต์นี้จะรันใน Iframe
+                        // รอให้โหลดฟอนต์เสร็จ 1.5 วินาที แล้วค่อยสั่งพิมพ์
+                        window.onload = function() {
+                            setTimeout(function() {
+                                window.print();
+                                // ส่งสัญญาณบอกหน้าหลักว่าเสร็จแล้ว (Optional)
+                            }, 1500);
+                        };
+                    <\/script>
+                </body>
+                </html>
+            `);
+            doc.close();
 
-                    /* ตั้งค่าหน้ากระดาษ */
-                    @page {
-                        size: A4 portrait;
-                        margin: 10mm; 
-                    }
-                    
-                    /* บังคับพิมพ์สีพื้นหลัง */
-                    * {
-                        -webkit-print-color-adjust: exact !important;
-                        print-color-adjust: exact !important;
-                    }
-                }
-            `;
-            document.head.appendChild(style);
-            
-            // 4. รอโหลดรูป/ฟอนต์สักครู่ แล้วสั่งพิมพ์
+            // 4. ลบ Iframe ทิ้งหลังจากผ่านไป 1 นาที (เผื่อเวลาให้ user กดพิมพ์เสร็จ)
             setTimeout(() => {
-                window.print();
-                
-                // 5. ลบ Container ทิ้งหลังจากปิดหน้าต่างพิมพ์
-                // (Delay ไว้เพื่อให้แน่ใจว่าพิมพ์เสร็จแล้ว)
-                setTimeout(() => {
-                    if (document.body.contains(printDiv)) {
-                        document.body.removeChild(printDiv);
-                    }
-                    if (document.head.contains(style)) {
-                        document.head.removeChild(style);
-                    }
-                }, 1000); // รอ 1 วินาทีหลังกดพิมพ์
-            }, 500);
+                if (document.body.contains(iframe)) {
+                    document.body.removeChild(iframe);
+                }
+            }, 60000);
         };
 
         function generatePDFContent() {
-            // CSS ภายในเนื้อหา (ใช้ Sarabun ให้สวยงาม)
+            // CSS ภายในเนื้อหา (ตัด Tailwind ออก ใช้ CSS บ้านๆ เพื่อความชัวร์)
             const internalStyle = `
-                <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
                 <style>
-                    .report-wrapper {
+                    body {
                         font-family: 'Sarabun', sans-serif !important;
+                        background-color: #fff;
+                        margin: 0;
+                        padding: 20px;
                         color: #000;
-                        line-height: 1.6;
-                        width: 100%;
-                        background: #fff;
+                        -webkit-print-color-adjust: exact !important; /* บังคับพิมพ์สี */
+                        print-color-adjust: exact !important;
                     }
                     .report-header {
                         text-align: center;
@@ -3776,16 +3758,17 @@ function getAnalysisDataFromActiveTab() {
                         text-align: left;
                         vertical-align: top;
                     }
-                    .report-table th { background-color: #f0f0f0; font-weight: bold; }
+                    .report-table th { background-color: #f0f0f0 !important; font-weight: bold; }
                     
                     .box {
                         border: 1px solid #ccc;
                         border-radius: 5px;
                         padding: 10px;
                         margin-bottom: 10px;
+                        background-color: #fff;
                     }
                     
-                    /* สีพื้นหลัง */
+                    /* กำหนดสีพื้นหลังแบบ Hardcode */
                     .bg-blue { background-color: #eff6ff !important; }
                     .bg-green { background-color: #f0fdf4 !important; }
                     .bg-yellow { background-color: #fefce8 !important; }
@@ -3793,21 +3776,22 @@ function getAnalysisDataFromActiveTab() {
 
                     .text-center { text-align: center; }
                     .font-bold { font-weight: bold; }
-                    .text-xl { font-size: 20px; }
                     
-                    /* ลบขีดเส้นใต้ลิงก์ */
-                    a { text-decoration: none; color: #000; }
+                    /* ตั้งค่าหน้ากระดาษ */
+                    @page {
+                        size: A4;
+                        margin: 10mm;
+                    }
                 </style>
             `;
 
-            // เริ่มสร้าง HTML
+            // เริ่มสร้าง HTML (ไม่มี wrapper แปลกปลอม)
             let content = internalStyle + `
-                <div class="report-wrapper">
-                    <div class="report-header">
-                        <h1 style="font-size:24px; margin:0; color:#2a2a72; font-weight:bold;">รายงานการวิเคราะห์คะแนน Pre-test</h1>
-                        <h2 style="font-size:18px; margin:5px 0; color:#009ffd;">โรงเรียนสตรีวิทยา ปีการศึกษา 2569</h2>
-                        <p style="font-size:12px; color:#666;">สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
-                    </div>
+                <div class="report-header">
+                    <h1 style="font-size:24px; margin:0; color:#2a2a72;">รายงานการวิเคราะห์คะแนน Pre-test</h1>
+                    <h2 style="font-size:18px; margin:5px 0; color:#009ffd;">โรงเรียนสตรีวิทยา ปีการศึกษา 2569</h2>
+                    <p style="font-size:12px; color:#666;">สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                </div>
             `;
             
             // ข้อมูลผู้ใช้
@@ -3817,7 +3801,7 @@ function getAnalysisDataFromActiveTab() {
             
             content += `
                 <div class="box bg-blue">
-                    <h3 style="font-size:16px; margin:0 0 5px 0; font-weight:bold; color:#1e3a8a;">ข้อมูลผู้วิเคราะห์</h3>
+                    <h3 style="font-size:16px; margin:0 0 5px 0; color:#1e3a8a;">ข้อมูลผู้วิเคราะห์</h3>
                     <p style="margin:0; font-size:14px;"><strong>ชื่อ:</strong> ${nickname} &nbsp;&nbsp; <strong>ระดับชั้น:</strong> ${grade}</p>
                 </div>
             `;
@@ -3830,16 +3814,16 @@ function getAnalysisDataFromActiveTab() {
                 const activeTabContent = document.getElementById(contentId);
 
                 if (activeTabContent) {
-                    // หัวข้อ
+                    // ชื่อหลักสูตร
                     const title = activeTabContent.querySelector('h3')?.textContent || 'การวิเคราะห์คะแนน';
-                    content += `<h3 style="font-size:18px; font-weight:bold; border-bottom:1px solid #ccc; padding-bottom:5px; margin-top:20px;">${title}</h3>`;
+                    content += `<h3 style="font-size:18px; border-bottom:1px solid #ccc; padding-bottom:5px; margin-top:20px;">${title}</h3>`;
 
                     // คะแนน
                     const preTestScore = activeTabContent.querySelector('.text-3xl.text-blue-600')?.textContent || '-';
                     const projectedScore = activeTabContent.querySelector('.text-3xl.text-green-600')?.textContent || '-';
                     
                     content += `
-                        <table style="width:100%; margin-bottom:15px; margin-top:15px;">
+                        <table style="width:100%; margin-bottom:15px;">
                             <tr>
                                 <td style="width:50%; padding-right:5px; border:none;">
                                     <div class="box bg-blue text-center">
@@ -3868,7 +3852,7 @@ function getAnalysisDataFromActiveTab() {
                         
                         content += `
                             <div class="box ${bgClass} text-center">
-                                <h4 style="margin:0 0 5px 0; font-size:16px; font-weight:bold;">${chanceText}</h4>
+                                <h4 style="margin:0 0 5px 0; font-size:16px;">${chanceText}</h4>
                                 <p style="margin:0; font-size:14px;">${chanceDesc}</p>
                             </div>
                         `;
@@ -3877,7 +3861,7 @@ function getAnalysisDataFromActiveTab() {
                     // ตารางคะแนน
                     const tables = activeTabContent.querySelectorAll('table');
                     if(tables.length > 0) {
-                        content += `<h4 style="margin-top:20px; font-size:16px; font-weight:bold;">คะแนนรายวิชา</h4>`;
+                        content += `<h4 style="margin-top:20px; font-size:16px;">คะแนนรายวิชา</h4>`;
                         content += `<table class="report-table"><thead><tr><th style="width:40%">วิชา</th><th style="width:30%">คะแนน Pre-test</th><th style="width:30%">เทียบเคียง</th></tr></thead><tbody>`;
                         
                         tables[0].querySelectorAll('tbody tr').forEach(tr => {
@@ -3903,7 +3887,7 @@ function getAnalysisDataFromActiveTab() {
                              const items = Array.from(strEl.querySelectorAll('li')).map(li => `<li>${li.textContent}</li>`).join('');
                              content += `<td style="width:50%; border:none; padding-right:5px; vertical-align:top;">
                                 <div class="box bg-green">
-                                    <h5 style="color:green; margin:0 0 5px 0; font-size:14px; font-weight:bold;">จุดแข็ง</h5>
+                                    <h5 style="color:green; margin:0 0 5px 0; font-size:14px;">จุดแข็ง</h5>
                                     <ul style="margin:0; padding-left:20px; font-size:13px;">${items}</ul>
                                 </div>
                              </td>`;
@@ -3912,7 +3896,7 @@ function getAnalysisDataFromActiveTab() {
                              const items = Array.from(weakEl.querySelectorAll('li')).map(li => `<li>${li.textContent}</li>`).join('');
                              content += `<td style="width:50%; border:none; padding-left:5px; vertical-align:top;">
                                 <div class="box bg-yellow">
-                                    <h5 style="color:#d97706; margin:0 0 5px 0; font-size:14px; font-weight:bold;">จุดที่ควรเสริม</h5>
+                                    <h5 style="color:#d97706; margin:0 0 5px 0; font-size:14px;">จุดที่ควรเสริม</h5>
                                     <ul style="margin:0; padding-left:20px; font-size:13px;">${items}</ul>
                                 </div>
                              </td>`;
@@ -3922,7 +3906,7 @@ function getAnalysisDataFromActiveTab() {
 
                     // ตารางข้อเสนอแนะ
                     if(tables.length > 1) {
-                        content += `<h4 style="margin-top:20px; font-size:16px; font-weight:bold;">ข้อเสนอแนะเพื่อพัฒนา</h4>`;
+                        content += `<h4 style="margin-top:20px; font-size:16px;">ข้อเสนอแนะเพื่อพัฒนา</h4>`;
                         content += `<table class="report-table"><thead><tr><th style="width:30%">วิชา</th><th>ข้อเสนอแนะ</th></tr></thead><tbody>`;
                         
                         tables[1].querySelectorAll('tbody tr').forEach(tr => {
@@ -3947,7 +3931,7 @@ function getAnalysisDataFromActiveTab() {
                     if(summaryEl) {
                         content += `
                             <div class="box bg-blue" style="margin-top:20px;">
-                                <h4 style="color:#1e3a8a; margin:0 0 5px 0; font-size:16px; font-weight:bold;">สรุปผลการวิเคราะห์</h4>
+                                <h4 style="color:#1e3a8a; margin:0 0 5px 0; font-size:16px;">สรุปผลการวิเคราะห์</h4>
                                 <p style="margin:0; font-size:14px;">${summaryEl.textContent}</p>
                             </div>
                         `;
@@ -3961,10 +3945,12 @@ function getAnalysisDataFromActiveTab() {
                     <p style="margin:2px;">รายงานนี้สร้างโดยระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569 | ออกแบบและสรุปผลโดย Line OPC : ครอบครัวยอดนารี❤️สตรีวิทยา</p>
                     <p style="margin:2px;">ลุ้นสอวอไปด้วยกันนะ</p>
                 </div>
-                </div> `;
+            `;
 
             return content;
         }
+       
+                    
 
                          
         // --- Admin Functions ---
