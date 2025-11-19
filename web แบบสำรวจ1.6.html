@@ -3734,18 +3734,21 @@ function getAnalysisDataFromActiveTab() {
             }
         };
 
-        // ---------------------------------------------------------
-        // แก้ไขครั้งที่ 3: ฟังก์ชัน generatePDFContent
+        
+                       // ---------------------------------------------------------
+        // แก้ไขครั้งที่ 4 (Final Fix Spacing): ฟังก์ชัน generatePDFContent
         // ---------------------------------------------------------
         function generatePDFContent() {
-            // CSS ที่ปรับจูนเพื่อความสวยงามใน PDF
+            // 🔥 ปรับจูน CSS เพื่อแก้ตัวหนังสือซ้อนกัน
             const cssFix = `
                 font-family: 'Sarabun', sans-serif !important;
                 color: #333;
-                line-height: 1.5;
+                line-height: 1.8; /* เพิ่มความสูงบรรทัด แก้สระชนกันแนวตั้ง */
+                letter-spacing: 0.5px; /* เพิ่มระยะห่างตัวอักษร แก้ตัวซ้อนแนวนอน */
                 width: 100%;
                 box-sizing: border-box;
-                font-variant-ligatures: none; /* ป้องกันการเชื่อมคำผิดๆ */
+                font-variant-ligatures: none;
+                word-wrap: break-word;
             `;
 
             let content = `
@@ -3755,7 +3758,11 @@ function getAnalysisDataFromActiveTab() {
                     .pdf-container-flow * {
                         font-family: 'Sarabun', sans-serif !important;
                     }
-                    /* ซ่อน Scrollbar ในขณะพิมพ์ */
+                    /* ปรับแต่งตารางให้ตัวหนังสือไม่เบียดขอบ */
+                    .pdf-table-flow td, .pdf-table-flow th {
+                        padding: 12px 8px !important; /* เพิ่มช่องว่างในเซลล์ */
+                        vertical-align: top;
+                    }
                     ::-webkit-scrollbar { display: none; }
                 </style>
             `;
@@ -3769,7 +3776,7 @@ function getAnalysisDataFromActiveTab() {
             const grade = gradeSelect?.options[gradeSelect.selectedIndex]?.text || 'ไม่ระบุ';
             content += `<div class="pdf-user-info-improved keep-together"><h3 style="margin:0 0 10px 0; color:#2a2a72;">ข้อมูลผู้วิเคราะห์</h3><p style="margin:0;"><strong>ชื่อ:</strong> ${nickname} &nbsp;&nbsp; <strong>ระดับชั้น:</strong> ${grade}</p></div>`;
 
-            // --- Logic การดึงข้อมูลเดิม ---
+            // --- Logic การดึงข้อมูล (เหมือนเดิม) ---
             const activeTab = document.querySelector('.analysis-tab.active');
             if (activeTab) {
                 const tabId = activeTab.id;
@@ -3823,7 +3830,7 @@ function getAnalysisDataFromActiveTab() {
                          let rows = '';
                          scoreTable.querySelectorAll('tbody tr').forEach(tr => {
                              const tds = tr.querySelectorAll('td');
-                             rows += `<tr><td style="border:1px solid #ccc; padding:6px;">${tds[0].textContent}</td><td style="border:1px solid #ccc; padding:6px; text-align:center;">${tds[1].textContent}</td><td style="border:1px solid #ccc; padding:6px; text-align:center;">${tds[2].textContent}</td></tr>`;
+                             rows += `<tr><td style="border:1px solid #ccc; padding:8px;">${tds[0].textContent}</td><td style="border:1px solid #ccc; padding:8px; text-align:center;">${tds[1].textContent}</td><td style="border:1px solid #ccc; padding:8px; text-align:center;">${tds[2].textContent}</td></tr>`;
                          });
                          content += `<div class="pdf-section keep-together"><h4 style="font-size:16px; font-weight:bold; margin-bottom:10px;">คะแนนรายวิชา</h4><table class="pdf-table-flow"><thead><tr><th style="width:40%">วิชา</th><th style="width:30%">คะแนน Pre-test</th><th style="width:30%">เทียบเคียง</th></tr></thead><tbody>${rows}</tbody></table></div>`;
                     }
@@ -3835,7 +3842,8 @@ function getAnalysisDataFromActiveTab() {
                              const tds = tr.querySelectorAll('td');
                              if(tds.length >= 2) {
                                  const bg = tr.classList.contains('bg-green-50') ? '#f0fdf4' : (tr.classList.contains('bg-red-50') ? '#fef2f2' : '#fffbeb');
-                                 rows += `<tr style="background-color:${bg}; page-break-inside:avoid;"><td style="border:1px solid #ccc; padding:8px; font-weight:bold; width:25%; vertical-align:top;">${tds[0].textContent}</td><td style="border:1px solid #ccc; padding:8px; width:75%;">${tds[1].textContent}</td></tr>`;
+                                 // เพิ่ม padding ให้เซลล์ตารางคำแนะนำ
+                                 rows += `<tr style="background-color:${bg}; page-break-inside:avoid;"><td style="border:1px solid #ccc; padding:12px; font-weight:bold; width:25%; vertical-align:top;">${tds[0].textContent}</td><td style="border:1px solid #ccc; padding:12px; width:75%; line-height:1.8;">${tds[1].textContent}</td></tr>`;
                              }
                         });
                         content += `<div class="pdf-section"><h4 style="font-size:16px; font-weight:bold; margin:20px 0 10px 0;">ข้อเสนอแนะเพื่อพัฒนา</h4><table class="pdf-table-flow"><thead><tr><th>วิชา</th><th>ข้อเสนอแนะ</th></tr></thead><tbody>${rows}</tbody></table></div>`;
@@ -3843,7 +3851,7 @@ function getAnalysisDataFromActiveTab() {
                     
                     const summaryEl = activeTabContent.querySelector('.bg-blue-50 p');
                     if(summaryEl) {
-                        content += `<div class="pdf-section keep-together" style="background:#f0f9ff; padding:15px; border-radius:8px; border:1px solid #bae6fd; margin-top:20px;"><h4 style="margin:0 0 10px 0; color:#1e40af; font-weight:bold;">สรุปผลการวิเคราะห์</h4><p style="margin:0; font-size:14px; line-height:1.6;">${summaryEl.textContent}</p></div>`;
+                        content += `<div class="pdf-section keep-together" style="background:#f0f9ff; padding:15px; border-radius:8px; border:1px solid #bae6fd; margin-top:20px;"><h4 style="margin:0 0 10px 0; color:#1e40af; font-weight:bold;">สรุปผลการวิเคราะห์</h4><p style="margin:0; font-size:14px; line-height:1.8;">${summaryEl.textContent}</p></div>`;
                     }
                 }
             }
@@ -3852,8 +3860,9 @@ function getAnalysisDataFromActiveTab() {
             content += `</div>`;
             return content;
         }
-
-
+     
+                    
+                     
                     
                     
 
@@ -4179,6 +4188,7 @@ function getAnalysisDataFromActiveTab() {
 </body>
 
 </html>
+
 
 
 
