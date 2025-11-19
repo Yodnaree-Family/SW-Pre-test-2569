@@ -3673,7 +3673,7 @@ function getAnalysisDataFromActiveTab() {
                 showMessage('กำลังสร้างไฟล์ PDF...', 'info');
                 const element = document.createElement('div');
                 element.className = 'print-section';
-                element.style.width = '190mm'; 
+                element.style.width = '210mm'; 
                 element.style.padding = '0';
                 element.style.margin = '0';
                 element.style.background = 'white';
@@ -3681,17 +3681,18 @@ function getAnalysisDataFromActiveTab() {
                 document.body.appendChild(element);
                 
                 const opt = {
-                    margin: [10, 10, 10, 10],
+                    margin: [0, 0, 0, 0], // ลดขอบขาวให้จัดการใน CSS แทน
                     filename: `satriwit-analysis-${new Date().toISOString().split('T')[0]}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    // 🔥 จุดแก้ที่ 1: เพิ่ม letterRendering: true เพื่อแก้สระซ้อน
+                    image: { type: 'jpeg', quality: 1 }, // ปรับคุณภาพรูปสูงสุด
+                    // 🔥 จุดแก้สำคัญ: 
+                    // 1. เอา letterRendering ออก (แก้สระเพี้ยน)
+                    // 2. เพิ่ม scale เป็น 4 (แก้ตัวหนังสือซ้อน + ชัดขึ้น)
                     html2canvas: { 
-                        scale: 2, 
+                        scale: 4, 
                         useCORS: true, 
                         logging: false, 
                         scrollY: 0, 
-                        backgroundColor: '#ffffff',
-                        letterRendering: true 
+                        backgroundColor: '#ffffff'
                     },
                     
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', compress: true },
@@ -3709,21 +3710,38 @@ function getAnalysisDataFromActiveTab() {
             }
         };
 
+        
+
+        // แก้ไขครั้งที่ 2: ฟังก์ชัน generatePDFContent
+        // ---------------------------------------------------------
         function generatePDFContent() {
+            // 🔥 เพิ่ม CSS เฉพาะทางสำหรับแก้ปัญหาการจัดเรียงตัวอักษร
+            const cssFix = `
+                font-family: 'Sarabun', sans-serif;
+                color: #333;
+                line-height: 1.6;
+                width: 100%;
+                padding: 20px;
+                box-sizing: border-box;
+                /* เทคนิคแก้สระลอย/จม และระยะห่าง */
+                text-rendering: geometricPrecision;
+                -webkit-font-smoothing: antialiased;
+                /* letter-spacing น้อยๆ ช่วยลดโอกาสซ้อนกันโดยไม่ทำให้สระแตก */
+                letter-spacing: 0.01em; 
+            `;
+
+            let content = `<div class="pdf-container-flow" style="${cssFix}">`;
             
-                // 🔥 จุดแก้ที่ 2: เพิ่ม style="letter-spacing: 0.5px;" ให้ตัวอักษรไม่เบียดกัน
-            let content = `<div class="pdf-container-flow" style="letter-spacing: 0.5px;">`;
-            
-            // ส่วนหัวกระดาษ
+            // ส่วนหัว
             content += `<div class="pdf-header-improved"><h1 class="pdf-title-improved">รายงานการวิเคราะห์คะแนน Pre-test</h1><h2 class="pdf-subtitle-improved">โรงเรียนสตรีวิทยา ปีการศึกษา 2569</h2><p style="color:#666; font-size:14px; margin:0;">สร้างเมื่อ: ${new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p></div>`;
             
-            // ข้อมูลผู้ใช้งาน
+            // ข้อมูลผู้ใช้
             const nickname = document.getElementById('nickname')?.value || 'ไม่ระบุชื่อ';
             const gradeSelect = document.getElementById('current-grade');
             const grade = gradeSelect?.options[gradeSelect.selectedIndex]?.text || 'ไม่ระบุ';
             content += `<div class="pdf-user-info-improved keep-together"><h3 style="margin:0 0 10px 0; color:#2a2a72;">ข้อมูลผู้วิเคราะห์</h3><p style="margin:0;"><strong>ชื่อ:</strong> ${nickname} &nbsp;&nbsp; <strong>ระดับชั้น:</strong> ${grade}</p></div>`;
 
-            // ดึงข้อมูลจาก Tab ที่เปิดอยู่
+            // Logic ดึงข้อมูลเดิม
             const activeTab = document.querySelector('.analysis-tab.active');
             if (activeTab) {
                 const tabId = activeTab.id;
@@ -3731,7 +3749,6 @@ function getAnalysisDataFromActiveTab() {
                 const activeTabContent = document.getElementById(contentId);
 
                 if (activeTabContent) {
-                    // 1. คะแนนรวมและการ์ดคะแนน
                     const titleElement = activeTabContent.querySelector('h3');
                     const title = titleElement ? titleElement.textContent : 'การวิเคราะห์คะแนน';
                     const preTestScore = activeTabContent.querySelector('.text-3xl.text-blue-600')?.textContent || '0.00';
@@ -3740,7 +3757,6 @@ function getAnalysisDataFromActiveTab() {
 
                     content += `<div class="pdf-section keep-together"><h3 style="color:#2a2a72; border-bottom:2px solid #2a2a72; padding-bottom:8px; margin-bottom:15px;">${title}</h3><div style="display: flex; justify-content: space-between; margin-bottom: 20px;"><div style="text-align: center; width: 48%; background: #f0f8ff; padding: 12px; border-radius: 8px; border: 1px solid #d1e7ff;"><p style="margin: 0 0 8px 0; font-size: 14px; font-weight: bold; color: #1e40af;">คะแนน Pre-test ของคุณ</p><p style="margin: 0; font-size: 24px; font-weight: bold; color: #3b82f6;">${preTestScore}</p></div><div style="text-align: center; width: 48%; background: #f0f9ff; padding: 12px; border-radius: 8px; border: 1px solid #bae6fd;"><p style="margin: 0 0 8px 0; font-size: 14px; font-weight: bold; color: #0f766e;">คะแนนสอบจริงที่คาดการณ์</p><p style="margin: 0; font-size: 24px; font-weight: bold; color: #10b981;">${projectedScore}</p><p style="margin: 5px 0 0 0; font-size: 12px; color: #666;">${fullScoreText}</p></div></div></div>`;
 
-                    // 2. โอกาสสอบติด
                     const chanceElement = activeTabContent.querySelector('.chance-high, .chance-medium, .chance-low');
                     if (chanceElement) {
                         const chanceTitle = chanceElement.querySelector('h4')?.textContent || '';
@@ -3749,7 +3765,6 @@ function getAnalysisDataFromActiveTab() {
                         content += `<div class="pdf-section keep-together" style="${bgStyle} padding:15px; border-radius:8px; text-align:center;"><h4 style="margin:0 0 8px 0; font-size:16px; font-weight:bold; color:#333;">${chanceTitle}</h4><p style="margin:0; font-size:14px;">${chanceDesc}</p></div>`;
                     }
 
-                    // 3. เปรียบเทียบสถิติ
                     content += `<div class="pdf-section keep-together"><h4 style="margin:20px 0 10px 0; font-size:16px; font-weight:bold;">เปรียบเทียบกับสถิติปี 2568</h4>`;
                     const statsElements = activeTabContent.querySelectorAll('.bg-red-50, .bg-yellow-50, .bg-green-50');
                     if (statsElements.length >= 3) {
@@ -3759,7 +3774,6 @@ function getAnalysisDataFromActiveTab() {
                         content += `<div style="display: flex; justify-content: space-between; text-align: center;"><div style="width: 30%; background: #fee2e2; padding: 10px; border-radius: 8px; border: 1px solid #fecaca;"><p style="margin:0; font-size:12px; font-weight:bold; color:#dc2626;">ต่ำสุดปี 68</p><p style="margin:0; font-size:18px; font-weight:bold;">${min}</p></div><div style="width: 30%; background: #fef3c7; padding: 10px; border-radius: 8px; border: 1px solid #fde68a;"><p style="margin:0; font-size:12px; font-weight:bold; color:#d97706;">เฉลี่ยปี 68</p><p style="margin:0; font-size:18px; font-weight:bold;">${avg}</p></div><div style="width: 30%; background: #d1fae5; padding: 10px; border-radius: 8px; border: 1px solid #a7f3d0;"><p style="margin:0; font-size:12px; font-weight:bold; color:#059669;">สูงสุดปี 68</p><p style="margin:0; font-size:18px; font-weight:bold;">${max}</p></div></div></div>`;
                     } else { content += `</div>`; }
 
-                    // 4. จุดแข็ง / จุดที่ควรเสริม
                     const strEl = activeTabContent.querySelector('.strength-item');
                     const weakEl = activeTabContent.querySelector('.weakness-item');
                     if (strEl || weakEl) {
@@ -3775,7 +3789,6 @@ function getAnalysisDataFromActiveTab() {
                         content += `</div></div>`;
                     }
 
-                    // 5. ตารางคะแนนรายวิชา และ ตารางข้อเสนอแนะ
                     const tables = activeTabContent.querySelectorAll('table');
                     if(tables.length > 0) {
                          const scoreTable = tables[0];
@@ -3800,7 +3813,6 @@ function getAnalysisDataFromActiveTab() {
                         content += `<div class="pdf-section"><h4 style="font-size:16px; font-weight:bold; margin:20px 0 10px 0;">ข้อเสนอแนะเพื่อพัฒนา</h4><table class="pdf-table-flow"><thead><tr><th>วิชา</th><th>ข้อเสนอแนะ</th></tr></thead><tbody>${rows}</tbody></table></div>`;
                     }
                     
-                    // 6. สรุปผลการวิเคราะห์
                     const summaryEl = activeTabContent.querySelector('.bg-blue-50 p');
                     if(summaryEl) {
                         content += `<div class="pdf-section keep-together" style="background:#f0f9ff; padding:15px; border-radius:8px; border:1px solid #bae6fd; margin-top:20px;"><h4 style="margin:0 0 10px 0; color:#1e40af; font-weight:bold;">สรุปผลการวิเคราะห์</h4><p style="margin:0; font-size:14px; line-height:1.6;">${summaryEl.textContent}</p></div>`;
@@ -3808,7 +3820,6 @@ function getAnalysisDataFromActiveTab() {
                 }
             }
 
-            // ส่วนท้ายกระดาษ
             content += `<div class="pdf-footer-final keep-together"><p style="font-weight:bold; color:#2a2a72; margin-bottom:5px;">รายงานนี้สร้างโดยระบบสำรวจคะแนน Pre-test สตรีวิทยา 2569</p><p style="margin-bottom:5px;">ออกแบบและสรุปผลโดย Line OPC : ครอบครัวยอดนารี❤️สตรีวิทยา</p><p style="margin-bottom:5px;">ลุ้นสอวอไปด้วยกันนะ</p><div style="margin-top:10px; padding:10px; background:#f0fdf4; display:inline-block; border-radius:50px; border:1px solid #bbf7d0;"><img src="https://upload.wikimedia.org/wikipedia/commons/4/41/LINE_logo.svg" style="width:20px; vertical-align:middle; margin-right:5px;"><span style="color:#16a34a; font-weight:bold; font-size:12px;">Line OpenChat: ครอบครัวยอดนารี❤️สตรีวิทยา</span></div></div>`;
             content += `</div>`;
             return content;
@@ -4137,3 +4148,4 @@ function getAnalysisDataFromActiveTab() {
 </body>
 
 </html>
+
