@@ -3665,12 +3665,9 @@ function getAnalysisDataFromActiveTab() {
 
         // ฟังก์ชันส่งออกผลวิเคราะห์เป็น PDF - แก้ไขให้แสดงข้อมูลทั้งหมด
          // 🚨 NEW PDF EXPORT FUNCTION WITH FLOW LOGIC 🚨
-            
+                // ---------------------------------------------------------
+        // แก้ไขครั้งที่ 9 (Final - เปลี่ยนฟอนต์เป็น Tahoma): ฟังก์ชัน exportAnalysisToPDF
         // ---------------------------------------------------------
-        // ชุดโค้ดแก้ไขสมบูรณ์: PDF ภาษาไทย (Overlay + Full Logic)
-        // ---------------------------------------------------------
-
-        // 1. ฟังก์ชันส่งออก PDF
         window.exportAnalysisToPDF = async () => {
             const activeTab = document.querySelector('.analysis-tab.active');
             if (!activeTab) { showMessage('กรุณาเลือกแท็บการวิเคราะห์ก่อนบันทึก PDF', 'error'); return; }
@@ -3681,7 +3678,7 @@ function getAnalysisDataFromActiveTab() {
             try {
                 showMessage('กำลังสร้างไฟล์ PDF... (กรุณารอสักครู่)', 'info');
                 
-                // สร้าง Overlay สีขาวบังหน้าจอ (เพื่อให้ html2canvas จับภาพได้แน่นอน 100%)
+                // 1. สร้าง Container Overlay
                 const container = document.createElement('div');
                 container.id = 'pdf-print-overlay';
                 container.style.position = 'fixed';
@@ -3689,47 +3686,46 @@ function getAnalysisDataFromActiveTab() {
                 container.style.left = '0';
                 container.style.width = '100%';
                 container.style.height = '100%';
-                container.style.zIndex = '99999';
+                container.style.zIndex = '999999'; // อยู่บนสุด
                 container.style.backgroundColor = '#ffffff';
                 container.style.overflowY = 'scroll';
                 
-                // สร้างกระดาษ A4
+                // 2. สร้างเนื้อหากระดาษ A4
                 const contentBox = document.createElement('div');
                 contentBox.style.width = '210mm';
-                contentBox.style.minHeight = '297mm';
+                // contentBox.style.minHeight = '297mm'; // ไม่บังคับความสูง ปล่อยไหลตามเนื้อหา
                 contentBox.style.margin = '0 auto';
                 contentBox.style.backgroundColor = '#ffffff';
                 contentBox.style.padding = '20px';
                 contentBox.style.boxSizing = 'border-box';
                 
-                // ใส่เนื้อหา HTML
+                // ใส่ HTML
                 contentBox.innerHTML = generatePDFContent();
                 container.appendChild(contentBox);
                 document.body.appendChild(container);
                 
-                // รอโหลดฟอนต์และจัดหน้า (สำคัญมากสำหรับภาษาไทย)
-                await document.fonts.ready;
-                await new Promise(resolve => setTimeout(resolve, 2000)); // รอ 2 วินาที
+                // 3. รอสักครู่ให้ DOM นิ่ง (Tahoma ไม่ต้องรอโหลดนาน)
+                await new Promise(resolve => setTimeout(resolve, 1000)); 
 
                 const opt = {
                     margin: 0,
                     filename: `satriwit-analysis-${new Date().toISOString().split('T')[0]}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
+                    image: { type: 'jpeg', quality: 1 },
                     html2canvas: { 
                         scale: 2, 
-                        useCORS: true,
+                        useCORS: true, 
                         logging: false,
                         scrollY: 0,
                         windowWidth: document.documentElement.offsetWidth,
-                        letterRendering: false // ปิดตัวนี้เพื่อแก้สระลอย
+                        letterRendering: false // สำคัญ: ต้องปิด
                     },
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 };
 
-                // สั่ง Save
+                // 4. สั่ง Save
                 await html2pdf().set(opt).from(contentBox).save();
                 
-                // ลบ Overlay ทิ้ง
+                // 5. ลบ Overlay ทิ้ง
                 document.body.removeChild(container);
                 showMessage('สร้างไฟล์ PDF สำเร็จ!', 'success');      
                 
@@ -3741,28 +3737,48 @@ function getAnalysisDataFromActiveTab() {
             }
         };
 
-        // 2. ฟังก์ชันสร้างเนื้อหา HTML สำหรับ PDF
+        // ---------------------------------------------------------
+        // แก้ไขครั้งที่ 9: ฟังก์ชัน generatePDFContent (ใช้ฟอนต์ Tahoma)
+        // ---------------------------------------------------------
         function generatePDFContent() {
-            // CSS สำหรับ PDF โดยเฉพาะ
+            // CSS สำหรับ PDF โดยเฉพาะ (ใช้ Tahoma เพื่อแก้สระลอย 100%)
             const cssStyle = `
-                font-family: 'Sarabun', sans-serif !important;
+                font-family: 'Tahoma', sans-serif !important; /* 🔥 พระเอกของเรา */
                 color: #000;
-                line-height: 1.6;
+                line-height: 1.5;
                 width: 100%;
                 box-sizing: border-box;
-                font-variant-ligatures: none;
             `;
 
+            // ส่วนเริ่มต้น HTML
             let content = `
-                <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
                 <style>
-                    .pdf-container * { font-family: 'Sarabun', sans-serif !important; }
-                    .pdf-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-                    .pdf-table th, .pdf-table td { border: 1px solid #ccc; padding: 8px; vertical-align: top; text-align: left; }
+                    .pdf-container * { 
+                        font-family: 'Tahoma', sans-serif !important; 
+                        box-sizing: border-box;
+                    }
+                    .pdf-table { 
+                        width: 100%; 
+                        border-collapse: collapse; 
+                        margin-top: 15px; 
+                        font-size: 14px;
+                        table-layout: fixed; /* บังคับคอลัมน์ */
+                    }
+                    .pdf-table th, .pdf-table td { 
+                        border: 1px solid #ccc; 
+                        padding: 10px; 
+                        vertical-align: top; 
+                        text-align: left; 
+                        word-wrap: break-word; /* ตัดคำยาวๆ */
+                    }
                     .pdf-table th { background-color: #f0f0f0; font-weight: bold; }
-                    .pdf-box { padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #eee; }
-                    .text-center { text-align: center; }
-                    .font-bold { font-weight: bold; }
+                    .pdf-box { 
+                        padding: 15px; 
+                        border-radius: 8px; 
+                        margin-bottom: 15px; 
+                        border: 1px solid #eee;
+                        page-break-inside: avoid; /* พยายามไม่ตัดกลางหน้า */
+                    }
                 </style>
                 
                 <div class="pdf-container" style="${cssStyle}">
@@ -3785,7 +3801,7 @@ function getAnalysisDataFromActiveTab() {
                 </div>
             `;
 
-            // ดึงข้อมูลจาก Tab
+            // Logic ดึงข้อมูล
             const activeTab = document.querySelector('.analysis-tab.active');
             if (activeTab) {
                 const tabId = activeTab.id;
@@ -3793,14 +3809,17 @@ function getAnalysisDataFromActiveTab() {
                 const activeTabContent = document.getElementById(contentId);
 
                 if (activeTabContent) {
+                    // หัวข้อหลักสูตร
                     const title = activeTabContent.querySelector('h3')?.textContent || 'การวิเคราะห์คะแนน';
+                    content += `<h3 style="font-size:18px; font-weight:bold; border-bottom:1px solid #ddd; padding-bottom:5px; margin-top:20px;">${title}</h3>`;
+
+                    // คะแนน
                     const preTestScore = activeTabContent.querySelector('.text-3xl.text-blue-600')?.textContent || '-';
                     const projectedScore = activeTabContent.querySelector('.text-3xl.text-green-600')?.textContent || '-';
-                    
-                    content += `<h3 style="font-size:18px; font-weight:bold; border-bottom:1px solid #ddd; padding-bottom:5px; margin-top:20px;">${title}</h3>`;
+                    const fullScoreText = activeTabContent.querySelector('.text-sm.text-gray-500')?.textContent || '';
                     
                     content += `
-                        <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:15px; margin-top:15px;">
                             <div class="pdf-box" style="width:48%; text-align:center; background-color:#f0f9ff;">
                                 <div style="font-weight:bold; margin-bottom:5px;">คะแนน Pre-test</div>
                                 <div style="font-size:22px; color:#2563eb; font-weight:bold;">${preTestScore}</div>
@@ -3808,6 +3827,7 @@ function getAnalysisDataFromActiveTab() {
                             <div class="pdf-box" style="width:48%; text-align:center; background-color:#f0fdf4;">
                                 <div style="font-weight:bold; margin-bottom:5px;">คะแนนสอบจริง (คาดการณ์)</div>
                                 <div style="font-size:22px; color:#16a34a; font-weight:bold;">${projectedScore}</div>
+                                <div style="font-size:12px; color:#666;">${fullScoreText}</div>
                             </div>
                         </div>
                     `;
@@ -3817,15 +3837,34 @@ function getAnalysisDataFromActiveTab() {
                     if (chanceElement) {
                         const chanceText = chanceElement.querySelector('h4')?.textContent || '';
                         const chanceDesc = chanceElement.querySelector('p')?.textContent || '';
-                        let bg = '#fefce8';
-                        if (chanceElement.classList.contains('chance-high')) bg = '#dcfce7';
-                        if (chanceElement.classList.contains('chance-low')) bg = '#fee2e2';
+                        let bg = '#fefce8'; // yellow
+                        if (chanceElement.classList.contains('chance-high')) bg = '#dcfce7'; // green
+                        if (chanceElement.classList.contains('chance-low')) bg = '#fee2e2'; // red
                         
                         content += `
                             <div class="pdf-box" style="background-color:${bg}; text-align:center;">
                                 <h4 style="margin:0 0 5px 0; font-size:16px; font-weight:bold;">${chanceText}</h4>
                                 <p style="margin:0; font-size:14px;">${chanceDesc}</p>
                             </div>
+                        `;
+                    }
+                    
+                    // เปรียบเทียบสถิติ (ถ้ามี)
+                    const statsElements = activeTabContent.querySelectorAll('.bg-red-50, .bg-yellow-50, .bg-green-50');
+                    if (statsElements.length >= 3) {
+                        const min = statsElements[0].querySelector('.text-2xl')?.textContent || '0';
+                        const avg = statsElements[1].querySelector('.text-2xl')?.textContent || '0';
+                        const max = statsElements[2].querySelector('.text-2xl')?.textContent || '0';
+                        
+                        content += `
+                            <h4 style="font-weight:bold; margin-top:20px;">เปรียบเทียบกับสถิติปี 2568</h4>
+                            <table style="width:100%; text-align:center; margin-top:10px; border-collapse: separate; border-spacing: 5px;">
+                                <tr>
+                                    <td style="width:33%; border:none; padding:0;"><div class="pdf-box" style="background-color:#fee2e2; margin:0;"><div style="font-size:12px; font-weight:bold;">ต่ำสุดปี 68</div><div style="font-weight:bold; font-size:18px;">${min}</div></div></td>
+                                    <td style="width:33%; border:none; padding:0;"><div class="pdf-box" style="background-color:#fefce8; margin:0;"><div style="font-size:12px; font-weight:bold;">เฉลี่ยปี 68</div><div style="font-weight:bold; font-size:18px;">${avg}</div></div></td>
+                                    <td style="width:33%; border:none; padding:0;"><div class="pdf-box" style="background-color:#dcfce7; margin:0;"><div style="font-size:12px; font-weight:bold;">สูงสุดปี 68</div><div style="font-weight:bold; font-size:18px;">${max}</div></div></td>
+                                </tr>
+                            </table>
                         `;
                     }
 
@@ -3840,16 +3879,16 @@ function getAnalysisDataFromActiveTab() {
                             if(tds.length >= 3) {
                                 content += `<tr>
                                     <td>${tds[0].textContent}</td>
-                                    <td class="text-center">${tds[1].textContent}</td>
-                                    <td class="text-center">${tds[2].textContent}</td>
+                                    <td style="text-align:center;">${tds[1].textContent}</td>
+                                    <td style="text-align:center;">${tds[2].textContent}</td>
                                 </tr>`;
                             }
                         });
                         content += `</tbody></table>`;
                     }
-
-                    // จุดแข็ง จุดอ่อน
-                    const strEl = activeTabContent.querySelector('.strength-item');
+                    
+                    // จุดแข็ง/จุดที่ควรเสริม
+                     const strEl = activeTabContent.querySelector('.strength-item');
                     const weakEl = activeTabContent.querySelector('.weakness-item');
                     
                     if (strEl || weakEl) {
@@ -3917,9 +3956,7 @@ function getAnalysisDataFromActiveTab() {
 
             return content;
         }
-
-                        
-
+    
 
         // --- Admin Functions ---
 
@@ -4243,6 +4280,7 @@ function getAnalysisDataFromActiveTab() {
 </body>
 
 </html>
+
 
 
 
