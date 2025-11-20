@@ -20,8 +20,8 @@
     
     <!-- เพิ่ม Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     
     <!-- เพิ่ม Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1455,31 +1455,29 @@
 
     <script>
         // 🔥 Firebase Configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyBv3w4-aIsoqTpzzDIMxGf3lLWLmgLR9tU",
-    authDomain: "satriwit-pretest-2569-54188.firebaseapp.com",
-    projectId: "satriwit-pretest-2569-54188",
-    storageBucket: "satriwit-pretest-2569-54188.firebasestorage.app",
-    messagingSenderId: "802103482943",
-    appId: "1:802103482943:web:1b11db07ed0387122a768a",
-    measurementId: "G-5ZQC28R1TJ" // Optional
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyBv3w4-aIsoqTpzzDIMxGf3lLWLmgLR9tU",
+            authDomain: "satriwit-pretest-2569-54188.firebaseapp.com",
+            projectId: "satriwit-pretest-2569-54188",
+            storageBucket: "satriwit-pretest-2569-54188.firebasestorage.app",
+            messagingSenderId: "802103482943",
+            appId: "1:802103482943:web:1b11db07ed0387122a768a",
+            measurementId: "G-5ZQC28R1TJ" // Optional
+        };
 
-// Initialize Firebase (ใช้รูปแบบเดิมเพื่อให้โค้ดที่เหลือทำงาน)
-const app = firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-// 🚨🚨 จุดแก้ไข: ย้ายการประกาศ auth ให้เหมือน db 🚨🚨
-// ประกาศ auth เป็นตัวแปร Global เพื่อให้ฟังก์ชัน adminLogin เข้าถึงได้
-const auth = firebase.auth(); 
+        // Initialize Firebase (ใช้รูปแบบเดิมเพื่อให้โค้ดที่เหลือทำงาน)
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        // 🚨🚨 จุดแก้ไข: ย้ายการประกาศ auth ให้เหมือน db 🚨🚨
+        // ประกาศ auth เป็นตัวแปร Global เพื่อให้ฟังก์ชัน adminLogin เข้าถึงได้
+        const auth = firebase.auth(); 
 
-// ตัวแปรเก็บข้อมูล
-let allScores = [];
-let isDataFetched = false;
-let currentView = 'welcome';
-let chartInstances = {};
-let isAdminLoggedIn = false;
-
-       
+        // ตัวแปรเก็บข้อมูล
+        let allScores = [];
+        let isDataFetched = false;
+        let currentView = 'welcome';
+        let chartInstances = {};
+        let isAdminLoggedIn = false;
 
         // ตัวแปรเก็บข้อมูลการวิเคราะห์ล่าสุด
         let currentAnalysisData = null;
@@ -1555,20 +1553,13 @@ let isAdminLoggedIn = false;
             document.getElementById('admin-panel-section').classList.add('hidden');
             
             // แสดงส่วนที่เลือก
-            // 🚨 การเรียกใช้ view-section มีปัญหากับ admin-login 🚨
-            // เนื่องจากคุณตั้งชื่อ HTML เป็น admin-login-view
-            // เราต้องใช้ตรรกะแบบละเอียดกว่า
-            // document.getElementById(`${view}-section`).classList.remove('hidden'); // ลบบรรทัดนี้ออก
-
-            
-            // 🎯 Logic การแสดงผลใหม่ (แทนที่บรรทัด document.getElementById(`${view}-section`).classList.remove('hidden');)
-             if (document.getElementById(`${view}-section`)) {
-                 document.getElementById(`${view}-section`).classList.remove('hidden');
-             } else if (document.getElementById(`${view}-view`)) { // ใช้สำหรับ admin-login-view
-                 document.getElementById(`${view}-view`).classList.remove('hidden');
-             } else if (view === 'admin-login') { // กรณี admin-login
-                 document.getElementById('admin-login-view').classList.remove('hidden');
-             }
+            if (document.getElementById(`${view}-section`)) {
+                document.getElementById(`${view}-section`).classList.remove('hidden');
+            } else if (document.getElementById(`${view}-view`)) { // ใช้สำหรับ admin-login-view
+                document.getElementById(`${view}-view`).classList.remove('hidden');
+            } else if (view === 'admin-login') { // กรณี admin-login
+                document.getElementById('admin-login-view').classList.remove('hidden');
+            }
             
             // อัพเดทสถานะ active ของปุ่ม Navigator
             document.querySelectorAll('.navigator-btn').forEach(btn => {
@@ -2428,7 +2419,7 @@ let isAdminLoggedIn = false;
             return isValid;
         }
 
-        // ฟังก์ชันส่งข้อมูลแบบฟอร์ม
+        // ฟังก์ชันส่งข้อมูลแบบฟอร์ม - แก้ไขแล้ว
         window.validateAndSubmitForm = async function() {
             if (!validateForm()) {
                 showMessage('กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง', 'error');
@@ -2492,8 +2483,9 @@ let isAdminLoggedIn = false;
                 // บันทึกข้อมูลลง Local Storage อัตโนมัติ
                 saveFormDataToLocalStorage();
                 
-                // ไปยังหน้าวิเคราะห์คะแนนโดยตรง
-                switchView('analysis');
+                // แสดงข้อความสำเร็จ
+                document.getElementById('success-message').classList.remove('hidden');
+                document.getElementById('form-section').classList.add('hidden');
                 
                 showMessage('บันทึกข้อมูลสำเร็จ!', 'success');
                 isDataFetched = false; // บังคับให้โหลดข้อมูลใหม่
@@ -2695,7 +2687,7 @@ let isAdminLoggedIn = false;
             }
         };
 
-        // 🔥 ฟังก์ชันดึงข้อมูลจาก Firebase (V10: Added forceFetch)
+        // 🔥 ฟังก์ชันดึงข้อมูลจาก Firebase (V10: Added forceFetch) - แก้ไขแล้ว
         async function fetchScoresFromFirebase(renderTable = true, forceFetch = false) {
             // Only fetch if data is not already present or if forced
             if (isDataFetched && renderTable && !forceFetch) {
@@ -2754,7 +2746,7 @@ let isAdminLoggedIn = false;
             }
         }
 
-        // ฟังก์ชันแสดงตารางผลลัพธ์ (อัปเดตตรรกะการกรอง V5)
+        // ฟังก์ชันแสดงตารางผลลัพธ์ (อัปเดตตรรกะการกรอง V5) - แก้ไขแล้ว
         function renderScoresTable() {
             const container = document.getElementById('results-pagination-container');
             
@@ -3170,12 +3162,15 @@ let isAdminLoggedIn = false;
             return { projectedScore, projectedSubjects };
         }
 
-        // ฟังก์ชันคำนวณโอกาสสอบติด (ปรับข้อความ)
+        // ฟังก์ชันคำนวณโอกาสสอบติด (ปรับข้อความ) - แก้ไขแล้ว
         function calculateAdmissionChance(projectedScore, stats) {
-            const { chanceThresholds } = stats;
-            if (projectedScore >= chanceThresholds.high) {
+            const { min, avg, max } = stats;
+            
+            if (projectedScore >= max) {
                 return { level: 'high', text: 'พร้อมมาก', description: 'ยอดเยี่ยมมากค่ะ! 🌟 ตอนนี้น้องอยู่ในจุดที่พร้อมเต็มที่แล้ว 💪 ขอแค่รักษาความมุ่งมั่นและตั้งใจต่อไป ✨ ผลสำเร็จอยู่ไม่ไกลแน่นอนค่ะ 🏆 เชื่อมั่นในตัวเองและทำเต็มที่นะคะ 💖📚' };
-            } else if (projectedScore >= chanceThresholds.medium) {
+            } else if (projectedScore >= avg) {
+                return { level: 'high', text: 'พร้อมมาก', description: 'ยอดเยี่ยมมากค่ะ! 🌟 ตอนนี้น้องอยู่ในจุดที่พร้อมเต็มที่แล้ว 💪 ขอแค่รักษาความมุ่งมั่นและตั้งใจต่อไป ✨ ผลสำเร็จอยู่ไม่ไกลแน่นอนค่ะ 🏆 เชื่อมั่นในตัวเองและทำเต็มที่นะคะ 💖📚' };
+            } else if (projectedScore >= min) {
                 return { level: 'medium', text: 'มีลุ้น', description: 'ถือว่าเป็นโอกาสดีมาก 💪 ขอให้น้องรักษาความตั้งใจและเสริมจุดแข็งอีกเล็กน้อย ✨ รับรองว่าผลลัพธ์ในการสอบจะออกมาดีที่สุดแน่นอน 🏆 เชื่อมั่นในตัวเองและทำเต็มที่นะคะ 💖' };
             } else {
                 // เปลี่ยน "ต่ำ" เป็น "ท้าทาย"
